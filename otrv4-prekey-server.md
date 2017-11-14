@@ -41,14 +41,15 @@ the prekeys.
    message.
 5. Party receives and validates the auth-i message. Replies with prekey message
    to be stored.
-6. Server stores prekey message. // TODO: sends acknowledment that it has
+6. Server stores prekey message. // TODO: sends acknowledgment that it has
    stored?
 
 ## Retrieving Prekey Messages
 
 // TODO: how to do this query?
 
-1. Party requests a prekey message from server.
+1. Party requests a prekey message from server by asking for it from an
+   specific party x.
 2. Server replies with prekey message. // TODO: deletes this prekey or waits
    for its expiration?
 
