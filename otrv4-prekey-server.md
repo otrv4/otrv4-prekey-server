@@ -150,7 +150,8 @@ aborts the protocol if it fails.
 // TODO: should there be: identifiers stating which of Bob's prekeys Alice
 used?
 
-// TODO: check the attacks: replay, key reused?
+// TODO: check the attacks: replay, key reused, attacker modifies prekey or
+format?
 
 // TODO: include the analysis
 
