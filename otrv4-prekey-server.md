@@ -128,7 +128,10 @@ Can be:
 ## Retrieving Prekey Messages
 
 // TODO: how many prekeys messages arrive?
+
 // TODO: how to do this query?
+
+// TODO: deduplicate information when sending back multiple one-time prekeys, i.e. if 100 prekeys get returned, don't say "version 4" 100 times
 
 1. Party connects to server.
 2. Party requests a prekey message from server by asking for it from an
