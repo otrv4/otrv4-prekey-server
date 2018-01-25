@@ -5,20 +5,22 @@ Disclaimer
 
 This protocol specification is a draft.
 ```
-// TODO: make this not so signal dependent
+
+// TODO: make this not so signal dependent: some paragraphs are to similar
+to the signal spec
 
 OTRv4 Prekey Server provides an specification for OTRv4 [\[1\]](#references)
 protocol when it needs an untrusted central server to store prekey messages.
 
 OTRv4 is designed for asynchronous communication where one user ("Bob") is
 offline but has published some information to a server. This is information,
-for OTRv4, are "prekey messages". Another user ("Alice") wants to use that
-information to send encrypted data to Bob, and also establish a shared secret
-key. This specification aims to explain how to securely do this process.
+for OTRv4, are called "prekey messages". Another user ("Alice") wants to use
+that information to send encrypted data to Bob, and also establish a shared
+secret key. This specification aims to explain how to securely do this process.
 
 ## Overview
 
-Some kind of diagram.
+TODO: Some kind of diagram.
 
 ## Server specifications
 
@@ -35,7 +37,7 @@ The server is untrusted. This means that a malicious server could cause
 communication between parties to fail (e.g. by refusing to deliver messages).
 It may also refuse to hand out prekey messages.
 
-One party can also maliciously drains another party's prekeys messages, so the
+One party can also maliciously drain another party's prekeys messages, so the
 server should attempt to prevent this, e.g. with rate limits on fetching them.
 
 ## Preliminaries
@@ -48,7 +50,7 @@ DAKE run. They are named as so because they are essentially protocol messages
 which a party publishes to the server prior to the other party beginning the
 protocol run.
 
-// TODO: is the user profile published to the server too?
+// TODO: can the user profile be published to the server too?
 
 Parties must generate an user profile and publish it. A user profile contains
 the Ed448 long term public key, a shared prekey for offline conversations,
@@ -74,11 +76,14 @@ Parties need to publish this user profile once and renew it once it is expired
 messages to the server as much as they want (e.g. when the server informs that
 the server's store of one-time prekey messages is getting low).
 
-// TODO: check this
+// TODO: check this below paragraph
+
+// TODO: this can be something to look at in out-of-order
+
 After uploading a new signed user profile, Bob may keep the private key
 corresponding to the previous public shared prekey around for some period of
-time, to handle messages using it that have been delayed in transit. Eventually,
-the party should delete this private key for forward secrecy.
+time, to handle messages using it that have been delayed in transit.
+Eventually, the party should delete this private key for forward secrecy.
 
 ## Publishing Prekey Messages
 
@@ -90,12 +95,14 @@ encoding?
 An OTRv4 client must generate a user's prekey messages and publish them to the
 prekey server. Implementers are expected to create their own policy dictating
 how often their clients upload prekey messages to the prekey server. Prekey
-messages expire when their user profile expires. Thus new prekey messages should
-be published to the prekey server before they expire to keep valid prekey
-messages available. In addition, one prekey message should be published for
-every long term key that belongs to a user. This means that if Bob uploads 3
-long term keys for OTRv4 to his client, Bob's client must publish at least 3
+messages expire when their user profile expires. Thus new prekey messages
+should be published to the prekey server before they expire to keep valid
+prekey messages available. In addition, one prekey message should be published
+for every long term key that belongs to a user. This means that if Bob uploads
+3 long term keys for OTRv4 to his client, Bob's client must publish at least 3
 prekey messages.
+
+// TODO: correctly define the ZKPK
 
 If prekey submissions are not authenticated, then malicious users can perform
 denial-of-service attacks. To preserve the deniability of the overall OTRv4
@@ -104,6 +111,8 @@ approach is to authenticate prekey message uploads using a DAKEZ exchange
 between the uploader and the server, which preserves deniability. As an added
 safeguard, the server can require a ZKPK of the private keys associated with
 the prekeys.
+
+// TODO: who does this request happen?
 
 1. Party requests to start a DAKE with server with DAKEZ.
 2. Server receives this query and replies with an identity message.
@@ -121,6 +130,7 @@ Signal creates this at install time: one signed prekey and x unsigned prekeys.
 Can be:
 - Client generates the shared prekey.
 - Client creates a user profile with the shared prekey and the long term key.
+- User profile gets published
 - Party requests to create a prekey message with the shared prekey.// TODO: can
   the key be reused?
 - Party does a DAKEZ with server and uploads prekey message with and ID.
