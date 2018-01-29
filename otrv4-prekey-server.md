@@ -20,7 +20,7 @@ secret key. This specification aims to explain how to securely do this process.
 
 ## Overview
 
-![Diagram][diagram]
+![Diagram][./img/diagram.svg]
 
 ## Server specifications
 
