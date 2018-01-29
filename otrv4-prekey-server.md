@@ -20,7 +20,7 @@ secret key. This specification aims to explain how to securely do this process.
 
 ## Overview
 
-TODO: Some kind of diagram.
+![Diagram][diagram]
 
 ## Server specifications
 
