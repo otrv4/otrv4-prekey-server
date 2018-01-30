@@ -6,7 +6,7 @@ Bob->Bob: Generate prekey message
 Bob->Bob: Generate ephemeral our_ecdh
 Bob->Bob: Generate ephemeral our_dh
 
-Bob->Server: Authenticate using DAKE
+Bob->Server: Authenticate using DAKEZ
 Bob->Server: Publish prekey message
 Server->Server: Validate Bob's user profile
 
