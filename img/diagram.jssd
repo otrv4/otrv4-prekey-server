@@ -4,20 +4,21 @@ participant Bob
 
 Bob->Bob: Generate prekey message
 
-Bob->Bob: Choose long-term sercret key I
-Bob->Bob: Calculate long-term public key g^I
-
 Server->Server: Choose long-term sercret key R
 Server->Server: Calculate long-term public key g^R
 
+Bob->Bob: Choose long-term sercret key I
+Bob->Bob: Calculate long-term public key g^I
+
 Note over Server,Bob: DAKEZ starts
 
-Bob->Bob: Select ephemeral secrets i in q
+Bob->Bob: Select ephemeral secret key i in q
 Bob->Bob: Calculate ephemeral public key g^i
 Bob->Bob: Generate PQ-I and SQ-I using QRGen-I()
 Bob->Server: Send "I", g^i, PQ-I
 
-Server->Server: Select ephemeral secrets r in q
+Server->Server: Select ephemeral secret key r in q
+Server->Server: Calculate ephemeral public key g^r
 Server->Server: Generate Q-k and Q-k using QRGen-I(PQ-I)
 Server->Server: Compute t = "0" || "I" || "R" || g^i || g^r || PQ-I || Q-r || phi
 Server->Bob: Send "R", g^r, Q-r, RSig(g^R, R, {g^I, g^R, g^i}, t)
