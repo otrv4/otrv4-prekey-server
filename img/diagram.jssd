@@ -14,22 +14,19 @@ Note over Server,Bob: DAKEZ starts
 
 Bob->Bob: Select ephemeral secret key i in q
 Bob->Bob: Calculate ephemeral public key g^i
-Bob->Bob: Generate PQ-I and SQ-I using QRGen-I()
-Bob->Server: Send "I", g^i, PQ-I
+Bob->Server: Send "I", g^i
 
 Server->Server: Select ephemeral secret key r in q
 Server->Server: Calculate ephemeral public key g^r
-Server->Server: Generate Q-k and Q-k using QRGen-I(PQ-I)
-Server->Server: Compute t = "0" || "I" || "R" || g^i || g^r || PQ-I || Q-r || phi
-Server->Bob: Send "R", g^r, Q-r, RSig(g^R, R, {g^I, g^R, g^i}, t)
-Server->Server: Compute k = KDF((g^i)^r || Q-k)
-Server->Server: Securely erase r and Q-k
+Server->Server: Compute t = "0" || "I" || "R" || g^i || g^r || phi
+Server->Bob: Send "R", g^r, RSig(g^R, R, {g^I, g^R, g^i}, t)
+Server->Server: Compute k = KDF((g^i)^r)
+Server->Server: Securely erase r
 
 Bob->Bob: Verify proof sent by Server
-Bob->Bob: Compute t = "1" || "I" || "R" || g^i || g^r || PQ-I || Q-r || phi
+Bob->Bob: Compute t = "1" || "I" || "R" || g^i || g^r || phi
 Bob->Server: Send RSig(g^I, I, {g^I, g^R, g^r}, t)
-Bob->Bob: Q-k = QRKey-I(SQ-I, Q-R)
-Bob->Bob: Compute k = KDF((g^r)^i || Q-k)
+Bob->Bob: Compute k = KDF((g^r)^i)
 
 Server->Server: Verify proof sent by Bob
 
