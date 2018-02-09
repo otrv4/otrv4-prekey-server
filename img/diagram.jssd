@@ -2,13 +2,18 @@ participant Alice
 participant Server
 participant Bob
 
-Bob->Bob: Generate prekey message
-
 Server->Server: Choose long-term secret key R
 Server->Server: Calculate long-term public key g^R
 
 Bob->Bob: Choose long-term secret key I
 Bob->Bob: Calculate long-term public key g^I
+
+Bob->Bob: Generate prekey message
+Bob->Bob: Create user profile
+
+Note right to Server: These steps above can be\ndone long time before DAKEZ
+
+Bob->Bob: Create prekey messages
 
 Note over Server,Bob: DAKEZ starts
 
