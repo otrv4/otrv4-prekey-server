@@ -11,7 +11,7 @@ Bob->Bob: Calculate long-term public key g^I
 Bob->Bob: Generate prekey message
 Bob->Bob: Create user profile
 
-Note right to Server: These steps above can be\ndone long time before DAKEZ
+Note over Server,Bob: These steps above can be done long time before DAKEZ
 
 Bob->Bob: Create prekey messages
 
