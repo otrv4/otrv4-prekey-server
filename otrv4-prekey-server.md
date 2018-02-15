@@ -6,7 +6,7 @@ Disclaimer
 This protocol specification is a draft.
 ```
 
-// TODO: make this not so signal dependent: some paragraphs are to similar
+// TODO: make this not so signal dependent: some paragraphs are too similar
 to the signal spec
 
 OTRv4 Prekey Server provides an specification for OTRv4 [\[1\]](#references)
@@ -26,10 +26,8 @@ secret key. This specification aims to explain how to securely do this process.
 
 The server must have this characteristics:
 
-- The server must authenticate user in order to avoid identity spoofing.
-
-- The client should be able to send prekey messages to the server in a deniable
-  way.
+- The client should be able to send prekey messages to the server in a
+  authenticated and deniable way[\[2\]](#references).
 
 - Another client should be able to query for those prekey messages, and
   retrieve one, and only one prekey message.
@@ -49,18 +47,21 @@ The server is untrusted. This means that a malicious server could cause
 communication between parties to fail (e.g. by refusing to deliver messages).
 It may also refuse to hand out prekey messages.
 
-One party can also maliciously drain another party's prekeys messages, so the
+One party can also maliciously drain another party's prekey messages, so the
 server should attempt to prevent this, e.g. with rate limits on fetching them.
 
 ## Preliminaries
 
+All parties involved (Bob and Server) already have their long-term keys
+created. This long-term key pair is a Ed448 key pair.
+
 Parties involved in an OTRv4 conversation have public shared prekeys
 (`ED448-SHARED-PREKEY`) which are signed as part of the user profile signing
 process and expired when the user profile expires. They also have a set of
-one-time prekeys messages, which are each used in a single non-interactive
-DAKE run. They are named as so because they are essentially protocol messages
-which a party publishes to the server prior to the other party beginning the
-protocol run.
+one-time prekey messages, which are each used in a single non-interactive DAKE
+run. They are named as so because they are essentially protocol messages which
+a party publishes to the server prior to the other party beginning the protocol
+run.
 
 // TODO: can the user profile be published to the server too?
 
@@ -153,7 +154,8 @@ Can be:
 
 // TODO: how to do this query?
 
-// TODO: deduplicate information when sending back multiple one-time prekeys, i.e. if 100 prekeys get returned, don't say "version 4" 100 times
+// TODO: deduplicate information when sending back multiple one-time prekeys,
+i.e. if 100 prekeys get returned, don't say "version 4" 100 times
 
 1. Party connects to server.
 2. Party requests a prekey message from server by asking for it from an
