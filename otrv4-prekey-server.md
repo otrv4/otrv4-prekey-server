@@ -24,7 +24,19 @@ secret key. This specification aims to explain how to securely do this process.
 
 ## Server specifications
 
-The server can store OTRv4 prekey messages which a party can later retrieve.
+The server must have this characteristics:
+
+- The server must autheticate user in order to avoid identity spoofing.
+
+- The client should be able to send prekey messages to the server in a deniable
+  way.
+
+- Another client should be able to query for those prekey messages, and retrive
+  one, and only one prekey message.
+
+- The server should know as least information as possible about the user who
+  published the prekey message and also about the user who queries for it.
+
 The server can inform when the store of prekey messages is getting low. If the
 prekey server cannot return any prekey messages, the non-interactive DAKE from
 OTRv4 must wait until one can be obtained.
