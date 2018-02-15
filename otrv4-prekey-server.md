@@ -168,7 +168,11 @@ format?
 
 // TODO: include the analysis
 
-### References
+## Attacks
+
+- What if the server delivers all the prekey messages to an adversary
+
+## References
 
 1. *OTR version 4*. Available at:
    https://github.com/otrv4/otrv4/blob/master/otrv4.md
