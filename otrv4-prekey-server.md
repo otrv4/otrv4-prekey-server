@@ -188,6 +188,6 @@ format?
 
 ## References
 
-1. *OTR version 4*. Available at:
-   https://github.com/otrv4/otrv4/blob/master/otrv4.md
-2. https://github.com/WhisperSystems/Signal-Server/wiki/API-Protocol
+1. https://github.com/otrv4/otrv4/blob/master/otrv4.md
+2.   http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
+   https://github.com/WhisperSystems/Signal-Server/wiki/API-Protocol
