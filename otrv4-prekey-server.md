@@ -40,8 +40,6 @@ The server must have this characteristics:
 
 - The server should not delivery a prekey message twice.
 
-- The server should have rate limit to reduce prekey message draining.
-
 - The server should not log who is publishing the prekeys messages.
 
 //TODO: should we mention how to manage the server long term keys?
