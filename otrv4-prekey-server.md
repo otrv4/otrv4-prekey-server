@@ -53,6 +53,8 @@ DAKEZ?
 - The server should implement ways to prevent malicious prekey messages drain
   (e.g rate limit).
 
+## Preliminaries
+
 All parties involved (Bob and Server) already have their long-term keys
 created. This long-term key pair is a Ed448 key pair.
 
