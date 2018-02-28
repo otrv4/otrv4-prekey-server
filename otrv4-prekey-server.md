@@ -55,18 +55,17 @@ DAKEZ?
 
 ## Preliminaries
 
-All parties involved (Bob and Server) already have their long-term keys
+Both parties involved (Bob and Server) already have their long-term keys
 created. This long-term key pair is a Ed448 key pair.
 
 Parties involved in an OTRv4 conversation have public shared prekeys
 (`ED448-SHARED-PREKEY`) which are signed as part of the user profile signing
-process and expired when the user profile expires. They also have a set of
-one-time prekey messages, which are each used in a single non-interactive DAKE
-run. They are named as so because they are essentially protocol messages which
-a party publishes to the server prior to the other party beginning the protocol
-run.
+process and expired when the user profile expires.
 
-// TODO: can the user profile be published to the server too?
+They also have a set of one-time prekey messages, which are each used in a
+single non-interactive DAKE run. They are named as so because they are
+essentially protocol messages which a party publishes to the server prior to
+the other party been able to send non-interactive messages.
 
 Parties must generate an user profile and publish it. A user profile contains
 the Ed448 long term public key, a shared prekey for offline conversations,
