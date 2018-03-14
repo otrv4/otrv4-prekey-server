@@ -7,22 +7,17 @@ This protocol specification is a draft.
 ```
 
 OTRv4 Prekey Server provides an specification for OTRv4 [\[1\]](#references)
-protocol when it needs an untrusted central server to store user profiles and
-prekey messages.
+protocol when it needs an untrusted central server to store and prekey messages.
 
-// TODO: should we remove shared prekey from user profile and to create a
-specific profile, like prekey profile? Shared prekey is only used for
-non-interactive case
+In order to perform a non-interactive DAKE the user who initiates the
+communication needs to obtain prekey messages from a prekey server.
 
-OTRv4 is designed for asynchronous communication where one user ("Bob") is
-offline but has published some information to a server. This is information,
-for OTRv4, are called "prekey messages". Another user ("Alice") wants to use
-that information to send encrypted data to Bob, and also establish a shared
-secret key. This specification aims to explain how to securely do this process.
+This document aims to describe how the prekey server can be used to securely
+publish and retrieve already published prekey messages.
 
 This server should be considered untrusted. This means that a malicious server
 could cause communication between parties to fail (e.g. by refusing to deliver
-prekey messages).  It may also refuse to hand out prekey messages.
+prekey messages). It may also refuse to hand out prekey messages.
 
 ## Overview
 
@@ -30,134 +25,52 @@ prekey messages).  It may also refuse to hand out prekey messages.
 
 ## Server specifications
 
-The server must have this characteristics:
+The server must have two main capabilities:
 
-- The server should be able to receive prekey messages from a client in an
-  authenticated and deniable way[\[2\]](#references).
-
-- The server should delivery a prekey message per non-expired user profile to
-  the client that requested it.
-
-- The server should not delivery a prekey message twice.
-
-- The server should not log who is publishing the prekeys messages.
-
-//TODO: should we mention how to manage the server long term keys?
-//TODO: is it a problem if server tell client how many prekeys remains?  Do we
-have any risk in the case when an user tries to impersonate other one during
-DAKEZ?
-
-- The server should return a default message to the client when it has no
-  prekey messages.
-
-- The server should implement ways to prevent malicious prekey messages drain
-  (e.g rate limit).
-
-## Preliminaries
-
-Both parties involved (Bob and Server) already have their long-term keys
-created. This long-term key pair is a Ed448 key pair.
-
-Parties involved in an OTRv4 conversation have public shared prekeys
-(`ED448-SHARED-PREKEY`) which are signed as part of the user profile signing
-process and expired when the user profile expires.
-
-They also have a set of one-time prekey messages, which are each used in a
-single non-interactive DAKE run. They are named as so because they are
-essentially protocol messages which a party publishes to the server prior to
-the other party been able to send non-interactive messages.
-
-Parties must generate an user profile and publish it. A user profile contains
-the Ed448 long term public key, a shared prekey for offline conversations,
-information about supported versions, a profile expiration date, a signature of
-all these, and an optional transition signature.
-
-```
-Profile Expiration (PROF-EXP):
-  8 byte signed value, big-endian
-
-User Profile (USER-PROF):
-  Ed448 public key (ED448-PUBKEY)
-  Versions (DATA)
-  Profile Expiration (PROF-EXP)
-  Public Shared Prekey (ED448-SHARED-PREKEY)
-    The shared prekey used between different prekey messages.
-  Profile Signature (EDDSA-SIG)
-  (optional) Transitional Signature (SIG)
-```
-
-Parties need to publish this user profile once and renew it once it is expired
-(thus, replacing the old one). On the contrary, parties can publish prekey
-messages to the server as much as they want (e.g. when the server informs that
-the server's store of one-time prekey messages is getting low).
-
-// TODO: check this below paragraph
-
-// TODO: this can be something to look at in out-of-order
-
-After uploading a new signed user profile, Bob may keep the private key
-corresponding to the previous public shared prekey around for some period of
-time, to handle messages using it that have been delayed in transit.
-Eventually, the party should delete this private key for forward secrecy.
+- Receive prekey messages
+- Deliver prekey messages
 
 ## Publishing Prekey Messages
 
-// TODO: should prekey messages have an expiration time included in their
-encoding?
+1. Client creates prekey messages.
+1. Client authenticates with the server through interactive DAKE and obtain shared secret.
+1. Client sends prekey messages encrypted with the shared secret.
+1. Server verifies received prekey messages[\[2\]](#references).
+1. Server stores prekey message.
+1. Server sends acknowledgment that the operation succeeded.
 
-// TODO: do the prekey messages expire or only the shared prekey?
-
-An OTRv4 client must generate a user's prekey messages and publish them to the
-prekey server. Implementers are expected to create their own policy dictating
-how often their clients upload prekey messages to the prekey server. Prekey
-messages expire when their user profile expires. Thus new prekey messages
-should be published to the prekey server before they expire to keep valid
-prekey messages available. In addition, one prekey message should be published
-for every long term key that belongs to a user. This means that if Bob uploads
-3 long term keys for OTRv4 to his client, Bob's client must publish at least 3
-prekey messages.
-
-// TODO: correctly define the ZKPK
-
-If prekey submissions are not authenticated, then malicious users can perform
-denial-of-service attacks. To preserve the deniability of the overall OTRv4
-protocol, one-time prekey messages should never be digitally signed. The best
-approach is to authenticate prekey message uploads using a DAKEZ exchange
-between the uploader and the server, which preserves deniability. As an added
-safeguard, the server can require a ZKPK of the private keys associated with
-the prekeys.
-
-// TODO: who does this request happen?
-
-1. Party requests to start a DAKE with server with DAKEZ.
-2. Server receives this query and replies with an identity message.
-3. Party receives and validates the identity message. Replies with an auth-r
-   message.
-4. Server receives and validates the auth-r message. Replies with an auth-i
-   message.
-5. Party receives and validates the auth-i message. Replies with prekey message
-   to be stored.
-6. Server stores prekey message. // TODO: sends acknowledgment that it has
-   stored?
-
-Signal creates this at install time: one signed prekey and x unsigned prekeys.
-
-Can be:
-- Client generates the shared prekey.
-- Client creates a user profile with the shared prekey and the long term key.
-- User profile gets published
-- Party requests to create a prekey message with the shared prekey.// TODO: can
-  the key be reused?
-- Party does a DAKEZ with server and uploads prekey message with and ID.
+TODO: do the prekey messages need to be sent encrypted (inside a data message)?
+If so, should the server reveal MAC keys?
+Would this be part of this spec or would it be part of a spec specifc to a communication protocol (XMPP, SMS, Skype)?
 
 ## Retrieving Prekey Messages
 
-// TODO: how many prekeys messages arrive?
+In order to send an encrypted offline message a client must obtain a prekey
+messages:
 
-// TODO: how to do this query?
+1. Client informs which identity it wants a prekey message for.
+1. Server selects one prekey message for each instance tag of the identity.
+   1. Group all prekey messages by instance tag.
+   1. Filter out expired prekey messages from each group.
+   1. Choose one prekey message from each group.
+1. Server delivers all selected prekey messages to the Client.
+1. Server removes the selected prekey messages from its storage.
+1. Client selects the latest prekey messages form each instance tag.
+   1. Group all prekey messages by instance tag.
+   1. Filter out expired prekey messages from each group.
+   1. Choose the prekey message with the latest expiry time from each group.
+1. Client choses which prekey messages to send an encrypted offline message to.
+   1. Inform the user if the message will be send to multiple instance tags and/or long-term keys.
+   1. Decide if multiple conversations should be kept simultaneously (one per instance tag).
 
-// TODO: deduplicate information when sending back multiple one-time prekeys,
+TODO: should the server simply send multiple prekey messages to the requester
+and terminate the connection when it is done, or should there be any metadata
+about the request (total items = X, current item = Y, item = prekey message)?
+TODO: deduplicate information when sending back multiple one-time prekeys,
 i.e. if 100 prekeys get returned, don't say "version 4" 100 times
+
+
+===== Previous content =====
 
 1. Party connects to server.
 2. Party requests a prekey message from server by asking for it from an
@@ -184,6 +97,27 @@ format?
 
 // TODO: include the analysis
 
+The server must have this characteristics:
+
+- The server should delivery a prekey message per non-expired user profile to
+  the client that requested it.
+
+- The server should not delivery a prekey message twice.
+
+- The server should not log who is publishing the prekeys messages.
+
+//TODO: should we mention how to manage the server long term keys?
+//TODO: is it a problem if server tell client how many prekeys remains?  Do we
+have any risk in the case when an user tries to impersonate other one during
+DAKEZ?
+
+- The server should return a default message to the client when it has no
+  prekey messages.
+
+- The server should implement ways to prevent malicious prekey messages drain
+  (e.g rate limit).
+
+
 ## Attacks
 
 - What if the server delivers all the prekey messages to an adversary
@@ -191,5 +125,6 @@ format?
 ## References
 
 1. https://github.com/otrv4/otrv4/blob/master/otrv4.md
-2.   http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
+2. https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-messages
+3. http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
    https://github.com/WhisperSystems/Signal-Server/wiki/API-Protocol
