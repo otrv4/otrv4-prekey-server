@@ -17,7 +17,19 @@ publish and retrieve already published prekey messages.
 
 This server should be considered untrusted. This means that a malicious server
 could cause communication between parties to fail (e.g. by refusing to deliver
-prekey messages). It may also refuse to hand out prekey messages.
+prekey messages).
+
+
+### From meeting
+
+- DAKE is different, no DH or PQ things.
+- Explain this new DAKE. The curve, the group, the generator, how to generate ephemeral and long-term keys, etc. We could copy and paste from OTRv4 for simplicity.
+- When publishing, do not encrypt, only provide integrity check.
+- Server is assumed to be a participant on the same network as the client. That means it is identified by an identity and can send and receive messages to/from the client. This also means if a message was delivered to you by the network, it means the network has already authenticated the other participant. If a network CAN NOT provide such properties, it can't be used.
+- Server's long-term public key will be delivered to the clients (together with its identity). Clients should abort the DAKE if the long-term public key does not match.
+- Dont try to be precise in definitions, but rather give examples of how this would work in XMPP (so why don't we do the spec for XMPP first?)
+- There's one extra operation: retrieve how many prekeys are remaining for yourself.
+- Server must verify the user profile signatures on every received prekey message.
 
 ## Overview
 
