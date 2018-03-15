@@ -31,6 +31,19 @@ prekey messages).
 - There's one extra operation: retrieve how many prekeys are remaining for yourself.
 - Server must verify the user profile signatures on every received prekey message.
 
+- The prekey server will need some OTRv4-specific prekey server software, so this
+  software can easily generate ephemeral keys for each connection.
+- The prekey server must have some identifier to be used for the DAKE, maybe the
+  domain name.
+- A prekey message can be encrypted in the server but when handled out to the
+  receiver it should be decrypted.
+- This specification should define how a client asks for prekey messages:
+  is it going to be a sort of query-message-like message?
+- There should be prekey messages for every long-term public key that a device
+  has.
+
+Check this: https://github.com/otrv4/otrv4/blob/master/architecture-decisions/009-non-interactive-dake.md#publishing-and-retrieving-prekey-messages-from-a-prekey-server
+
 ## Overview
 
 ![Diagram](./img/diagram.svg)
