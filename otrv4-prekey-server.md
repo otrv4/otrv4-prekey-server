@@ -19,17 +19,7 @@ This server should be considered untrusted. This means that a malicious server
 could cause communication between parties to fail (e.g. by refusing to deliver
 prekey messages).
 
-
 ### From meeting
-
-- DAKE is different, no DH or PQ things.
-- Explain this new DAKE. The curve, the group, the generator, how to generate ephemeral and long-term keys, etc. We could copy and paste from OTRv4 for simplicity.
-- When publishing, do not encrypt, only provide integrity check.
-- Server is assumed to be a participant on the same network as the client. That means it is identified by an identity and can send and receive messages to/from the client. This also means if a message was delivered to you by the network, it means the network has already authenticated the other participant. If a network CAN NOT provide such properties, it can't be used.
-- Server's long-term public key will be delivered to the clients (together with its identity). Clients should abort the DAKE if the long-term public key does not match.
-- Dont try to be precise in definitions, but rather give examples of how this would work in XMPP (so why don't we do the spec for XMPP first?)
-- There's one extra operation: retrieve how many prekeys are remaining for yourself.
-- Server must verify the user profile signatures on every received prekey message.
 
 - The prekey server will need some OTRv4-specific prekey server software, so this
   software can easily generate ephemeral keys for each connection.
@@ -46,27 +36,41 @@ Check this: https://github.com/otrv4/otrv4/blob/master/architecture-decisions/00
 
 ## Overview
 
+TODO: change the diagram to explain the new DAKE with details.
+
 ![Diagram](./img/diagram.svg)
 
 ## Server specifications
 
-The server must have two main capabilities:
+The server must have three capabilities:
 
-- Receive prekey messages
-- Deliver prekey messages
+- Receive prekey messages and store them.
+- Deliver prekey messages previously stored.
+- Inform the publisher about how many prekey messages are stored for they.
+
+The server expects to only receive messages on the same network authenticated
+clients use to exchange messages, that is, if a message is received from the
+network the sender is believed to be authenticated by the network.
+TODO: Does this break deniability for publishing? And for retrieving?
 
 ## Publishing Prekey Messages
 
 1. Client creates prekey messages.
+   1. Prekey messages are created as defined in OTRv4 spec.
+1. Client receives server identifier (e.g. prekey.autonomia.digital) and the long-term public key from some source.
 1. Client authenticates with the server through interactive DAKE and obtain shared secret.
-1. Client sends prekey messages encrypted with the shared secret.
-1. Server verifies received prekey messages[\[2\]](#references).
+   1. Client sends DAKE-msg1.
+      1. TODO: Explain.
+   1. Server sends DAKE-msg2.
+      1. TODO: Explain.
+   1. Client sends DAKE-msg3 + prekey messages.
+      1. TODO: Explain.
+      1. Use shared secret as a MAC key.
+   1. Server verifies received prekey messages.
+      1. Check user profile (and if it is signed by the same long-term key that was used on the DAKE).
+      1. Check everything the OTRv4 spec mandates in regard to prekey message [\[2\]](#references).
 1. Server stores prekey message.
 1. Server sends acknowledgment that the operation succeeded.
-
-TODO: do the prekey messages need to be sent encrypted (inside a data message)?
-If so, should the server reveal MAC keys?
-Would this be part of this spec or would it be part of a spec specifc to a communication protocol (XMPP, SMS, Skype)?
 
 ## Retrieving Prekey Messages
 
@@ -78,15 +82,19 @@ messages:
    1. Group all prekey messages by instance tag.
    1. Filter out expired prekey messages from each group.
    1. Choose one prekey message from each group.
+   1. TODO: Add examples.
 1. Server delivers all selected prekey messages to the Client.
 1. Server removes the selected prekey messages from its storage.
 1. Client selects the latest prekey messages form each instance tag.
    1. Group all prekey messages by instance tag.
-   1. Filter out expired prekey messages from each group.
+   1. Filter out invalid prekey messages (expired, for example) from each group.
    1. Choose the prekey message with the latest expiry time from each group.
+   1. TODO: Add examples.
 1. Client choses which prekey messages to send an encrypted offline message to.
    1. Inform the user if the message will be send to multiple instance tags and/or long-term keys.
    1. Decide if multiple conversations should be kept simultaneously (one per instance tag).
+
+TODO: Failure scenarios (no prekey for the identity, for example). Should a failure be specific (with error codes, for example)?
 
 TODO: should the server simply send multiple prekey messages to the requester
 and terminate the connection when it is done, or should there be any metadata
@@ -94,56 +102,20 @@ about the request (total items = X, current item = Y, item = prekey message)?
 TODO: deduplicate information when sending back multiple one-time prekeys,
 i.e. if 100 prekeys get returned, don't say "version 4" 100 times
 
+## Query the server for its storage status
 
-===== Previous content =====
+1. Client uses a DAKE-Z to authenticate to the server.
+   1. TODO: Add details about the DAKE.
+2. Server responds with number of prekey messages stored for the long-term public key and identity used on the DAKE-Z.
 
-1. Party connects to server.
-2. Party requests a prekey message from server by asking for it from an
-   specific party x and with an specific id. This party must have the other
-   party user profile.
-3. Server replies with prekey message. This prekey message is removed from
-   storage. Never handle out the same prekey twice. Client should
-   also not accept it.
-
-The server should provide one of the parties prekey message if one exists, and
-then delete it. If all of parties prekey messages on the server have been
-deleted, then nothing is returned.
-
-// TODO: should an error by return in this case?
-
-Upon receiving of the prekey message, the party verifies the user profile. It
-aborts the protocol if it fails.
 
 // TODO: should there be: identifiers stating which of Bob's prekeys Alice
 used?
 
+## Attacks
+
 // TODO: check the attacks: replay, key reused, attacker modifies prekey or
 format?
-
-// TODO: include the analysis
-
-The server must have this characteristics:
-
-- The server should delivery a prekey message per non-expired user profile to
-  the client that requested it.
-
-- The server should not delivery a prekey message twice.
-
-- The server should not log who is publishing the prekeys messages.
-
-//TODO: should we mention how to manage the server long term keys?
-//TODO: is it a problem if server tell client how many prekeys remains?  Do we
-have any risk in the case when an user tries to impersonate other one during
-DAKEZ?
-
-- The server should return a default message to the client when it has no
-  prekey messages.
-
-- The server should implement ways to prevent malicious prekey messages drain
-  (e.g rate limit).
-
-
-## Attacks
 
 - What if the server delivers all the prekey messages to an adversary
 
