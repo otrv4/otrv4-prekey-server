@@ -38,7 +38,7 @@ Check this: https://github.com/otrv4/otrv4/blob/master/architecture-decisions/00
 
 TODO: change the diagram to explain the new DAKE with details.
 
-![Diagram](./img/diagram.svg)
+![Diagram](./img/publish-prekey.svg)
 
 ## Server specifications
 
