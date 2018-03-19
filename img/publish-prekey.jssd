@@ -2,38 +2,25 @@ participant Alice
 participant Server
 participant Bob
 
-Note over Alice, Server: Generate previsouly long-term keypai \n (x, g*X) (See: OTRv4 spec, section \n "Public keys, Shared Prekeyes and Fingerprints").
+Note over Alice, Server: Generate long-term keypair (x, g*X)
 
-Note over Alice: Generates previously user profile (A). \n (See: OTRv4 spec, section "Creating a User Profile").
+Note over Alice: Generates previously user profile (A).
 
-Note over Server: Generates previously a server profile (S). \n TODO: ???? Maybe the server identity (prekey.xmpp.org) + server public key (or its fingerprint)?
+Note over Server: Generates previously a server profile (S).
 
 Note over Alice, Server: DAKE
 
-Alice->Alice: Selects ephemeral keypair (i, g*i). \n (See: OTRv4 spec, section "Generating ECDH and DH keys"
-Alice->Server: Sends (A, g*i).
+Alice->Server: (A, g*i).
 
-Server->Server: Verify if g*i is on curve Ed448. \n (See: OTRv4 spec, section "Generating ECDH and DH keys").
-Server->Server: Verify if A is a valid not-expired profile. \n (See: OTRv4 spec, section "Validating a User Profile").
-Server->Server: If something fails, abort the DAKE.
-Server->Server: Obtain g*I from A. \n (See: OTRv4 section, "User profile").
-Server->Server: Selects ephemeral keypair (r, g*r). \n (See: OTRv4 spec, section "Generating ECDH and DH keys"
-Server->Server: Computes phi = ??. \n TODO. This could be something related to \n the first message received?
-Server->Server: Computes tag t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi).
-Server->Server: Computes sig = RSig(g*R, R, {g*I, g*R, g*i}, t). \n (See: OTRv4 section "Ring Signature Authentication").
-Server->Server: Computes k = KDF_1(0x04 ∥ (g*i)*r) and securely erases r.
-Server->Alice: Send (S, g*r, sig).
+Server->Server: t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi)
+Server->Server: sig = RSig(g*R, R, {g*I, g*R, g*i}, t)
+Server->Server: k = KDF_1(0x04 ∥ (g*i)*r)
+Server->Alice: (S, g*r, sig)
 
-Alice->Alice: Verify if g*r is on curve Ed448. \n (See: OTRv4 spec, section "Generating ECDH and DH keys").
-Alice->Alice: Verify if S is a valid server profile. TODO: How?
-Alice->Alice: Computes phi = ??.
-Alice->Alice: Computes tag t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi).
-Alice->Alice: Verify if sig == RVrf({g*I, g*R, g*i}, t). \n (See: OTRv4 section "Ring Signature Authentication").
-Alice->Alice: Computes k = KDF_1(0x04 ∥ (g*r)*i) and securely erases i.
-Alice->Alice: Compute t = "1" ∥ KDF_1(0x09 ∥ A, 64) ∥ KDF_1(0x10 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x11 ∥ phi).
-Alice->Alice: Computes sig = RSig(g*I, I, {g*I, g*R, g*r}, t)
-Alice->Server: Send (sig, prekey messagesm prekey messages MAC). TODO.
+Alice->Alice: k = KDF_1(0x04 ∥ (g*r)*i)
+Alice->Alice: t = "1" ∥ KDF_1(0x09 ∥ A, 64) ∥ KDF_1(0x10 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x11 ∥ phi)
+Alice->Alice: sig = RSig(g*I, I, {g*I, g*R, g*r}, t)
+Alice->Alice: MAC = ???
+Alice->Server: (sig, prekey messages, MAC)
 
-Server->Server: Computes phi, t and Verify sig.
-Server->Server: If fails, notify.
-Server->Server: Otherwise, store prekeys.
+Server->Server: Store prekeys
