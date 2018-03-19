@@ -69,7 +69,17 @@ network the sender is believed to be authenticated by the network.
 
 #### Detailed protocol
 
-Be `(x, g*x)` Alice's long-term keypair and `(y, g*y)` the Server's long-term keypair (both generated according to the section "Public keys, Shared Prekeyes and Fingerprints" of the OTRv4 spec), `A` Alice's User-Profile (generated according to the section "Creating a User Profile" of the OTRv4 spec), `S` the Server's profile (TODO: Define how this is generated. Probably its identity - prekey.xmpp.org - and its long-term key's fingerprint).
+The following parameters are expected to be generated beforehand:
+
+* `(x, g*x)`: Alice's long-term keypair. See: OTRv4, section "Public keys, Shared Prekeyes and Fingerprints".
+* `(y, g*y)`: Server's long-term keypair. See: OTRv4, section "Public keys, Shared Prekeyes and Fingerprints".
+* `A`: Alice's User-Profile. See: OTRv4, section "Creating a User Profile".
+* `S`: the Server's profilei. (TODO: Define how this is generated. Probably its identity - prekey.xmpp.org - and its long-term key's fingerprint).
+
+Alice is also expected to receive the server's identity and its long-term
+public key so they can be manually verified by her.
+
+The protocol goes as follows:
 
 **Alice**
 
@@ -91,6 +101,7 @@ Be `(x, g*x)` Alice's long-term keypair and `(y, g*y)` the Server's long-term ke
 
 **Alice**
 
+1. Verify if the server's identity and long-term public key match. Abort the DAKE if they don't.
 1. Verify the received message. If something fails, abort the DAKE.
    1. Verify if `g*r` is on curve Ed448. See: OTRv4 spec, section "Generating ECDH and DH keys".
    1. Verify if `S` is a valid server profile. (TODO: How?)
