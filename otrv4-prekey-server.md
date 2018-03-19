@@ -139,9 +139,11 @@ The protocol goes as follows:
 
 // TODO: this `phi` should be defined
 For `phi`, see OTRv4, section "Shared Session State".
-// TODO: the `KDF_1 should have a different counter for this messages. Each KDF
+
+// TODO: the `KDF_1` should have a different counter for this messages. Each KDF
 in the protocol has a different counter now.
 For `KDF_1`, see OTRv4, section "Key Derivation Functions".
+
 For `g`, see OTRv4, section "Elliptic Curve Parameters".
 
 **State machine**
