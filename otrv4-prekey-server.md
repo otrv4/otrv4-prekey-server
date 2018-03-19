@@ -54,6 +54,8 @@ network the sender is believed to be authenticated by the network.
 
 ## Publishing Prekey Messages
 
+#### High-level overview
+
 1. Client creates prekey messages.
    1. Prekey messages are created as defined in OTRv4 spec.
 1. Client receives server identifier (e.g. prekey.autonomia.digital) and the long-term public key from some source.
@@ -65,16 +67,55 @@ network the sender is believed to be authenticated by the network.
 1. Server stores prekey message.
 1. Server sends acknowledgment that the operation succeeded.
 
-### Interactive DAKE
+#### Detailed protocol
 
-TODO: Move from the diagram to here once we are done. This will explain the following steps:
+Be `(x, g*x)` Alice's long-term keypair and `(y, g*y)` the Server's long-term keypair (both generated according to the section "Public keys, Shared Prekeyes and Fingerprints" of the OTRv4 spec), `A` Alice's User-Profile (generated according to the section "Creating a User Profile" of the OTRv4 spec), `S` the Server's profile (TODO: Define how this is generated. Probably its identity - prekey.xmpp.org - and its long-term key's fingerprint).
 
-1. Client sends DAKE-msg1.
-1. Server sends DAKE-msg2.
-1. Client sends DAKE-msg3 + prekey messages.
-   1. Use shared secret as a MAC key.
+**Alice**
 
-### State machine
+1. Selects ephemeral keypair `(i, g*i)`. See: OTRv4 spec, section "Generating ECDH and DH keys".
+1. Sends `(A, g*i)` to the server.
+
+**Server**
+
+1. Verify the received message. If something fails, abort the DAKE.
+   1. Verify if `g*i` is on curve Ed448. See: OTRv4 spec, section "Generating ECDH and DH keys".
+   1. Verify if `A` is a valid not-expired profile. See: OTRv4 spec, section "Validating a User Profile".
+1. Obtain `g*I` from `A`. See: OTRv4 section, "User profile".
+1. Selects ephemeral keypair `(r, g*r)`. See: OTRv4 spec, section "Generating ECDH and DH keys".
+1. Computes `phi`.
+1. Computes `t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi)`.
+1. Computes `sig = RSig(g*y, y, {g*x, g*y, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
+1. Computes `k = KDF_1(0x04 ∥ (g*i)*r)` and securely erases `r`.
+1. Send `(S, g*r, sig)`.
+
+**Alice**
+
+1. Verify the received message. If something fails, abort the DAKE.
+   1. Verify if `g*r` is on curve Ed448. See: OTRv4 spec, section "Generating ECDH and DH keys".
+   1. Verify if `S` is a valid server profile. (TODO: How?)
+   1. Computes `phi`.
+   1. Computes `t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi)`.
+   1. Verify if `sig == RVrf({g*x, g*y, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
+1. Computes `k = KDF_1(0x04 ∥ (g*r)*i)` and securely erases `i`.
+1. Compute `t = "1" ∥ KDF_1(0x09 ∥ A, 64) ∥ KDF_1(0x10 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x11 ∥ phi)`.
+1. Computes `sig = RSig(g*x, x, {g*x, g*y, g*r}, t)`.
+1. Send `(sig, prekey messages, prekey messages MAC)`. (TODO: how to calculate the MAC).
+
+**Server**
+
+1. Verify the received message. If something fails, abort the DAKE and send a failure message.
+   1. Compute `t = "1" ∥ KDF_1(0x09 ∥ A, 64) ∥ KDF_1(0x10 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x11 ∥ phi)`.
+   1. Verify if `sig == RVrf({g*x, g*y, g*r}, t)`. See: OTRv4 section "Ring Signature Authentication".
+1. Verify if the integrity of the prekey messages.
+1. Verify the received prekey messages. See: OTRv4, section "Receiving Prekey Messages".
+1. Store the received prekey messages.
+
+For `phi`, see OTRv4, section "Shared Session State".
+For `KDF_1`, see OTRv4, section "Key Derivation Functions".
+For `g`, see OTRv4, section "Elliptic Curve Parameters".
+
+**State machine**
 
 TODO: explain each "event", state and transitions.
 TODO: Failure scenarios (no prekey for the identity, for example).
