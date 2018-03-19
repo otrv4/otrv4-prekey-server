@@ -1,4 +1,10 @@
 # OTRv4 Prekey Server Specification
 
-This is the protocol specification for the prekey server for the Off-the-Record
-Messaging Protocol version 4.
+```
+Disclaimer
+
+This protocol specification is a draft. It's currently under constant revision.
+```
+
+This is the protocol specification for the untrusted prekey server for the
+Off-the-Record Messaging Protocol version 4.
