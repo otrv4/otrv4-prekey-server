@@ -1,0 +1,16 @@
+participant Server
+participant Bob
+
+Bob->Server: alice@xmpp.org
+
+Server->Server: Group all prekey messages by instance tag
+Server->Server: Filter out expired prekey messages from each group
+Server->Server: Choose one prekey message from each group
+Server->Bob: Send all selected prekey messages
+Server->Server: Remove all sent prekey messages
+
+Bob->Bob: Group all prekey messages by instance tag
+Bob->Bob: Filter out invalid prekey messages (expired, for example) from each group
+Bob->Bob: Choose the prekey message with the latest expiry time from each group
+Bob->Bob: Choose to send messages to multiple instance tags and/or long-term keys
+Bob->Bob: Decide if multiple conversations should be kept simultaneously

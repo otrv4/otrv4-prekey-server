@@ -298,6 +298,10 @@ Otherwise: ...
 
 ## Retrieving Prekey Messages
 
+### High-level overview
+
+![Retrieving prekey messages](./img/retrieve-prekey.svg)
+
 In order to send an encrypted offline message a client must obtain a prekey
 messages:
 
