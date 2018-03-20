@@ -75,6 +75,7 @@ version you requested.
 1. Server stores prekey message.
 1. Server sends acknowledgment that the operation succeeded.
 
+
 #### Detailed protocol
 
 // TODO: I think this messages will also need the protocol version, message
@@ -176,6 +177,101 @@ For example:
 phi = "alice@jabber.net" || "prekeys.xmpp.org"
 ```
 
+**Encoding**
+
+A DAKE-1 message must be encoded as:
+
+```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0001.
+
+Message type (BYTE)
+  The message has type 0x01.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient. As the instance tag is used to
+  differentiate the clients that a participant uses, this will often be 0 since
+  the other party may not have set its instance tag yet.
+
+Sender's User Profile (USER-PROF)
+  As described in the section "Creating a User Profile".
+
+g*i (POINT)
+  The ephemeral public ECDH key.
+
+```
+
+A DAKE-2 message must be encoded as:
+
+
+```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0001.
+
+Message type (BYTE)
+  The message has type 0x02.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+Sender's Server Profile (USER-PROF)
+  As described in the section "Creating a User Profile".
+
+g*r (POINT)
+  The ephemeral public ECDH key.
+
+sigma (RING-SIG)
+  The 'RING-SIG' proof of authentication value.
+
+```
+
+A DAKE-3 message must be encoded as:
+
+```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0001.
+
+Message type (BYTE)
+  The message has type 0x03.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+sigma (RING-SIG)
+  The 'RING-SIG' proof of authentication value.
+
+Action (BYTE)
+  0x01 for publishing prekey messages
+  0x02 for querying the server about the server's storage
+
+If Action is 0x01
+
+N (SHORT)
+   The number of prekey messages present in this message.
+
+PREKEYS (BYTES)
+   All (N) prekey messages serialized according to OTRv4 spec.
+
+MAC (BYTES)
+   The MAC for the field PREKEYS.
+
+If Action is 0x02
+
+Nothing else.
+
+```
+
+After encoding, encode again in BASE-64, then prepend `?OTRP` and add fragmentation
+like in OTRv4.
 
 **State machine**
 
@@ -219,7 +315,126 @@ messages:
 TODO: is it the same DAKE as the one used to publish? Is there a different state machine?
 If the dake has 2 different kinds of msg-3, we need to say which one is valid here and there.
 
-## XMPP example
+## A prekey server for OTRv4 over XMPP
+
+TODO: How is this supposed to be deployed?
+We believe it could be a XMPP entity that can receive XMPP stanzas
+(presence, IQ, message).
+
+We suspect we can use IQ for the DAKE, so there's no need to add a header
+that can be used to identity messages that should not be displayed to the
+user, at the cost of writing a XEP about how IQ are extended.
+
+### XEP
+
+A prekey server implementation MUST support Service Discovery (XEP-0030) ("disco").
+
+##### Discovering a prekey service
+
+An entity often discovers a prekey service by sending a Service Discovery items ("disco#items") request to its own server.
+
+```
+<iq from='alice@xmpp.org/notebook'
+    id='h7ns81g'
+    to='xmpp.org'
+    type='get'>
+  <query xmlns='http://jabber.org/protocol/disco#items'/>
+</iq>
+```
+
+The server then returns the services that are associated with it.
+
+```
+<iq from='xmpp.org'
+    id='h7ns81g'
+    to='alice@xmpp.org/notebook'
+    type='result'>
+  <query xmlns='http://jabber.org/protocol/disco#items'>
+    <item jid='prekey.xmpp.org'
+          name='OTRv4 prekey server'/>
+  </query>
+</iq>
+```
+
+#### Discovering the features supported by a prekey service
+
+TODO: We dont strictly need this if we require every service to support all
+three features. But this also serves as a way to confirm we are talking to
+an actual prekey server.
+
+An entity may wish to discover if a service implements the prekey server protocol;
+in order to do so, it sends a service discovery information ("disco#info") query
+to the prekey service's JID.
+
+```
+<iq from='alice@xmpp.org/notebook'
+    id='lx09df27'
+    to='prekey.xmpp.org'
+    type='get'>
+  <query xmlns='http://jabber.org/protocol/disco#info'/>
+</iq>
+```
+
+The service MUST return its identity and the features it supports.
+
+```
+<iq from='prekey.xmpp.org'
+    id='lx09df27'
+    to='alice@xmpp.org/notebook'
+    type='result'>
+  <query xmlns='http://jabber.org/protocol/disco#info'>
+    <identity
+        category='otrv4-prekey'
+        name='OTRv4 prekey server'
+        type='text'/>
+    <feature var='http://jabber.org/protocol/otrv4-prekey'/>
+  </query>
+</iq>
+```
+
+#### Deniably authenticating to a prekey service
+
+An entity authenticates to the service through a DAKE. DAKE messages are send
+in "message" stanzas.
+
+An entity starts the DAKE by sending the first encoded message in the body
+of a message.
+
+```
+<message
+    from='alice@xmpp.org/notebook'
+    id='nzd143v8'
+    to='prekey.xmpp.org'>
+  <body>?OTRPAAEB...</body>
+</message>
+```
+
+The service responds with another message.
+
+```
+<message
+    from='prekey.xmpp.org'
+    id='13fd16378'
+    to='alice@xmpp.org/notebook'>
+  <body>?OTRPAAEC...</body>
+</message>
+```
+
+And the entity terminates the DAKE and send the prekey messages:
+
+```
+<message
+    from='alice@xmpp.org/notebook'
+    id='nzd143v8'
+    to='prekey.xmpp.org'>
+  <body>?OTRPAAED...</body>
+</message>
+```
+
+
+
+
+
 
 bob@xmpp.org wants to know how many prekeys remain unused on the server
 
