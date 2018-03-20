@@ -143,14 +143,28 @@ The protocol goes as follows:
 1. Verify the received prekey messages. See: OTRv4, section "Receiving Prekey Messages".
 1. Store the received prekey messages.
 
-// TODO: this `phi` should be defined
-For `phi`, see OTRv4, section "Shared Session State".
+For `g`, see OTRv4, section "Elliptic Curve Parameters".
 
 // TODO: the `KDF_1` should have a different counter for this messages. Each KDF
 in the protocol has a different counter now.
 For `KDF_1`, see OTRv4, section "Key Derivation Functions".
 
-For `g`, see OTRv4, section "Elliptic Curve Parameters".
+**Phi**
+
+For an explanation about `phi`, see OTRv4, section "Shared Session State".
+For a prekey server that receive requests over XMPP, this must be:
+
+
+```
+phi = sender's bare JID || receiver's bare JID
+```
+
+For example:
+
+```
+phi = "alice@jabber.net" || "prekeys.xmpp.org"
+```
+
 
 **State machine**
 
