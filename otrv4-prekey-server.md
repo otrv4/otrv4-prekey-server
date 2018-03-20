@@ -36,8 +36,6 @@ Check this: https://github.com/otrv4/otrv4/blob/master/architecture-decisions/00
 
 TODO: change the diagram to explain the new DAKE with details. (Work in Progress)
 
-![Diagram](./img/publish-prekey.svg)
-
 ## Server specifications
 
 The server must have three capabilities:
@@ -60,6 +58,8 @@ version you requested.
 
 #### High-level overview
 
+![Publishing prekey messages](./img/publish-prekey.svg)
+
 1. Client creates prekey messages.
    1. Prekey messages are created as defined in OTRv4 spec.
 1. Client receives server identifier (e.g. prekey.autonomia.digital) and the
@@ -78,19 +78,14 @@ version you requested.
 
 #### Detailed protocol
 
-// TODO: I think this messages will also need the protocol version, message
-type, etc as defined in the OTRv4 protocol, for encoding. Also, it should
-probably be considered to have instance tags on them. Consider what happens
-if the server receives multiple prekey-publish requests at the same time.
-
 The following parameters are expected to be generated beforehand:
 
-* `(x, g*x)`: Alice's long-term keypair. See: OTRv4, section
+* `(I, g*I)`: Alice's long-term keypair. See: OTRv4, section
    "Public keys, Shared Prekeyes and Fingerprints".
-* `(y, g*y)`: Server's long-term keypair. See: OTRv4, section
+* `(R, g*R)`: Server's long-term keypair. See: OTRv4, section
    "Public keys, Shared Prekeyes and Fingerprints".
 * `A`: Alice's User-Profile. See: OTRv4, section "Creating a User Profile".
-* `S`: the Server's profilei. (TODO: Define how this is generated. Probably its identity - prekey.xmpp.org - and its long-term key's fingerprint).
+* `S`: the Server's profile.
 
 Alice is also expected to receive the server's identity and its long-term
 public key so they can be manually verified by her.
@@ -115,7 +110,7 @@ The protocol goes as follows:
    ECDH and DH keys".
 1. Computes `phi`.
 1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
-1. Computes `sig = RSig(g*y, y, {g*x, g*y, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
+1. Computes `sig = RSig(g*R, R, {g*I, g*R, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
 1. Computes `k = KDF(0x01 ∥ (g*i)*r)` and securely erases `r`.
 1. Send `(S, g*r, sig)`.
 
@@ -128,18 +123,19 @@ The protocol goes as follows:
    1. Verify if `S` is a valid server profile. (TODO: How?)
    1. Computes `phi`.
    1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
-   1. Verify if `sig == RVrf({g*x, g*y, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
+   1. Verify if `sig == RVrf({g*I, g*R, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
 1. Computes `k = KDF(0x01 ∥ (g*r)*i)` and securely erases `i`.
 1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x6 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
-1. Computes `sig = RSig(g*x, x, {g*x, g*y, g*r}, t)`.
-1. Send `(sig, prekey messages, prekey messages MAC)`. (TODO: how to calculate the MAC).
+1. Computes `sig = RSig(g*I, I, {g*I, g*R, g*r}, t)`.
+1. Computes `MAC = KDF(0x08 ∥ prekey messages)`.
+1. Send `(sig, prekey messages, MAC)`.
 
 **Server**
 
 1. Verify the received message. If something fails, abort the DAKE and send a
    failure message.
    1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
-   1. Verify if `sig == RVrf({g*x, g*y, g*r}, t)`. See: OTRv4 section "Ring Signature Authentication".
+   1. Verify if `sig == RVrf({g*I, g*R, g*r}, t)`. See: OTRv4 section "Ring Signature Authentication".
 1. Verify if the integrity of the prekey messages.
 1. Verify the received prekey messages. See: OTRv4, section "Receiving Prekey Messages".
 1. Store the received prekey messages.
@@ -177,14 +173,19 @@ For example:
 phi = "alice@jabber.net" || "prekeys.xmpp.org"
 ```
 
-**Encoding**
+**Server Profile**
 
-A DAKE-1 message must be encoded as:
+For a prekey server that uses XMPP, this must be the prekey server's bare JID (for example, prekey.xmpp.org) and its fingerprint. Example:
 
 ```
-Protocol version (SHORT)
-  The version number of this protocol is 0x0001.
+profile = "prekey.xmpp.org" || "E5lZcvcEhw7NE8OLDjIWwzRIT2hfaPyg04yARNC9zDitkuVvsBtgkddHjBCyXP99YGtgXgP+aOU="
+```
 
+**Encoding**
+
+A DAKE-1 message must be serialized as:
+
+```
 Message type (BYTE)
   The message has type 0x01.
 
@@ -204,13 +205,10 @@ g*i (POINT)
 
 ```
 
-A DAKE-2 message must be encoded as:
+A DAKE-2 message must be serialized as:
 
 
 ```
-Protocol version (SHORT)
-  The version number of this protocol is 0x0001.
-
 Message type (BYTE)
   The message has type 0x02.
 
@@ -231,12 +229,9 @@ sigma (RING-SIG)
 
 ```
 
-A DAKE-3 message must be encoded as:
+A DAKE-3 message must be serialized as:
 
 ```
-Protocol version (SHORT)
-  The version number of this protocol is 0x0001.
-
 Message type (BYTE)
   The message has type 0x03.
 
@@ -270,7 +265,24 @@ Nothing else.
 
 ```
 
-After encoding, encode again in BASE-64, then prepend `?OTRP` and add fragmentation
+A storage status message must be serialized as:
+
+```
+Message type (BYTE)
+  The message has type 0x04.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+Stored prekey messages (INT)
+  The number of prekey messages stored in the server for the
+  long-term public key used in the DAKE.
+```
+
+After serializing, encode in Base-64, then prepend `?OTRP` and add fragmentation
 like in OTRv4.
 
 **State machine**
@@ -317,16 +329,6 @@ If the dake has 2 different kinds of msg-3, we need to say which one is valid he
 
 ## A prekey server for OTRv4 over XMPP
 
-TODO: How is this supposed to be deployed?
-We believe it could be a XMPP entity that can receive XMPP stanzas
-(presence, IQ, message).
-
-We suspect we can use IQ for the DAKE, so there's no need to add a header
-that can be used to identity messages that should not be displayed to the
-user, at the cost of writing a XEP about how IQ are extended.
-
-### XEP
-
 A prekey server implementation MUST support Service Discovery (XEP-0030) ("disco").
 
 ##### Discovering a prekey service
@@ -358,10 +360,6 @@ The server then returns the services that are associated with it.
 
 #### Discovering the features supported by a prekey service
 
-TODO: We dont strictly need this if we require every service to support all
-three features. But this also serves as a way to confirm we are talking to
-an actual prekey server.
-
 An entity may wish to discover if a service implements the prekey server protocol;
 in order to do so, it sends a service discovery information ("disco#info") query
 to the prekey service's JID.
@@ -392,7 +390,7 @@ The service MUST return its identity and the features it supports.
 </iq>
 ```
 
-#### Deniably authenticating to a prekey service
+#### Publishing prekeys to the service
 
 An entity authenticates to the service through a DAKE. DAKE messages are send
 in "message" stanzas.
@@ -405,7 +403,7 @@ of a message.
     from='alice@xmpp.org/notebook'
     id='nzd143v8'
     to='prekey.xmpp.org'>
-  <body>?OTRPAAEB...</body>
+  <body>?OTRPEB...</body>
 </message>
 ```
 
@@ -416,22 +414,88 @@ The service responds with another message.
     from='prekey.xmpp.org'
     id='13fd16378'
     to='alice@xmpp.org/notebook'>
-  <body>?OTRPAAEC...</body>
+  <body>?OTRPEC...</body>
 </message>
 ```
 
-And the entity terminates the DAKE and send the prekey messages:
+And the entity terminates the DAKE and send the prekey messages
+(DAKE-3 message has action 0x01):
+
+```
+<message
+    from='alice@xmpp.org/notebook'
+    id='kud87ghduy'
+    to='prekey.xmpp.org'>
+  <body>?OTRPED...</body>
+</message>
+```
+
+And the server respond with a success message:
+TODO: Should this message also have instance tags?
+
+```
+<message
+    from='prekey.xmpp.org'
+    id='0kdytsmslkd'
+    to='alice@xmpp.org/notebook'>
+  <body>?OTRP OK</body>
+</message>
+```
+
+#### Obtaining information about your prekeys from the service
+
+An entity authenticates to the service through a DAKE. DAKE messages are send
+in "message" stanzas.
+
+An entity starts the DAKE by sending the first encoded message in the body
+of a message.
 
 ```
 <message
     from='alice@xmpp.org/notebook'
     id='nzd143v8'
     to='prekey.xmpp.org'>
-  <body>?OTRPAAED...</body>
+  <body>?OTRPEB...</body>
 </message>
 ```
 
+The service responds with another message.
 
+```
+<message
+    from='prekey.xmpp.org'
+    id='13fd16378'
+    to='alice@xmpp.org/notebook'>
+  <body>?OTRPEC...</body>
+</message>
+```
+
+And the entity terminates the DAKE and asks for storage information
+(DAKE-3 message has action 0x02):
+
+```
+<message
+    from='alice@xmpp.org/notebook'
+    id='kud87ghduy'
+    to='prekey.xmpp.org'>
+  <body>?OTRPED...</body>
+</message>
+```
+
+And the server respond with a storage status message:
+
+```
+<message
+    from='prekey.xmpp.org'
+    id='0kdytsmslkd'
+    to='alice@xmpp.org/notebook'>
+  <body>?OTRPEE...</body>
+</message>
+```
+
+#### Retrieving published prekeys from a prekey service
+
+TODO.
 
 
 
