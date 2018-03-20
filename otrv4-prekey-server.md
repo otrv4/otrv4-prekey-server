@@ -113,9 +113,9 @@ The protocol goes as follows:
 1. Selects ephemeral keypair `(r, g*r)`. See: OTRv4 spec, section "Generating
    ECDH and DH keys".
 1. Computes `phi`.
-1. Computes `t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi)`.
+1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
 1. Computes `sig = RSig(g*y, y, {g*x, g*y, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
-1. Computes `k = KDF_1(0x04 ∥ (g*i)*r)` and securely erases `r`.
+1. Computes `k = KDF(0x01 ∥ (g*i)*r)` and securely erases `r`.
 1. Send `(S, g*r, sig)`.
 
 **Alice**
@@ -126,10 +126,10 @@ The protocol goes as follows:
       "Generating ECDH and DH keys".
    1. Verify if `S` is a valid server profile. (TODO: How?)
    1. Computes `phi`.
-   1. Computes `t = “0” ∥ KDF_1(0x06 ∥ A, 64) ∥ KDF_1(0x07 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x08 ∥ phi)`.
+   1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
    1. Verify if `sig == RVrf({g*x, g*y, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
-1. Computes `k = KDF_1(0x04 ∥ (g*r)*i)` and securely erases `i`.
-1. Compute `t = "1" ∥ KDF_1(0x09 ∥ A, 64) ∥ KDF_1(0x10 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x11 ∥ phi)`.
+1. Computes `k = KDF(0x01 ∥ (g*r)*i)` and securely erases `i`.
+1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x6 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
 1. Computes `sig = RSig(g*x, x, {g*x, g*y, g*r}, t)`.
 1. Send `(sig, prekey messages, prekey messages MAC)`. (TODO: how to calculate the MAC).
 
@@ -137,7 +137,7 @@ The protocol goes as follows:
 
 1. Verify the received message. If something fails, abort the DAKE and send a
    failure message.
-   1. Compute `t = "1" ∥ KDF_1(0x09 ∥ A, 64) ∥ KDF_1(0x10 ∥ S, 64) ∥ g*i ∥ g*r ∥ KDF_1(0x11 ∥ phi)`.
+   1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
    1. Verify if `sig == RVrf({g*x, g*y, g*r}, t)`. See: OTRv4 section "Ring Signature Authentication".
 1. Verify if the integrity of the prekey messages.
 1. Verify the received prekey messages. See: OTRv4, section "Receiving Prekey Messages".
@@ -145,9 +145,20 @@ The protocol goes as follows:
 
 For `g`, see OTRv4, section "Elliptic Curve Parameters".
 
-// TODO: the `KDF_1` should have a different counter for this messages. Each KDF
-in the protocol has a different counter now.
-For `KDF_1`, see OTRv4, section "Key Derivation Functions".
+The operator `||` represents concatenation of a byte array. Their operands must
+be serialized into byte arrays. Serialization of points in an elliptic curve is
+definer in OTRv4 spec, section "Encoding and Decoding".
+
+**KDF**
+
+The key derivation function is defined as:
+
+```
+KDF(value) = SHAKE-256("OTRv4-Prekey-Server" || value, 64)
+
+Unlike SHAKE standard, output size (d) here is defined in bytes. You may need to convert it to bits.
+
+```
 
 **Phi**
 
