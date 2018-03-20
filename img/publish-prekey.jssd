@@ -1,6 +1,5 @@
 participant Alice
 participant Server
-participant Bob
 
 Note over Alice, Server: Alice has long-term keypairs (I, g*I) and the Server has (R, g*R)
 
@@ -24,3 +23,5 @@ Alice->Alice: MAC = KDF(0x08 ∥ prekey messages)
 Alice->Server: (sig, prekey messages, MAC)
 
 Server->Server: Store prekeys
+
+Server->Alice: OK
