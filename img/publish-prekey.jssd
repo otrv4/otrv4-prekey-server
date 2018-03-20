@@ -3,9 +3,9 @@ participant Server
 
 Note over Alice, Server: Alice has long-term keypairs (I, g*I) and the Server has (R, g*R)
 
-Note over Alice: Generates previously user profile (A).
+Note over Alice: Generates previously user profile (A)
 
-Note over Server: Generates previously a server profile (S).
+Note over Server: Generates previously a server profile (S)
 
 Note over Alice, Server: DAKE
 
