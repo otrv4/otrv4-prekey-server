@@ -29,6 +29,10 @@ The server expects to only receive messages on the same network authenticated
 clients use to exchange messages, that is, if a message is received from the
 network the sender is believed to be authenticated by the network.
 
+## Table of Contents
+
+TODO
+
 ## Interactive DAKE
 
 The following parameters are expected to be generated beforehand:
