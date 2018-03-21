@@ -32,10 +32,6 @@ prekey messages).
 
 Check this: https://github.com/otrv4/otrv4/blob/master/architecture-decisions/009-non-interactive-dake.md#publishing-and-retrieving-prekey-messages-from-a-prekey-server
 
-## Overview
-
-TODO: change the diagram to explain the new DAKE with details. (Work in Progress)
-
 ## Server specifications
 
 The server must have three capabilities:
