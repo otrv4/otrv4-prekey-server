@@ -20,7 +20,7 @@ Alice->Alice: k = KDF(0x01 ∥ (g*r)*i)
 Alice->Alice: t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)
 Alice->Alice: sig = RSig(g*I, I, {g*I, g*R, g*r}, t)
 Alice->Alice: MAC = KDF(0x08 ∥ prekey messages)
-Alice->Server: (sig, prekey messages, MAC)
+Alice->Server: (sig, 0x01 ∥ N ∥ prekey messages ∥ MAC)
 
 Server->Server: Store prekeys
 

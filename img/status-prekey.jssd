@@ -19,6 +19,6 @@ Server->Alice: (S, g*r, sig)
 Alice->Alice: k = KDF(0x01 ∥ (g*r)*i)
 Alice->Alice: t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)
 Alice->Alice: sig = RSig(g*I, I, {g*I, g*R, g*r}, t)
-Alice->Server: (sig, "STATUS")
+Alice->Server: (sig, 0x02)
 
 Server->Alice: Informe quantity of available prekey messages

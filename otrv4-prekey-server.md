@@ -53,7 +53,7 @@ The protocol goes as follows:
 
 1. Selects ephemeral keypair `(i, g*i)`. See: OTRv4 spec, section "Generating
    ECDH and DH keys".
-1. Sends `(A, g*i)` to the server.
+1. Sends `(A, g*i)` to the server in a DAKE-1 message.
 
 **Server**
 
@@ -69,7 +69,7 @@ The protocol goes as follows:
 1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
 1. Computes `sig = RSig(g*R, R, {g*I, g*R, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
 1. Computes `k = KDF(0x01 ∥ (g*i)*r)` and securely erases `r`.
-1. Send `(S, g*r, sig)`.
+1. Send `(S, g*r, sig)` to Alice in a DAKE-2 message.
 
 **Alice**
 
@@ -86,7 +86,7 @@ The protocol goes as follows:
 1. Creates the message (`msg`) you want to send to the server.
    1. If you want to publish prekey messages, create a "Prekey publication message".
    1. If you want to retrieve storage information, create a "Storage information request message".
-1. Send `(sig, msg)`.
+1. Send `(sig, msg)` to the Server in a DAKE-3 message.
 
 **Server**
 
@@ -138,6 +138,9 @@ profile = "prekey.xmpp.org" || "E5lZcvcEhw7NE8OLDjIWwzRIT2hfaPyg04yARNC9zDitkuVv
 ```
 
 ### Encoding
+
+This spec uses the same data types as defined in OTRv4 spec, section
+"Data Types".
 
 A DAKE-1 message must be serialized as:
 
@@ -219,9 +222,9 @@ PREKEYS (BYTES)
    All (N) prekey messages serialized according to OTRv4 spec.
 
 MAC (BYTES)
-   The MAC for the field PREKEYS.
+   The MAC for this entire message.
 
-   MAC = KDF(0x08 ∥ prekey messages)
+   MAC = KDF(0x08 ∥ message id ∥ N ∥ prekeys)
 ```
 
 Storage information request message
@@ -249,8 +252,7 @@ Stored prekey messages (INT)
   long-term public key used in the DAKE.
 ```
 
-After serializing, encode in Base-64, then prepend `?OTRP` and add fragmentation
-like in OTRv4.
+After serializing, encode in Base-64, then prepend `?OTRP`.
 
 ### State machine
 
