@@ -44,12 +44,6 @@ The server expects to only receive messages on the same network authenticated
 clients use to exchange messages, that is, if a message is received from the
 network the sender is believed to be authenticated by the network.
 
-TODO: The server needs to store prekey messages from multiple OTR versions.
-TODO: When a prekey message is requested, there must be a way to say ALL the
-versions you are interested in.
-TODO: When a prekey message is received from the server, check if it has the
-version you requested.
-
 ## Publishing Prekey Messages
 
 #### High-level overview
