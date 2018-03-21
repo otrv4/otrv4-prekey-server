@@ -19,21 +19,6 @@ This server should be considered untrusted. This means that a malicious server
 could cause communication between parties to fail (e.g. by refusing to deliver
 prekey messages).
 
-### From meeting
-
-- The prekey server will need some OTRv4-specific prekey server software, so this
-  software can easily generate ephemeral keys for each connection.
-- The prekey server must have some identifier to be used for the DAKE, maybe the
-  domain name.
-- A prekey message can be encrypted in the server but when handled out to the
-  receiver it should be decrypted.
-- There should be prekey messages for every long-term public key that a device
-  has.
-
-Check this: https://github.com/otrv4/otrv4/blob/master/architecture-decisions/009-non-interactive-dake.md#publishing-and-retrieving-prekey-messages-from-a-prekey-server
-
-## Server specifications
-
 The server must have three capabilities:
 
 - Receive prekey messages and store them.
@@ -44,29 +29,7 @@ The server expects to only receive messages on the same network authenticated
 clients use to exchange messages, that is, if a message is received from the
 network the sender is believed to be authenticated by the network.
 
-## Publishing Prekey Messages
-
-#### High-level overview
-
-![Publishing prekey messages](./img/publish-prekey.svg)
-
-1. Client creates prekey messages.
-   1. Prekey messages are created as defined in OTRv4 spec.
-1. Client receives server identifier (e.g. prekey.autonomia.digital) and the
-   server's long-term public key from some source.
-1. Client authenticates with the server through interactive DAKE and, by that,
-   generates a shared secret.
-1. Client sends prekey messages to Server.
-1. Server verifies received prekey messages.
-   1. Check user profile (and if it is signed by the same long-term key that
-      was used in the DAKE).
-   1. Check everything the OTRv4 spec mandates in regard to prekey messages
-      [\[2\]](#references).
-1. Server stores prekey message.
-1. Server sends acknowledgment that the operation succeeded.
-
-
-#### Detailed protocol
+## Interactive DAKE
 
 The following parameters are expected to be generated beforehand:
 
@@ -110,15 +73,16 @@ The protocol goes as follows:
 1. Verify the received message. If something fails, abort the DAKE.
    1. Verify if `g*r` is on curve Ed448. See: OTRv4 spec, section
       "Generating ECDH and DH keys".
-   1. Verify if `S` is a valid server profile. (TODO: How?)
    1. Computes `phi`.
    1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
    1. Verify if `sig == RVrf({g*I, g*R, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
 1. Computes `k = KDF(0x01 ∥ (g*r)*i)` and securely erases `i`.
 1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x6 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
 1. Computes `sig = RSig(g*I, I, {g*I, g*R, g*r}, t)`.
-1. Computes `MAC = KDF(0x08 ∥ prekey messages)`.
-1. Send `(sig, prekey messages, MAC)`.
+1. Creates the message (`msg`) you want to send to the server.
+   1. If you want to publish prekey messages, create a "Prekey publication message".
+   1. If you want to retrieve storage information, create a "Storage information request message".
+1. Send `(sig, msg)`.
 
 **Server**
 
@@ -126,9 +90,7 @@ The protocol goes as follows:
    failure message.
    1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
    1. Verify if `sig == RVrf({g*I, g*R, g*r}, t)`. See: OTRv4 section "Ring Signature Authentication".
-1. Verify if the integrity of the prekey messages.
-1. Verify the received prekey messages. See: OTRv4, section "Receiving Prekey Messages".
-1. Store the received prekey messages.
+1. Verify `msg`.
 
 For `g`, see OTRv4, section "Elliptic Curve Parameters".
 
@@ -136,7 +98,7 @@ The operator `||` represents concatenation of a byte array. Their operands must
 be serialized into byte arrays. Serialization of points in an elliptic curve is
 definer in OTRv4 spec, section "Encoding and Decoding".
 
-**KDF**
+### KDF
 
 The key derivation function is defined as:
 
@@ -147,7 +109,7 @@ Unlike SHAKE standard, output size (d) here is defined in bytes. You may need to
 
 ```
 
-**Phi**
+### Phi
 
 For an explanation about `phi`, see OTRv4, section "Shared Session State".
 For a prekey server that receive requests over XMPP, this must be:
@@ -163,7 +125,7 @@ For example:
 phi = "alice@jabber.net" || "prekeys.xmpp.org"
 ```
 
-**Server Profile**
+### Server Profile
 
 For a prekey server that uses XMPP, this must be the prekey server's bare JID (for example, prekey.xmpp.org) and its fingerprint. Example:
 
@@ -171,7 +133,7 @@ For a prekey server that uses XMPP, this must be the prekey server's bare JID (f
 profile = "prekey.xmpp.org" || "E5lZcvcEhw7NE8OLDjIWwzRIT2hfaPyg04yARNC9zDitkuVvsBtgkddHjBCyXP99YGtgXgP+aOU="
 ```
 
-**Encoding**
+### Encoding
 
 A DAKE-1 message must be serialized as:
 
@@ -192,7 +154,6 @@ Sender's User Profile (USER-PROF)
 
 g*i (POINT)
   The ephemeral public ECDH key.
-
 ```
 
 A DAKE-2 message must be serialized as:
@@ -234,11 +195,18 @@ Receiver's instance tag (INT)
 sigma (RING-SIG)
   The 'RING-SIG' proof of authentication value.
 
-Action (BYTE)
-  0x01 for publishing prekey messages
-  0x02 for querying the server about the server's storage
+Message (BYTES)
+  The message sent to the receiver.
+  In this protocol there are 2 kinds of messages:
+    - Prekey publication
+    - Storage information
+```
 
-If Action is 0x01
+Prekey publication message
+
+```
+Message ID (BYTE)
+  This message has ID 0x01.
 
 N (SHORT)
    The number of prekey messages present in this message.
@@ -249,13 +217,18 @@ PREKEYS (BYTES)
 MAC (BYTES)
    The MAC for the field PREKEYS.
 
-If Action is 0x02
-
-Nothing else.
-
+   MAC = KDF(0x08 ∥ prekey messages)
 ```
 
-A storage status message must be serialized as:
+Storage information request message
+
+```
+Message ID (BYTE)
+  This message has ID 0x02.
+```
+
+A storage status message is sent in response to a Storage information request.
+It must be serialized as:
 
 ```
 Message type (BYTE)
@@ -275,7 +248,7 @@ Stored prekey messages (INT)
 After serializing, encode in Base-64, then prepend `?OTRP` and add fragmentation
 like in OTRv4.
 
-**State machine**
+### State machine
 
 TODO: explain each "event", state and transitions.
 TODO: Failure scenarios (no prekey for the identity, for example).
@@ -286,9 +259,28 @@ Server receives DAKE-msg-3: ...
 
 Otherwise: ...
 
-## Retrieving Prekey Messages
+## Publishing Prekey Messages
 
-### High-level overview
+![Publishing prekey messages](./img/publish-prekey.svg)
+
+1. Client creates prekey messages.
+   1. Prekey messages are created as defined in OTRv4 spec.
+1. Client receives server identifier (e.g. prekey.autonomia.digital) and the
+   server's long-term public key from some source. In XMPP, through your
+   server's service discovery.
+1. Client authenticates with the server through interactive DAKE and, by that,
+   generates a shared secret. See section "Interacive DAKE".
+1. Client sends prekey messages to Server.
+1. Server verifies received prekey messages.
+   1. Check the integrity of the prekey messages.
+   1. Check user profile (and if it is signed by the same long-term key that
+      was used in the DAKE).
+   1. Check everything the OTRv4 spec mandates in regard to prekey messages
+      See: OTRv4, section "Receiving Prekey Messages".
+1. Server stores prekey message.
+1. Server sends acknowledgment that the operation succeeded.
+
+## Retrieving Prekey Messages
 
 ![Retrieving prekey messages](./img/retrieve-prekey.svg)
 
@@ -312,18 +304,12 @@ messages:
 
 ## Query the server for its storage status
 
-### High-level overview
-
 ![Get status of prekey messages](./img/status-prekey.svg)
 
-1. Client uses a DAKEZ to authenticate with the server.
-2. Server responds with number of prekey messages stored for the long-term
-   public key and identity used on the DAKEZ.
-
-### Interactive DAKE
-
-TODO: is it the same DAKE as the one used to publish? Is there a different state machine?
-If the dake has 2 different kinds of msg-3, we need to say which one is valid here and there.
+1. Client uses a DAKEZ to authenticate with the server. See section "Interacive DAKE".
+2. Server responds with a "storage status message" containing the
+   number of prekey messages stored for the long-term public key
+   and identity used on the DAKEZ.
 
 ## A prekey server for OTRv4 over XMPP
 
@@ -496,7 +482,7 @@ And the server respond with a storage status message:
 TODO.
 
 
-
+## Does this section make sense now that we have the previous section?
 
 bob@xmpp.org wants to know how many prekeys remain unused on the server
 
