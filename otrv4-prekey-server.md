@@ -322,6 +322,10 @@ messages:
 
 ## Query the server for its storage status
 
+### High-level overview
+
+![Get status of prekey messages](./img/status-prekey.svg)
+
 1. Client uses a DAKEZ to authenticate with the server.
 2. Server responds with number of prekey messages stored for the long-term
    public key and identity used on the DAKEZ.

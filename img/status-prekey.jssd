@@ -1,0 +1,24 @@
+participant Alice
+participant Server
+
+Note over Alice, Server: Alice has long-term keypairs (I, g*I) and the Server has (R, g*R)
+
+Note over Alice: Generates previously user profile (A)
+
+Note over Server: Generates previously a server profile (S)
+
+Note over Alice, Server: DAKE
+
+Alice->Server: (A, g*i).
+
+Server->Server: t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)
+Server->Server: sig = RSig(g*R, R, {g*I, g*R, g*i}, t)
+Server->Server: k = KDF(0x01 ∥ (g*i)*r)
+Server->Alice: (S, g*r, sig)
+
+Alice->Alice: k = KDF(0x01 ∥ (g*r)*i)
+Alice->Alice: t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)
+Alice->Alice: sig = RSig(g*I, I, {g*I, g*R, g*r}, t)
+Alice->Server: (sig, "STATUS")
+
+Server->Alice: Informe quantity of available prekey messages
