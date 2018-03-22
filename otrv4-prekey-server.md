@@ -98,7 +98,7 @@ The protocol goes as follows:
 
 For `g`, see OTRv4, section "Elliptic Curve Parameters".
 
-The operator `||` represents concatenation of a byte array. Their operands must
+The operator `∥` represents concatenation of a byte array. Their operands must
 be serialized into byte arrays. Serialization of points in an elliptic curve is
 definer in OTRv4 spec, section "Encoding and Decoding".
 
@@ -107,7 +107,7 @@ definer in OTRv4 spec, section "Encoding and Decoding".
 The key derivation function is defined as:
 
 ```
-KDF(value) = SHAKE-256("OTRv4-Prekey-Server" || value, 64)
+KDF(value) = SHAKE-256("OTRv4-Prekey-Server" ∥ value, 64)
 
 Unlike SHAKE standard, output size (d) here is defined in bytes. You may need to convert it to bits.
 
@@ -120,13 +120,13 @@ For a prekey server that receive requests over XMPP, this must be:
 
 
 ```
-phi = sender's bare JID || receiver's bare JID
+phi = sender's bare JID ∥ receiver's bare JID
 ```
 
 For example:
 
 ```
-phi = "alice@jabber.net" || "prekeys.xmpp.org"
+phi = "alice@jabber.net" ∥ "prekeys.xmpp.org"
 ```
 
 ### Server Profile
@@ -134,7 +134,7 @@ phi = "alice@jabber.net" || "prekeys.xmpp.org"
 For a prekey server that uses XMPP, this must be the prekey server's bare JID (for example, prekey.xmpp.org) and its fingerprint. Example:
 
 ```
-profile = "prekey.xmpp.org" || "E5lZcvcEhw7NE8OLDjIWwzRIT2hfaPyg04yARNC9zDitkuVvsBtgkddHjBCyXP99YGtgXgP+aOU="
+profile = "prekey.xmpp.org" ∥ "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
 ```
 
 ### Encoding
