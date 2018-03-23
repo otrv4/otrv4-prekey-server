@@ -539,15 +539,42 @@ Stored prekey messages (INT)
 
 ### State machine
 
-// TODO: explain each "event", state and transitions.
+States:
 
-// TODO: Failure scenarios (no prekey for the identity, for example).
+- IN_DAKE: Client has sent a DAKE-1 message, or Server has sent a DAKE-2 message.
+- NOT_IN_DAKE: Not on IN_DAKE state.
 
-Server receives DAKE-msg-1: ...
+**Starting the DAKE**
 
-Server receives DAKE-msg-3: ...
+- Client sends DAKE-1 message.
+- Transitions to IN_DAKE.
 
-Otherwise: ...
+**Receiving a DAKE-1 message**
+
+- Server sends DAKE-2 message.
+- Transitions to IN_DAKE.
+
+**Receiving a DAKE-2 message**
+
+If client is in state IN_DAKE:
+
+- Client sends DAKE-3 message.
+- Transitions to NOT_IN_DAKE.
+
+Otherwise:
+
+- Ignore message.
+
+**Receiving a DAKE-3 message**
+
+If server is in state IN_DAKE:
+
+- Transitions to NOT_IN_DAKE.
+
+Otherwise:
+
+- Ignore message.
+
 
 ## Publishing Prekey Messages
 
