@@ -11,44 +11,48 @@ protocol when it needs an untrusted central server to store prekey messages.
 
 ## Table of Contents
 
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
 - [OTRv4 Prekey Server](#otrv4-prekey-server)
-- [Table of Contents](#table-of-contents)
-- [High Level Overview](#high-level-overview)
-- [Assumptions](#assumptions)
-- [Server Specifications](#server-specifications)
-- [Notation and Parameters](#notation-and-parameters)
-    - [Notation](#notation)
-    - [Elliptic Curve Parameters](#elliptic-curve-parameters)
-    - [Key Derivation Functions](#key-derivation-functions)
-- [Data Types](#data-types)
-    - [Encoded Messages](#encoded-messages)
-    - [Public keys and Fingerprints](#public-keys-and-fingerprints)
-    - [Shared Session State](#shared-session-state)
-    - [Server's Identifier](#servers-identifier)
-- [Key Management](#key-management)
-    - [Shared secrets](#shared-secrets)
-    - [Generating Shared Secrets](#generating-shared-secrets)
-- [Interactive DAKE](#interactive-dake)
-    - [DAKE-1 Message](#dake-1-message)
-    - [DAKE-2 Message](#dake-2-message)
-        - [DAKE-3 Message](#dake-3-message)
-        - [Prekey Publication Message](#prekey-publication-message)
-        - [Storage Information Message](#storage-information-message)
-        - [Storage Status Message](#storage-status-message)
-    - [State machine](#state-machine)
-- [Publishing Prekey Messages](#publishing-prekey-messages)
-- [Retrieving Prekey Messages](#retrieving-prekey-messages)
-- [Query the server for its storage status](#query-the-server-for-its-storage-status)
-- [A prekey server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
-    - [Discovering a prekey service](#discovering-a-prekey-service)
-    - [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
-    - [Publishing prekeys to the service](#publishing-prekeys-to-the-service)
-    - [Obtaining information about your prekeys from the service](#obtaining-information-about-your-prekeys-from-the-service)
-    - [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
-- [Does this section make sense now that we have the previous section?](#does-this-section-make-sense-now-that-we-have-the-previous-section)
-- [Attacks](#attacks)
-    - [KCI attacks and the unstrusted prekey server](#kci-attacks-and-the-unstrusted-prekey-server)
-- [References](#references)
+    - [Table of Contents](#table-of-contents)
+    - [High Level Overview](#high-level-overview)
+    - [Assumptions](#assumptions)
+    - [Server Specifications](#server-specifications)
+    - [Notation and Parameters](#notation-and-parameters)
+        - [Notation](#notation)
+        - [Elliptic Curve Parameters](#elliptic-curve-parameters)
+        - [Key Derivation Functions](#key-derivation-functions)
+    - [Data Types](#data-types)
+        - [Encoded Messages](#encoded-messages)
+        - [Public keys and Fingerprints](#public-keys-and-fingerprints)
+        - [Shared Session State](#shared-session-state)
+        - [Server's Identifier](#servers-identifier)
+    - [Key Management](#key-management)
+        - [Shared secrets](#shared-secrets)
+        - [Generating Shared Secrets](#generating-shared-secrets)
+    - [Interactive DAKE](#interactive-dake)
+        - [DAKE-1 Message](#dake-1-message)
+        - [DAKE-2 Message](#dake-2-message)
+            - [DAKE-3 Message](#dake-3-message)
+            - [Prekey Publication Message](#prekey-publication-message)
+            - [Storage Information Message](#storage-information-message)
+            - [Storage Status Message](#storage-status-message)
+        - [State machine](#state-machine)
+    - [Publishing Prekey Messages](#publishing-prekey-messages)
+    - [Retrieving Prekey Messages](#retrieving-prekey-messages)
+    - [Query the server for its storage status](#query-the-server-for-its-storage-status)
+    - [A prekey server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
+        - [Discovering a prekey service](#discovering-a-prekey-service)
+        - [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
+        - [Publishing prekeys to the service](#publishing-prekeys-to-the-service)
+        - [Obtaining information about your prekeys from the service](#obtaining-information-about-your-prekeys-from-the-service)
+            - [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
+    - [Detailed example of the prekey server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
+    - [Attacks](#attacks)
+        - [KCI attacks and the unstrusted prekey server](#kci-attacks-and-the-unstrusted-prekey-server)
+    - [References](#references)
+
+<!-- /TOC -->
 
 ## High Level Overview
 
@@ -684,7 +688,7 @@ message:
 A prekey server implementation over XMPP must support Service Discovery
 (XEP-0030) ("disco").
 
-##### Discovering a prekey service
+### Discovering a prekey service
 
 An entity often discovers a prekey service by sending a Service Discovery items
 ("disco#items") request to its own server.
@@ -712,7 +716,7 @@ The server then returns the services that are associated with it.
   </iq>
 ```
 
-#### Discovering the features supported by a prekey service
+### Discovering the features supported by a prekey service
 
 An entity may wish to discover if a service implements the prekey server
 protocol; in order to do so, it sends a service discovery information
@@ -744,7 +748,7 @@ The service must return its identity and the features it supports.
   </iq>
 ```
 
-#### Publishing prekeys to the service
+### Publishing prekeys to the service
 
 An entity authenticates to the service through an interactive DAKE. DAKE
 messages are send in "message" stanzas.
@@ -797,7 +801,7 @@ And the server respond with a success message:
   </message>
 ```
 
-#### Obtaining information about your prekeys from the service
+### Obtaining information about your prekeys from the service
 
 An entity authenticates to the service through a DAKE. DAKE messages are send
 in "message" stanzas.
@@ -874,9 +878,7 @@ a DAKE-3 message and without a MAC field.
   </message>
 ```
 
-## Does this section make sense now that we have the previous section?
-
-Yeah, it is more detailed.
+## Detailed example of the prekey server over XMPP
 
 bob@xmpp.org wants to know how many prekeys remain unused on the server
 
