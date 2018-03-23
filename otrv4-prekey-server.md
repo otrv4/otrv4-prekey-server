@@ -967,7 +967,10 @@ using the compromised device.
 
 1. https://github.com/otrv4/otrv4/blob/master/otrv4.md
 2. https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-messages
-3. http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
+3. Unger, N. and Goldberg, I., 2018. Improved Strongly Deniable Authenticated
+   Key Exchanges for Secure Messaging. Proceedings on Privacy Enhancing
+   Technologies, 2018(1), pp.21-66. Available at:
+   http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
    https://github.com/WhisperSystems/Signal-Server/wiki/API-Protocol
 4. Hamburg, M. (2015). *Ed448-Goldilocks, a new elliptic curve*, NIST ECC
    workshop. Available at: https://eprint.iacr.org/2015/625.pdf
