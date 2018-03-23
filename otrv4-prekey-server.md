@@ -9,11 +9,16 @@ This protocol specification is a draft.
 OTRv4 Prekey Server provides an specification for OTRv4 [\[1\]](#references)
 protocol when it needs an untrusted central server to store prekey messages.
 
-In order to perform a non-interactive DAKE the user who wants to initiate the
-conversation needs to obtain prekey messages from a prekey server.
+## Overview
+
+In order to perform offline conversations, OTRv4 specification defines a
+non-interactive DAKE (manly, XZDH). This DAKE begins when a party that wants to
+initiate an offline conversation asks an untrusted prekey server for prekey
+messages. These prekey messages have previously been stored in the prekey server
+by another party.
 
 This document aims to describe how the prekey server can be used to securely
-publish and retrieve already published prekey messages.
+publish, store and retrieve prekey messages.
 
 This server should be considered untrusted. This means that a malicious server
 could cause communication between parties to fail (e.g. by refusing to deliver
@@ -29,60 +34,146 @@ The server expects to only receive messages on the same network authenticated
 clients use to exchange messages, that is, if a message is received from the
 network the sender is believed to be authenticated by the network.
 
+Note that prekey submssions (publishing) have to be authenticated. If they are
+not authenticated, then malicious users can perform denial-of-service attacks.
+To preserve the deniability of the overall OTRv4 protocol, prekeys messages
+should never be digitally signed. The best approach is to authenticate prekey
+message uploads using a DAKEZ exchange between the published and the server,
+which preserves deniability.
+
 ## Table of Contents
 
 TODO
 
+## Notation and Parameters
+
+### Notation
+
+OTRv4 Prekey Server specification uses the same notation as the OTRv4
+specification, as defined in the section "Notation" [\[1\]](#references).
+
+Notice that scalars and secret/private keys are in lower case, such as `x`
+or `y`. Points and public keys are in upper case, such as `P` or `Q`.
+
+The concatenation of byte sequences `I` and `J` is `I || J`. In this case, `I`
+and `J` represent a fixed-length byte sequence encoding of the respective
+values.
+
+### Elliptic Curve Parameters
+
+OTRv4-Prekey-Server specification uses the Ed448-Goldilocks [\[4\]](#references)
+elliptic curve [\[5\]](#references), with the same parameters as those defined
+in the "Elliptic Curve Parameters" of the OTRv4 specification
+[\[1\]](#references).
+
+### Key Derivation Functions
+
+The following key derivation function is used in this specification:
+
+```
+  KDF(value) = SHAKE-256("OTRv4-Prekey-Server" || value, 64)
+```
+
+The 64 first bytes of the SHAKE-256 output for input
+`"OTRv4-Prekey-Server" || values` are returned.
+
+Unlike SHAKE standard, the output size here (64) is defined in bytes.
+
+## Data Types
+
+### Shared Session State
+
+A Shared Session State is needed for this specification for the same reasons
+stated on the "Shared Session State" section of the OTRv4 specification
+[\[1\]](#references) (mainly, to authenticate contexts to prevent attacks that
+rebind the DAKE transcript into different contexts). It is only needed for
+the interactive DAKE between the unstrusted prekey server and the publishing
+party.
+
+In the case that this interactive DAKE happens over XMPP, this must be:
+
+
+```
+  phi = publisher's bare JID || servers's bare JID
+```
+
+For example:
+
+```
+  phi = "alice@jabber.net" || "prekeys.xmpp.org"
+```
+
+### Server's Identifier
+
+For the interactive DAKE performed by a party and the untrusted server, an
+identifier is needed. In the case of the untrusted sever, this value will be
+denoted as "Server Identifier".
+
+In any case, it should be hash of the username concatened with its fingerprint.
+
+For a prekey server that uses XMPP, this must be the prekey server's bare JID
+(for example, prekey.xmpp.org) and its fingerprint:
+
+```
+  server's identifier = "prekey.xmpp.org" ∥ "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
+```
+
 ## Interactive DAKE
+
+As previously stated, prekey submissions (publishing) have to be authenticated.
+If they are not authenticated, then malicious users can perform
+denial-of-service attacks. To preserve the deniability of the overall OTRv4
+protocol, they are authenticated using a DAKEZ [\[3\]](#references) exchange
+between the publisher and the server, which preserves deniability.
 
 The following parameters are expected to be generated beforehand:
 
-* `(I, g*I)`: Alice's long-term keypair. See: OTRv4, section
+* `(sk_a, Ha)`: Alice's long-term keypair. See: OTRv4, section
    "Public keys, Shared Prekeyes and Fingerprints".
-* `(R, g*R)`: Server's long-term keypair. See: OTRv4, section
+* `(sk_s, Hs)`: Server's long-term keypair. See: OTRv4, section
    "Public keys, Shared Prekeyes and Fingerprints".
-* `A`: Alice's User-Profile. See: OTRv4, section "Creating a User Profile".
-* `S`: the Server's profile.
+* `Alices_User_Profile`: Alice's User Profile. See: OTRv4, section "Creating a
+   User Profile".
+* `Server_User_Identifier`: the Server's identifier.
 
-Alice is also expected to receive the server's identity and its long-term
-public key so they can be manually verified by her.
+Alice is also expected to receive beforehand the server's identity and its
+long-term public key, so they can be manually verified by her.
 
-The protocol goes as follows:
+Alice will be initiating the DAKEZ with the server:
+
+// TODO: does this need a SSID?
 
 **Alice**
 
-1. Selects ephemeral keypair `(i, g*i)`. See: OTRv4 spec, section "Generating
-   ECDH and DH keys".
-1. Sends `(A, g*i)` to the server in a DAKE-1 message.
+1. Generates a DAKE-1 message, as defined in [DAKE 1](#dake-1) section.
+1. Sends the DAKE-1 message to the server.
 
 **Server**
 
-1. Verify the received message. If something fails, abort the DAKE.
-   1. Verify if `g*i` is on curve Ed448. See: OTRv4 spec, section "Generating
-      ECDH and DH keys".
-   1. Verify if `A` is a valid not-expired profile. See: OTRv4 spec, section
-      "Validating a User Profile".
-1. Obtain `g*I` from `A`. See: OTRv4 section, "User profile".
-1. Selects ephemeral keypair `(r, g*r)`. See: OTRv4 spec, section "Generating
-   ECDH and DH keys".
-1. Computes `phi`.
-1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
-1. Computes `sig = RSig(g*R, R, {g*I, g*R, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
-1. Computes `k = KDF(0x01 ∥ (g*i)*r)` and securely erases `r`.
-1. Send `(S, g*r, sig)` to Alice in a DAKE-2 message.
+1. Receives a DAKE-1 message from Alice:
+    * Verifies the DAKE-1 message as defined in the
+      [DAKE-1 message](#dake-1-message) section. If the verification fails
+      (for example, if Alice's public key -`I`- are not valid), rejects
+      the message and does not send anything further.
+1. Generates a DAKE-2 message, as defined in
+   [DAKE-2 Message](#dake-2-message) section.
+1. Calculates the Shared secret (`K`):
+1. Computes `K = KDF(0x01 ∥ (I)*s)` and securely erases `s`.
+1. Sends Alice the DAKE-2 message (see [DAKE-2 Message](#dake-2-message)
+   section).
 
 **Alice**
 
-1. Verify if the server's identity and long-term public key match. Abort the DAKE if they don't.
-1. Verify the received message. If something fails, abort the DAKE.
-   1. Verify if `g*r` is on curve Ed448. See: OTRv4 spec, section
-      "Generating ECDH and DH keys".
-   1. Computes `phi`.
-   1. Computes `t = “0” ∥ KDF(0x02 ∥ A) ∥ KDF(0x03 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x04 ∥ phi)`.
-   1. Verify if `sig == RVrf({g*I, g*R, g*i}, t)`. See: OTRv4 section "Ring Signature Authentication".
-1. Computes `k = KDF(0x01 ∥ (g*r)*i)` and securely erases `i`.
-1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x6 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
-1. Computes `sig = RSig(g*I, I, {g*I, g*R, g*r}, t)`.
+1. Receives the DAKE-2 message from the Server.
+1. Retrieves the ephemeral public keys from the Server:
+    * Validates that the received ECDH ephemeral public key `S` is on curve
+      Ed448. See OTRv4 spec, section "Generating ECDH and DH keys" section for
+      details.
+1. Verifies the DAKE-2 message as defined in the
+   [DAKE-2 message](#dake-2-message) section.
+1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
+1. Calculates the Shared secret (`K`):
+   * `K = KDF(0x01 ∥ (S)*i)` and securely erases `i`.
 1. Creates the message (`msg`) you want to send to the server.
    1. If you want to publish prekey messages, create a "Prekey publication message".
    1. If you want to retrieve storage information, create a "Storage information request message".
@@ -90,59 +181,39 @@ The protocol goes as follows:
 
 **Server**
 
-1. Verify the received message. If something fails, abort the DAKE and send a
-   failure message.
-   1. Compute `t = "1" ∥ KDF(0x05 ∥ A) ∥ KDF(0x06 ∥ S) ∥ g*i ∥ g*r ∥ KDF(0x07 ∥ phi)`.
-   1. Verify if `sig == RVrf({g*I, g*R, g*r}, t)`. See: OTRv4 section "Ring Signature Authentication".
+1. Receives the DAKE-3 message from Alice:
+   * Verifies the DAKE-3 message as defined in the
+     [DAKE-3 message](#dake-3-message) section. If something fails, abort the
+     DAKE and send a failure message.
 1. Verify `msg`.
 
-For `g`, see OTRv4, section "Elliptic Curve Parameters".
+### DAKE-1 Message
 
-The operator `∥` represents concatenation of a byte array. Their operands must
-be serialized into byte arrays. Serialization of points in an elliptic curve is
-definer in OTRv4 spec, section "Encoding and Decoding".
+This is the first message of the DAKE. It is sent to commit to a choice of ECDH
+key.
 
-### KDF
+A valid DAKE-1 message is generated as follows:
 
-The key derivation function is defined as:
+1. Generate an ephemeral ECDH key pair, as defined in
+   the "Generating ECDH and DH keys" of the OTRv4 specification (ignore the
+   generation of DH keys from this section):
+   * secret key `i` (57 bytes).
+   * public key `I`.
+2. Generate a 4-byte instance tag to use as the sender's instance tag.
+   Additional messages in this conversation will continue to use this tag as the
+   sender's instance tag. Also, this tag is used to filter future received
+   messages. Messages intended for this instance of the client will have this
+   number as the receiver's instance tag.
+3. Concatenate the User Profile, previously generated.
 
-```
-KDF(value) = SHAKE-256("OTRv4-Prekey-Server" ∥ value, 64)
+To verify a DAKE-1 message:
 
-Unlike SHAKE standard, output size (d) here is defined in bytes. You may need to convert it to bits.
+1. Validate the User Profile, as defined in
+   "Validating a User Profile" section of the OTRv4 specification.
+2. Verify that the point `I` received is on curve Ed448. See
+   "Verifying that a point is on the curve" section of the OTRv4 specification.
 
-```
-
-### Phi
-
-For an explanation about `phi`, see OTRv4, section "Shared Session State".
-For a prekey server that receive requests over XMPP, this must be:
-
-
-```
-phi = sender's bare JID ∥ receiver's bare JID
-```
-
-For example:
-
-```
-phi = "alice@jabber.net" ∥ "prekeys.xmpp.org"
-```
-
-### Server Profile
-
-For a prekey server that uses XMPP, this must be the prekey server's bare JID (for example, prekey.xmpp.org) and its fingerprint. Example:
-
-```
-profile = "prekey.xmpp.org" ∥ "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
-```
-
-### Encoding
-
-This spec uses the same data types as defined in OTRv4 spec, section
-"Data Types".
-
-A DAKE-1 message must be serialized as:
+An DAKE-1 message is an OTRv4-Prekey-Server message encoded as:
 
 ```
 Message type (BYTE)
@@ -157,14 +228,58 @@ Receiver's instance tag (INT)
   the other party may not have set its instance tag yet.
 
 Sender's User Profile (USER-PROF)
-  As described in the section "Creating a User Profile".
+  As described in the section "Creating a User Profile" of the OTRv4
+  specification.
 
-g*i (POINT)
+I (POINT)
   The ephemeral public ECDH key.
+
 ```
 
-A DAKE-2 message must be serialized as:
+### DAKE-2 Message
 
+This is the second message of the DAKEZ. It is sent to commit to a choice of a
+ECDH ephemeral key, and to acknowledge the publisher's ECDH ephemeral key.
+This acknowledgment includes a validation that the publisher's ECDH key is on
+curve Ed448.
+
+A valid Auth-R message is generated as follows:
+
+1. Generate an ephemeral ECDH key pair, as defined in
+   the "Generating ECDH and DH keys" of the OTRv4 specification (ignore the
+   generation of DH keys from this section):
+   * secret key `s` (57 bytes).
+   * public key `S`.
+2. Get the Server's Identifier and Phi.
+4. Compute
+   `t = 0x0 || KDF(0x02 || Alices_User_Profile) ||
+    KDF(0x03 || Servers_Identifier) || I || S || KDF(0x04 || phi)`.
+   `phi` is the shared session state as mention in its
+   [section](#shared-session-state).
+5. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See: OTRv4 section
+   "Ring Signature Authentication".
+6. Generate a 4-byte instance tag to use as the sender's instance tag.
+   Additional messages in this conversation will continue to use this tag as the
+   sender's instance tag. Also, this tag is used to filter future received
+   messages. For the other party, this will be the receiver's instance tag.
+7. Use the sender's instance tag from the DAKE-1 message as the receiver's
+   instance tag.
+
+To verify an DAKE-2 message:
+
+1. Check that the receiver's instance tag matches your sender's instance tag.
+4. Validate the Server's Identifier by:
+   * Calculate the fingerprint of the Server's long-term public key (`H_s`).
+   * Calculate the Server's Identifier and compare with the one received.
+   Extract `H_s` from it.
+5. Compute `t = 0x0 || KDF(0x02 || Alices_User_Profile) ||
+   KDF(0x03 || Servers_Indentifier) || I || S || KDF(0x04 || phi)`.
+   `phi` is the shared session state as mention in its
+   [section](#shared-session-state).
+6. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`
+   See: OTRv4 section "Ring Signature Authentication".
+
+A DAKE-2 message is an OTRv4-Prekey-Server message encoded as:
 
 ```
 Message type (BYTE)
@@ -176,18 +291,44 @@ Sender's instance tag (INT)
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
-Sender's Server Profile (USER-PROF)
-  As described in the section "Creating a User Profile".
+Server's Identifier (USER-PROF) // TODO: this needs a data type
+  As described in the section "Server's Identifier".
 
-g*r (POINT)
+S (POINT)
   The ephemeral public ECDH key.
 
 sigma (RING-SIG)
   The 'RING-SIG' proof of authentication value.
-
 ```
 
-A DAKE-3 message must be serialized as:
+#### DAKE-3 Message
+
+This is the final message of the DAKE. It is sent to verify the authentication
+`sigma`.
+
+A valid DAKE-3 message is generated as follows:
+
+1. Compute
+   `t = 0x1 || KDF(0x05 || Alices_User_Profile) ||
+    KDF(0x6 || Servers_Identifier) || I || S || KDF(0x04 || phi)`.
+   `phi` is the shared session state as mention in its
+   [section](#shared-session-state).
+2. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in
+   [Ring Signature Authentication](#ring-signature-authentication).
+3. Continue to use the sender's instance tag.
+
+To verify a DAKE-3 message:
+
+1. Check that the receiver's instance tag matches your sender's instance tag.
+2. Compute
+   `t = 0x01 || KDF(0x05 || Alices_User_Profile) ||
+    KDF(0x06 || Servers_Identifier) || I || S || KDF(0x07 || phi, 64)`.
+   `phi` is the shared session state as mention in its
+   [section](#shared-session-state).
+3. Verify the `sigma` with `sig == RVrf({H_a, H_b, S}, t)`. See: OTRv4 section
+   "Ring Signature Authentication".
+
+A DAKE-3 is an OTRv4-Prekey-Server message encoded as:
 
 ```
 Message type (BYTE)
@@ -209,6 +350,8 @@ Message (BYTES)
     - Storage information
 ```
 
+#### Prekey Publication Message
+
 Prekey publication message
 
 ```
@@ -227,6 +370,8 @@ MAC (BYTES)
    MAC = KDF(0x08 ∥ message id ∥ N ∥ prekeys)
 ```
 
+#### Storage Information Message
+
 Storage information request message
 
 ```
@@ -234,8 +379,10 @@ Message ID (BYTE)
   This message has ID 0x02.
 ```
 
+#### Storage Status Message
+
 A storage status message is sent in response to a Storage information request.
-It must be serialized as:
+It must be encoded as:
 
 ```
 Message type (BYTE)
@@ -562,6 +709,8 @@ alice@jabber.org wants to send an offline message to bob@xmpp.org
 format?
 
 - What if the server delivers all the prekey messages to an adversary
+- How does forward secrecy is compromised when the prekey server refuses to hand
+  out prekey messages?
 
 ## References
 
@@ -569,3 +718,8 @@ format?
 2. https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-messages
 3. http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
    https://github.com/WhisperSystems/Signal-Server/wiki/API-Protocol
+4. Hamburg, M. (2015). *Ed448-Goldilocks, a new elliptic curve*, NIST ECC
+   workshop. Available at: https://eprint.iacr.org/2015/625.pdf
+5. Hamburg, M., Langley, A. and Turner, S. (2016). *Elliptic Curves for
+   Security*, Internet Engineering Task Force, RFC 7748. Available at:
+   http://www.ietf.org/rfc/rfc7748.txt
