@@ -813,8 +813,29 @@ And the server respond with a storage status message:
 
 #### Retrieving published prekeys from a prekey service
 
-TODO.
+An entity asks the service for prekey messages from a particular subject,
+for example, "bob@xmpp.net".
 
+```
+  <message
+      from='alice@xmpp.org/notebook'
+      id='nzd143v8'
+      to='prekey.xmpp.org'>
+    <subject>bob@xmpp.net</subject>
+  </message>
+```
+
+The service responds with a Prekey Publication message, this time not inside
+a DAKE-3 message and without a MAC field.
+
+```
+  <message
+      from='prekey.xmpp.org'
+      id='13fd16378'
+      to='alice@xmpp.org/notebook'>
+    <body>?OTRP...</body>
+  </message>
+```
 
 ## Does this section make sense now that we have the previous section?
 
