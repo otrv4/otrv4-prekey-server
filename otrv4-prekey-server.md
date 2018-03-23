@@ -30,7 +30,6 @@ by another party.
 This document aims to describe how the prekey server can be used to securely
 publish, store and retrieve prekey messages.
 
-
 ## Assumptions
 
 // TODO: are there more assumptions?
@@ -554,61 +553,77 @@ Otherwise: ...
 
 ![Publishing prekey messages](./img/publish-prekey.svg)
 
+// TODO: the server does not perform any check, as far as I know. The server is
+untrusted and therefore cannot perform any check. The client that asks for
+prekey messages and receives them, is the one that checks.
+
 1. Client creates prekey messages.
    1. Prekey messages are created as defined in OTRv4 spec.
-1. Client receives server identifier (e.g. prekey.autonomia.digital) and the
-   server's long-term public key from some source. In XMPP, through your
-   server's service discovery.
-1. Client authenticates with the server through interactive DAKE and, by that,
-   generates a shared secret. See section "Interacive DAKE".
-1. Client sends prekey messages to Server.
-1. Server verifies received prekey messages.
-   1. Check the integrity of the prekey messages.
-   1. Check user profile (and if it is signed by the same long-term key that
-      was used in the DAKE).
-   1. Check everything the OTRv4 spec mandates in regard to prekey messages
-      See: OTRv4, section "Receiving Prekey Messages".
-1. Server stores prekey message.
+1. Client receives a server identifier (e.g. prekey.autonomia.digital) and the
+   server's long-term public key from some source. In XMPP, this happens through
+   your server's service discovery.
+1. Client authenticates with the server through an interactive DAKE and, by
+   that, it deniably authenticates and generates a shared secret.
+   See section [Interacive DAKE](#interactive-dake).
+1. Client sends prekey messages to the Prekey Server. It should send a prekey
+   message for every long term key that belongs to the publisher for this
+   device/client.
+1. Server verifies the received prekey messages.
+   1. Checks the integrity of the prekey messages.
+   1. Checks the User Profile (and if it is signed by the same long-term key
+      that was used in the DAKE).
+   1. Checks the Prekey Profile (and if it is signed by the same long-term key
+      that was used in the DAKE and stated in the User Profile).
+1. Server stores the prekey messages.
 1. Server sends acknowledgment that the operation succeeded.
 
 ## Retrieving Prekey Messages
 
+// TODO: here is missing the trust on the long-term public keys.
+
 ![Retrieving prekey messages](./img/retrieve-prekey.svg)
 
-In order to send an encrypted offline message a client must obtain a prekey
-messages:
+In order to send an encrypted offline message, a client must obtain a prekey
+message:
 
-1. Client informs which identity it wants a prekey message for.
+1. Client informs which identity it wants a Prekey Message for.
 1. Server selects one prekey message for each instance tag of the identity.
-   1. Group all prekey messages by instance tag.
+   1. Group all prekey messages by long-term public key and by instance tag.
    1. Filter out expired prekey messages from each group.
    1. Choose one prekey message from each group.
 1. Server delivers all selected prekey messages to the Client.
 1. Server removes the selected prekey messages from its storage.
 1. Client selects the latest prekey messages form each instance tag.
-   1. Group all prekey messages by instance tag.
-   1. Filter out invalid prekey messages (expired, for example) from each group.
+   1. Group all prekey messages by long-term public key and by instance tag.
+   1. Filter out invalid prekey messages (expired, for example) from each group,
+      as defined in the "Receiving Prekey Messages" section of the OTRv4
+      specification.
    1. Choose the prekey message with the latest expiry time from each group.
-1. Client choses which prekey messages to send an encrypted offline message to.
-   1. Inform the user if the message will be send to multiple instance tags and/or long-term keys.
-   1. Decide if multiple conversations should be kept simultaneously (one per instance tag).
+1. Client choses which prekey messages to send an encrypted offline message to:
+   1. Inform the user if the message will be send to multiple instance tags
+      and/or long-term keys.
+   1. Decide if multiple conversations should be kept simultaneously (one per
+      instance tag).
 
 ## Query the server for its storage status
 
 ![Get status of prekey messages](./img/status-prekey.svg)
 
-1. Client uses a DAKEZ to authenticate with the server. See section "Interacive DAKE".
-2. Server responds with a "storage status message" containing the
-   number of prekey messages stored for the long-term public key
-   and identity used on the DAKEZ.
+1. Client uses a DAKEZ to authenticate with the server. See section
+   [Interacive DAKE](#interactive-dake).
+2. Server responds with a "storage status message" containing the number of
+   prekey messages stored for the long-term public key and identity used in the
+   DAKEZ.
 
 ## A prekey server for OTRv4 over XMPP
 
-A prekey server implementation MUST support Service Discovery (XEP-0030) ("disco").
+A prekey server implementation over XMPP must support Service Discovery
+(XEP-0030) ("disco").
 
 ##### Discovering a prekey service
 
-An entity often discovers a prekey service by sending a Service Discovery items ("disco#items") request to its own server.
+An entity often discovers a prekey service by sending a Service Discovery items
+("disco#items") request to its own server.
 
 ```
 <iq from='alice@xmpp.org/notebook'
@@ -635,9 +650,9 @@ The server then returns the services that are associated with it.
 
 #### Discovering the features supported by a prekey service
 
-An entity may wish to discover if a service implements the prekey server protocol;
-in order to do so, it sends a service discovery information ("disco#info") query
-to the prekey service's JID.
+An entity may wish to discover if a service implements the prekey server
+protocol; in order to do so, it sends a service discovery information
+("disco#info") query to the prekey service's JID.
 
 ```
 <iq from='alice@xmpp.org/notebook'
@@ -648,7 +663,7 @@ to the prekey service's JID.
 </iq>
 ```
 
-The service MUST return its identity and the features it supports.
+The service must return its identity and the features it supports.
 
 ```
 <iq from='prekey.xmpp.org'
@@ -667,8 +682,8 @@ The service MUST return its identity and the features it supports.
 
 #### Publishing prekeys to the service
 
-An entity authenticates to the service through a DAKE. DAKE messages are send
-in "message" stanzas.
+An entity authenticates to the service through an interactive DAKE. DAKE
+messages are send in "message" stanzas.
 
 An entity starts the DAKE by sending the first encoded message in the body
 of a message.
@@ -693,8 +708,8 @@ The service responds with another message.
 </message>
 ```
 
-And the entity terminates the DAKE and send the prekey messages
-(DAKE-3 message has action 0x01):
+And the entity terminates the DAKE and send the prekey messages (DAKE-3 message
+has action 0x01):
 
 ```
 <message
@@ -706,7 +721,8 @@ And the entity terminates the DAKE and send the prekey messages
 ```
 
 And the server respond with a success message:
-TODO: Should this message also have instance tags?
+
+// TODO: Should this message also have instance tags?
 
 ```
 <message
@@ -774,6 +790,8 @@ TODO.
 
 
 ## Does this section make sense now that we have the previous section?
+
+Yeah, it is more detailed.
 
 bob@xmpp.org wants to know how many prekeys remain unused on the server
 
