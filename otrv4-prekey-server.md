@@ -868,6 +868,16 @@ format?
 - How does forward secrecy is compromised when the prekey server refuses to hand
   out prekey messages?
 
+### KCI attacks and the unstrusted prekey server
+
+The security of Non-Interactive DAKE (XZDH) in OTRv4 specification does not
+require trusting the central server used to distribute prekeys messages.
+However, if we allow a scenario in which the user’s keys have been compromised
+but the central prekey server has not, then we can achieve better plausible
+deniability. The user may ask the central server in advance to assist with a
+forged conversation, casting doubt on all conversations conducted by the judge
+using the compromised device.
+
 ## References
 
 1. https://github.com/otrv4/otrv4/blob/master/otrv4.md
