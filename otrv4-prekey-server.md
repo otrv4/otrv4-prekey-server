@@ -323,7 +323,7 @@ Alice will be initiating the DAKEZ with the server:
 1. Calculates the Shared secret (`K`):
    * `K = KDF(0x01 ∥ ECDH(i, S))`.
    * Securely erases `i`.
-1. Calculate the Prekey MAC key `prekey_mac_k = KDF(0x08 || K, 64)`.
+1. Calculates the Prekey MAC key `prekey_mac_k = KDF(0x08 || K, 64)`.
 1. Creates the message (`msg`) you want to send to the server.
    1. If you want to publish prekey messages, create a "Prekey publication
       message", as defined in its [section](#prekey-publication-message).
@@ -341,6 +341,11 @@ Alice will be initiating the DAKEZ with the server:
      DAKE and send a failure message.
 1. Retrieves the `msg` attached to the DAKE-3 message:
    1. If this is a "Prekey publication message":
+      * Calculates the Prekey MAC key `prekey_mac_k = KDF(0x08 || K, 64)`.
+      * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || message id || N ||
+        prekeys, 64)`. Checks that it is equal from the one received in the
+        Prekey publication message. If they are not abort the DAKE and send a
+        failure message.
       * Checks that `N` corresponds to the number of concatenated prekey
         messages.
       * Stores each prekey message.
