@@ -564,7 +564,7 @@ prekey messages and receives them, is the one that checks.
    your server's service discovery.
 1. Client authenticates with the server through an interactive DAKE and, by
    that, it deniably authenticates and generates a shared secret.
-   See section [Interacive DAKE](#interactive-dake).
+   See section [Interactive DAKE](#interactive-dake).
 1. Client sends prekey messages to the Prekey Server. It should send a prekey
    message for every long term key that belongs to the publisher for this
    device/client.
@@ -599,7 +599,7 @@ message:
       as defined in the "Receiving Prekey Messages" section of the OTRv4
       specification.
    1. Choose the prekey message with the latest expiry time from each group.
-1. Client choses which prekey messages to send an encrypted offline message to:
+1. Client chooses which prekey messages to send an encrypted offline message to:
    1. Inform the user if the message will be send to multiple instance tags
       and/or long-term keys.
    1. Decide if multiple conversations should be kept simultaneously (one per
@@ -626,26 +626,26 @@ An entity often discovers a prekey service by sending a Service Discovery items
 ("disco#items") request to its own server.
 
 ```
-<iq from='alice@xmpp.org/notebook'
-    id='h7ns81g'
-    to='xmpp.org'
-    type='get'>
-  <query xmlns='http://jabber.org/protocol/disco#items'/>
-</iq>
+  <iq from='alice@xmpp.org/notebook'
+      id='h7ns81g'
+      to='xmpp.org'
+      type='get'>
+    <query xmlns='http://jabber.org/protocol/disco#items'/>
+  </iq>
 ```
 
 The server then returns the services that are associated with it.
 
 ```
-<iq from='xmpp.org'
-    id='h7ns81g'
-    to='alice@xmpp.org/notebook'
-    type='result'>
-  <query xmlns='http://jabber.org/protocol/disco#items'>
-    <item jid='prekey.xmpp.org'
-          name='OTRv4 prekey server'/>
-  </query>
-</iq>
+  <iq from='xmpp.org'
+      id='h7ns81g'
+      to='alice@xmpp.org/notebook'
+      type='result'>
+    <query xmlns='http://jabber.org/protocol/disco#items'>
+      <item jid='prekey.xmpp.org'
+            name='OTRv4 prekey server'/>
+    </query>
+  </iq>
 ```
 
 #### Discovering the features supported by a prekey service
@@ -655,29 +655,29 @@ protocol; in order to do so, it sends a service discovery information
 ("disco#info") query to the prekey service's JID.
 
 ```
-<iq from='alice@xmpp.org/notebook'
-    id='lx09df27'
-    to='prekey.xmpp.org'
-    type='get'>
-  <query xmlns='http://jabber.org/protocol/disco#info'/>
-</iq>
+  <iq from='alice@xmpp.org/notebook'
+      id='lx09df27'
+      to='prekey.xmpp.org'
+      type='get'>
+    <query xmlns='http://jabber.org/protocol/disco#info'/>
+  </iq>
 ```
 
 The service must return its identity and the features it supports.
 
 ```
-<iq from='prekey.xmpp.org'
-    id='lx09df27'
-    to='alice@xmpp.org/notebook'
-    type='result'>
-  <query xmlns='http://jabber.org/protocol/disco#info'>
-    <identity
-        category='otrv4-prekey'
-        name='OTRv4 prekey server'
-        type='text'/>
-    <feature var='http://jabber.org/protocol/otrv4-prekey'/>
-  </query>
-</iq>
+  <iq from='prekey.xmpp.org'
+      id='lx09df27'
+      to='alice@xmpp.org/notebook'
+      type='result'>
+    <query xmlns='http://jabber.org/protocol/disco#info'>
+      <identity
+          category='otrv4-prekey'
+          name='OTRv4 prekey server'
+          type='text'/>
+      <feature var='http://jabber.org/protocol/otrv4-prekey'/>
+    </query>
+  </iq>
 ```
 
 #### Publishing prekeys to the service
@@ -689,35 +689,35 @@ An entity starts the DAKE by sending the first encoded message in the body
 of a message.
 
 ```
-<message
-    from='alice@xmpp.org/notebook'
-    id='nzd143v8'
-    to='prekey.xmpp.org'>
-  <body>?OTRPEB...</body>
-</message>
+  <message
+      from='alice@xmpp.org/notebook'
+      id='nzd143v8'
+      to='prekey.xmpp.org'>
+    <body>?OTRPEB...</body>
+  </message>
 ```
 
 The service responds with another message.
 
 ```
-<message
-    from='prekey.xmpp.org'
-    id='13fd16378'
-    to='alice@xmpp.org/notebook'>
-  <body>?OTRPEC...</body>
-</message>
+  <message
+      from='prekey.xmpp.org'
+      id='13fd16378'
+      to='alice@xmpp.org/notebook'>
+    <body>?OTRPEC...</body>
+  </message>
 ```
 
 And the entity terminates the DAKE and send the prekey messages (DAKE-3 message
 has action 0x01):
 
 ```
-<message
-    from='alice@xmpp.org/notebook'
-    id='kud87ghduy'
-    to='prekey.xmpp.org'>
-  <body>?OTRPED...</body>
-</message>
+  <message
+      from='alice@xmpp.org/notebook'
+      id='kud87ghduy'
+      to='prekey.xmpp.org'>
+    <body>?OTRPED...</body>
+  </message>
 ```
 
 And the server respond with a success message:
@@ -725,12 +725,12 @@ And the server respond with a success message:
 // TODO: Should this message also have instance tags?
 
 ```
-<message
-    from='prekey.xmpp.org'
-    id='0kdytsmslkd'
-    to='alice@xmpp.org/notebook'>
-  <body>?OTRP OK</body>
-</message>
+  <message
+      from='prekey.xmpp.org'
+      id='0kdytsmslkd'
+      to='alice@xmpp.org/notebook'>
+    <body>?OTRP OK</body>
+  </message>
 ```
 
 #### Obtaining information about your prekeys from the service
@@ -742,46 +742,46 @@ An entity starts the DAKE by sending the first encoded message in the body
 of a message.
 
 ```
-<message
-    from='alice@xmpp.org/notebook'
-    id='nzd143v8'
-    to='prekey.xmpp.org'>
-  <body>?OTRPEB...</body>
-</message>
+  <message
+      from='alice@xmpp.org/notebook'
+      id='nzd143v8'
+      to='prekey.xmpp.org'>
+    <body>?OTRPEB...</body>
+  </message>
 ```
 
 The service responds with another message.
 
 ```
-<message
-    from='prekey.xmpp.org'
-    id='13fd16378'
-    to='alice@xmpp.org/notebook'>
-  <body>?OTRPEC...</body>
-</message>
+  <message
+      from='prekey.xmpp.org'
+      id='13fd16378'
+      to='alice@xmpp.org/notebook'>
+    <body>?OTRPEC...</body>
+  </message>
 ```
 
 And the entity terminates the DAKE and asks for storage information
 (DAKE-3 message has action 0x02):
 
 ```
-<message
-    from='alice@xmpp.org/notebook'
-    id='kud87ghduy'
-    to='prekey.xmpp.org'>
-  <body>?OTRPED...</body>
-</message>
+  <message
+      from='alice@xmpp.org/notebook'
+      id='kud87ghduy'
+      to='prekey.xmpp.org'>
+    <body>?OTRPED...</body>
+  </message>
 ```
 
 And the server respond with a storage status message:
 
 ```
-<message
-    from='prekey.xmpp.org'
-    id='0kdytsmslkd'
-    to='alice@xmpp.org/notebook'>
-  <body>?OTRPEE...</body>
-</message>
+  <message
+      from='prekey.xmpp.org'
+      id='0kdytsmslkd'
+      to='alice@xmpp.org/notebook'>
+    <body>?OTRPEE...</body>
+  </message>
 ```
 
 #### Retrieving published prekeys from a prekey service
