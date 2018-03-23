@@ -137,7 +137,7 @@ specification [\[1\]](#references).
 The following key derivation function is used in this specification:
 
 ```
-  KDF(usageID || values, output_size) = SHAKE-256("OTRv4" || usageID || values, size)
+  KDF(usageID || values, size) = SHAKE-256("OTRv4" || usageID || values, size)
 ```
 
 The `size` first bytes of the SHAKE-256 output for input
