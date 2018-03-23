@@ -9,7 +9,17 @@ This protocol specification is a draft.
 OTRv4 Prekey Server provides an specification for OTRv4 [\[1\]](#references)
 protocol when it needs an untrusted central server to store prekey messages.
 
-## Overview
+## Table of Contents
+
+TODO
+
+## High Level Overview
+
+The OTRv4 Prekey Server specification defines a way by which parties can
+publish, store and retrieve prekey messages. A Prekey message contains the
+publisher's User Profile, the publisher's Prekey Profile and two one-time use
+ephemeral public prekey values, as defined in the OTRv4 specification
+[\[1\]](#references). They are used for offline conversations.
 
 In order to perform offline conversations, OTRv4 specification defines a
 non-interactive DAKE (manly, XZDH). This DAKE begins when a party that wants to
@@ -20,7 +30,17 @@ by another party.
 This document aims to describe how the prekey server can be used to securely
 publish, store and retrieve prekey messages.
 
-This server should be considered untrusted. This means that a malicious server
+
+## Assumptions
+
+// TODO: are there more assumptions?
+
+OTRv4 Prekey Server specification does not fully protect against an active
+attacker performing Denial of Service attacks.
+
+## Server Specifications
+
+The server should be considered untrusted. This means that a malicious server
 could cause communication between parties to fail (e.g. by refusing to deliver
 prekey messages).
 
@@ -34,23 +54,29 @@ The server expects to only receive messages on the same network authenticated
 clients use to exchange messages, that is, if a message is received from the
 network the sender is believed to be authenticated by the network.
 
-Note that prekey submssions (publishing) have to be authenticated. If they are
+Note that prekey submissions (publishing) have to be authenticated. If they are
 not authenticated, then malicious users can perform denial-of-service attacks.
 To preserve the deniability of the overall OTRv4 protocol, prekeys messages
 should never be digitally signed. The best approach is to authenticate prekey
 message uploads using a DAKEZ exchange between the published and the server,
 which preserves deniability.
 
-## Table of Contents
+// TODO: should in this case the server return a "No-Prekey messages response"?
 
-TODO
+When this untrusted server runs out of prekey messages, OTRv4 protocol expects
+client implementations to wait until a prekey message can be transmitted before
+starting a non-interactive DAKE.
+
+By waiting for the server to send prekey messages, OTRv4 will be subject to DoS
+attacks when a server is compromised or the network is undermined to return a
+"no prekey message available" response from the server.
 
 ## Notation and Parameters
 
 ### Notation
 
 OTRv4 Prekey Server specification uses the same notation as the OTRv4
-specification, as defined in the section "Notation" [\[1\]](#references).
+specification, defined in the section "Notation" [\[1\]](#references).
 
 Notice that scalars and secret/private keys are in lower case, such as `x`
 or `y`. Points and public keys are in upper case, such as `P` or `Q`.
@@ -61,25 +87,51 @@ values.
 
 ### Elliptic Curve Parameters
 
-OTRv4-Prekey-Server specification uses the Ed448-Goldilocks [\[4\]](#references)
-elliptic curve [\[5\]](#references), with the same parameters as those defined
-in the "Elliptic Curve Parameters" of the OTRv4 specification
-[\[1\]](#references).
+The OTRv4 Prekey Server specification uses the Ed448-Goldilocks
+[\[4\]](#references) elliptic curve [\[5\]](#references), with the same
+parameters as those defined in the "Elliptic Curve Parameters" of the OTRv4
+specification [\[1\]](#references).
 
 ### Key Derivation Functions
 
 The following key derivation function is used in this specification:
 
 ```
-  KDF(value) = SHAKE-256("OTRv4-Prekey-Server" || value, 64)
+  KDF(usageID || values, output_size) = SHAKE-256("OTRv4" || usageID || values, size)
 ```
 
-The 64 first bytes of the SHAKE-256 output for input
-`"OTRv4-Prekey-Server" || values` are returned.
+The `size` first bytes of the SHAKE-256 output for input
+`"OTRv4-Prekey-Server" || usageID || values` are returned.
 
-Unlike SHAKE standard, the output size here (64) is defined in bytes.
+Unlike SHAKE standard, notice that the output size here is defined in bytes.
 
 ## Data Types
+
+OTRv4 Prekey Server Specification uses many of the data types already specified
+in the OTRv4 specification, as defined in section "Data Types".
+
+OTRv4 Prekey Server Specification also uses the following data type:
+
+```
+Prekey Server's Identifier (PREKEY-SERVER-ID):
+  Detailed in "Server's Identifier" section
+```
+
+### Public keys and Fingerprints
+
+OTR users have long-lived public keys that they use for authentication (but not 
+for encryption). The untrusted prekey server has one as well. The are generated
+as defined in the "Public keys, Shared Prekeys and Fingerprints" section of the
+OTRv4 specification.
+
+Public keys have fingerprints, which are hex strings that serve as identifiers
+for the public key. The full OTRv4 fingerprint is calculated by taking the
+SHAKE-256 hash of the byte-level representation of the public key. The long-term
+public keys for the prekey server have fingerprints as well. The fingerprint is
+generated as:
+
+* The first 56 bytes from the `KDF(0x00 || byte(H), 56)` (224-bit security
+  level).
 
 ### Shared Session State
 
@@ -87,7 +139,7 @@ A Shared Session State is needed for this specification for the same reasons
 stated on the "Shared Session State" section of the OTRv4 specification
 [\[1\]](#references) (mainly, to authenticate contexts to prevent attacks that
 rebind the DAKE transcript into different contexts). It is only needed for
-the interactive DAKE between the unstrusted prekey server and the publishing
+the interactive DAKE between the untrusted prekey server and the publishing
 party.
 
 In the case that this interactive DAKE happens over XMPP, this must be:
@@ -109,14 +161,64 @@ For the interactive DAKE performed by a party and the untrusted server, an
 identifier is needed. In the case of the untrusted sever, this value will be
 denoted as "Server Identifier".
 
-In any case, it should be hash of the username concatened with its fingerprint.
+In any case, it should be hash of the username concatenated with its
+long-term public key's fingerprint.
+
+```
+Server's Indentifier (PREKEY-SERVER-ID):
+  Server's username (DATA)
+  Fingerprint (DATA)
+```
 
 For a prekey server that uses XMPP, this must be the prekey server's bare JID
 (for example, prekey.xmpp.org) and its fingerprint:
 
 ```
-  server's identifier = "prekey.xmpp.org" ∥ "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
+  server's identifier = "prekey.xmpp.org" || "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
 ```
+
+## Key Management
+
+In the interactive DAKE between the publisher and the prekey server, long-term
+Ed448 keys and ephemeral Elliptic Curve Diffie-Hellman (ECDH) keys are used.
+Notice that if this DAKE is only used for deniable authentication, the shared
+secret derived during the DAKE should be discarded. Nevertheless, this shared
+secret can be used with the Double Ratchet Algorithm to either encrypt the
+channel or by untrusted prekey server to encrypt the stored prekey messages
+(note that it must handle them out decrypted to the retrieving party).
+
+### Shared secrets
+
+// TODO: change these names
+
+```
+  K_ecdh:
+    The serialized ECDH shared secret computed from an ECDH exchange, serialized
+    as a 'POINT'.
+  K:
+    The Shared secret is the final shared secret derived from both the ECDH
+    shared secret: 'KDF(0x01 || K_ecdh)'.
+```
+
+### Generating Shared Secrets
+
+```
+  ECDH(a, B)
+    B * cofactor
+    K_ecdh = a * B
+    if K_ecdh == 0 (check that it is an all-zero value)
+       return error
+    else
+       return K_ecdh
+```
+
+Check, without leaking extra information about the value of `K_ecdh`, whether
+`K_ecdh` is the all-zero value and abort if so, as this process involves
+contributory behavior. Contributory behaviour means that both parties' private
+keys contribute to the resulting shared key. Since Ed448 have a cofactor of 4,
+an input point of small order will eliminate any contribution from the other
+party's private key. This situation can be detected by checking for the
+all-zero output.
 
 ## Interactive DAKE
 
