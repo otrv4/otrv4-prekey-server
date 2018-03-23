@@ -293,13 +293,20 @@ Alice will be initiating the DAKEZ with the server:
 1. Securely deletes the Prekey MAC key.
 1. Attaches the corresponding `msg` to the DAKE-3 message, and sends it.
 
-**Server**
+**Prekey Server**
 
 1. Receives the DAKE-3 message from Alice:
    * Verifies the DAKE-3 message as defined in the
      [DAKE-3 message](#dake-3-message) section. If something fails, abort the
      DAKE and send a failure message.
-1. Verify `msg`.
+1. Retrieves the `msg` attached to the DAKE-3 message:
+   1. If this is a "Prekey publication message":
+      * Checks that `N` corresponds to the number of concatenated prekey
+        messages.
+      * Stores each prekey message.
+   1. If this is a "Storage information request message":
+      * Responds with a "Storage Status Message", as defined in its
+        [section](#storage-status-message).
 
 ### DAKE-1 Message
 
