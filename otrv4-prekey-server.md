@@ -57,19 +57,20 @@ protocol when it needs an untrusted central server to store prekey messages.
 ## High Level Overview
 
 The OTRv4 Prekey Server specification defines a way by which parties can
-publish, store and retrieve prekey messages. A Prekey message contains the
-publisher's User Profile, the publisher's Prekey Profile and two one-time use
-ephemeral public prekey values, as defined in the OTRv4 specification
-[\[1\]](#references). They are used for offline conversations.
+publish, store and retrieve prekey messages from an untrusted server. A Prekey
+message contains the publisher's User Profile, the publisher's Prekey Profile
+and two one-time use ephemeral public prekey values, as defined in the OTRv4
+specification [\[1\]](#references). These prekey messages are used for starting
+offline conversations.
 
 In order to perform offline conversations, OTRv4 specification defines a
-non-interactive DAKE (manly, XZDH). This DAKE begins when a party that wants to
-initiate an offline conversation asks an untrusted prekey server for prekey
-messages. These prekey messages have previously been stored in the prekey server
-by another party.
+non-interactive DAKE. This protocol is derived from the XZDH protocol. It begins
+when Alice, who wants to initiate an offline conversation with Bob, asks an
+untrusted prekey server for Bob's prekey messages. These prekey messages have
+previously been stored in the prekey server by Bob.
 
-This document aims to describe how the prekey server can be used to securely
-publish, store and retrieve prekey messages.
+This document aims to describe how the untrusted prekey server can be used to
+securely publish, store and retrieve prekey messages.
 
 ## Assumptions
 
@@ -80,43 +81,54 @@ attacker performing Denial of Service attacks.
 
 ## Server Specifications
 
-The server should be considered untrusted. This means that a malicious server
-could cause communication between parties to fail (e.g. by refusing to deliver
-prekey messages).
+The prekey server used in this specification should be considered untrusted.
+This means that a malicious server could cause communication between parties to
+fail (e.g. by refusing to deliver prekey messages).
 
-The server must have three capabilities:
+The server must have these capabilities:
 
-- Receive prekey messages and store them.
+- Receive prekey messages and store them. Inform that this operation have failed
+  or being successful.
 - Deliver prekey messages previously stored.
 - Inform the publisher about how many prekey messages are stored for them.
+- Inform the retriever when there are no prekey messages from an specific party.
 
 The server expects to only receive messages on the same network authenticated
-clients use to exchange messages, that is, if a message is received from the
-network the sender is believed to be authenticated by the network.
+clients use to exchange messages. This means that a message received should be
+from the same network the publisher is believed to be authenticated to.
 
-Note that prekey submissions (publishing) have to be authenticated. If they are
-not authenticated, then malicious users can perform denial-of-service attacks.
-To preserve the deniability of the overall OTRv4 protocol, prekeys messages
-should never be digitally signed. The best approach is to authenticate prekey
-message uploads using a DAKEZ exchange between the published and the server,
-which preserves deniability.
+Note that prekey submissions to the untrusted prekey server have to be
+authenticated. If they are not authenticated, then malicious users can perform
+denial-of-service attacks. To preserve the deniability of the overall OTRv4
+protocol, prekeys messages should never be digitally signed. The best approach
+is to authenticate prekey message uploads using a DAKEZ exchange between the
+publisher and the server, which preserves deniability.
+
+In order to correctly perform the DAKEZ with the publisher, the untrusted prekey
+server should be able to generate ephemeral ECDH keys and long-term
+ed488-EdDSA keys,
 
 // TODO: should in this case the server return a "No-Prekey messages response"?
 
-When this untrusted server runs out of prekey messages, OTRv4 protocol expects
-client implementations to wait until a prekey message can be transmitted before
-starting a non-interactive DAKE.
+When this untrusted prekey server runs out of prekey messages, client
+implementations should wait until a prekey message can be transmitted, before
+starting a non-interactive DAKE. A default message should not be used until
+new prekey messages are uploaded to the untrusted server as the consequences to
+participation deniability with this technique are currently undefined and, thus,
+risky.
 
-By waiting for the server to send prekey messages, OTRv4 will be subject to DoS
-attacks when a server is compromised or the network is undermined to return a
-"no prekey message available" response from the server.
+Nevertheless, by waiting for the prekey server to send prekey messages, OTRv4
+protocol will be subject to DoS attacks when a server is compromised or the
+network is undermined to return a "no prekey message available" response from
+the server.
 
 ## Notation and Parameters
 
 ### Notation
 
 OTRv4 Prekey Server specification uses the same notation as the OTRv4
-specification, defined in the section "Notation" [\[1\]](#references).
+specification, defined in the section
+[Notation](https://github.com/otrv4/otrv4/blob/master/otrv4.md#notation).
 
 Notice that scalars and secret/private keys are in lower case, such as `x`
 or `y`. Points and public keys are in upper case, such as `P` or `Q`.
@@ -129,8 +141,9 @@ values.
 
 The OTRv4 Prekey Server specification uses the Ed448-Goldilocks
 [\[4\]](#references) elliptic curve [\[5\]](#references), with the same
-parameters as those defined in the "Elliptic Curve Parameters" of the OTRv4
-specification [\[1\]](#references).
+parameters as those defined in the
+[Elliptic Curve Parameters](https://github.com/otrv4/otrv4/blob/master/otrv4.md#elliptic-curve-parameters)
+section of the OTRv4 specification.
 
 ### Key Derivation Functions
 
@@ -143,12 +156,14 @@ The following key derivation function is used in this specification:
 The `size` first bytes of the SHAKE-256 output for input
 `"OTRv4-Prekey-Server" || usageID || values` are returned.
 
-Unlike SHAKE standard, notice that the output size here is defined in bytes.
+Unlike SHAKE standard, notice that the output size (`size`) here is defined in
+bytes.
 
 ## Data Types
 
 OTRv4 Prekey Server Specification uses many of the data types already specified
-in the OTRv4 specification, as defined in section "Data Types".
+in the OTRv4 specification, as defined in section
+[Data Types](https://github.com/otrv4/otrv4/blob/master/otrv4.md#data-types)
 
 OTRv4 Prekey Server Specification also uses the following data type:
 
@@ -165,7 +180,7 @@ encoding of the binary form of the message and the byte ".".
 ### Public keys and Fingerprints
 
 OTR users have long-lived public keys that they use for authentication (but not 
-for encryption). The untrusted prekey server has one as well. The are generated
+for encryption). The untrusted prekey server has one as well. They are generated
 as defined in the "Public keys, Shared Prekeys and Fingerprints" section of the
 OTRv4 specification.
 
@@ -189,7 +204,6 @@ party.
 
 In the case that this interactive DAKE happens over XMPP, this must be:
 
-
 ```
   phi = publisher's bare JID || servers's bare JID
 ```
@@ -202,12 +216,12 @@ For example:
 
 ### Server's Identifier
 
-For the interactive DAKE performed by a party and the untrusted server, an
+For the interactive DAKE performed by a publisher and the untrusted server, an
 identifier is needed. In the case of the untrusted sever, this value will be
 denoted as "Server Identifier".
 
-In any case, it should be hash of the username concatenated with its
-long-term public key's fingerprint.
+In any case, it should be hash of the server's username concatenated with the
+server's long-term public key's fingerprint.
 
 ```
 Server's Indentifier (PREKEY-SERVER-ID):
@@ -834,8 +848,8 @@ The service responds with another message.
   </message>
 ```
 
-And the entity terminates the DAKE and asks for storage information
-(DAKE-3 message has action 0x02):
+And the entity terminates the DAKE and asks for storage information (DAKE-3
+message has action 0x02):
 
 ```
   <message
@@ -972,7 +986,8 @@ using the compromised device.
 
 ## References
 
-1. https://github.com/otrv4/otrv4/blob/master/otrv4.md
+1. *OTR version 4*. Available at
+   https://github.com/otrv4/otrv4/blob/master/otrv4.md
 2. https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-messages
 3. Goldberg, I. and Unger, N. (2016). Improved Strongly Deniable Authenticated
    Key Exchanges for Secure Messaging, Waterloo, Canada: University of Waterloo.
