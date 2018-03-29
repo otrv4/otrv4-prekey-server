@@ -570,7 +570,7 @@ A valid Prekey Publication message is generated as follows:
 Message ID (BYTE)
   This message has ID 0x04.
 
-N (SHORT)
+N (BYTE)
    The number of prekey messages present in this message.
 
 Prekeys (DATA)
