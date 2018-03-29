@@ -34,10 +34,10 @@ messages.
    1. [Interactive DAKE](#interactive-dake)
       1. [DAKE-1 Message](#dake-1-message)
       1. [DAKE-2 Message](#dake-2-message)
-         1. [DAKE-3 Message](#dake-3-message)
-         1. [Prekey Publication Message](#prekey-publication-message)
-         1. [Storage Information Message](#storage-information-message)
-         1. [Storage Status Message](#storage-status-message)
+      1. [DAKE-3 Message](#dake-3-message)
+      1. [Prekey Publication Message](#prekey-publication-message)
+      1. [Storage Information Message](#storage-information-message)
+      1. [Storage Status Message](#storage-status-message)
       1. [State machine](#state-machine)
     1. [Publishing Prekey Messages](#publishing-prekey-messages)
     1. [Retrieving Prekey Messages](#retrieving-prekey-messages)
@@ -367,10 +367,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || message id || N ||
         prekeys, 64)`. Checks that it is equal from the one received in the
         Prekey publication message. If they are not, abort the DAKE and send a
-        failure message.
+        "Failure Message", as defined in its [section](#failure-message).
       * Checks that `N` corresponds to the number of concatenated prekey
-        messages.
-      * Stores each prekey message.
+        messages. If it is not, abort the DAKE and send a "Failure Message",
+        as defined in its [section](#failure-message).
+      * Stores each prekey message, if there is space in the Prekey Server's
+        storage.
+      * Sends a "Success Message", as defined in it [section](#success-message).
    1. If this is a "Storage information request message":
       * Responds with a "Storage Status Message", as defined in its
         [section](#storage-status-message).
@@ -625,6 +628,50 @@ Receiver's instance tag (INT)
 No Prekey-Messages message (DATA)
   The human-readable details of this message. It contains the string "No prekey
   messages available for this identity".
+```
+
+#### Success Message
+
+The success message is sent by the Prekey Server when an action (storing a
+prekey message, for example) has been successful.
+
+It must be encoded as:
+
+```
+Message type (BYTE)
+  The message has type 0x08.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+Success message (DATA)
+  The human-readable details of this message. It contains the string "Success".
+```
+
+#### Failure Message
+
+The failure message is sent by the Prekey Server when an action (storing a
+prekey message, for example) has not been successful. This can happen when the
+Prekey Server's storage is full.
+
+It must be encoded as:
+
+```
+Message type (BYTE)
+  The message has type 0x09.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+Success message (DATA)
+  The human-readable details of this message. It contains the string "An error
+  occurred".
 ```
 
 ### State machine
