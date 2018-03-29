@@ -75,8 +75,6 @@ securely publish, store and retrieve prekey messages.
 
 ## Assumptions
 
-// TODO: are there more assumptions?
-
 OTRv4 Prekey Server specification does not fully protect against an active
 attacker performing Denial of Service attacks.
 
