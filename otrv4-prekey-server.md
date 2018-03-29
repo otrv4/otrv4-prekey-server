@@ -110,16 +110,15 @@ ed488-EdDSA keys,
 
 // TODO: should in this case the server return a "No-Prekey messages response"?
 
-When this untrusted prekey server runs out of prekey messages, client
-implementations should wait until a prekey message can be transmitted, before
-starting a non-interactive DAKE. A default message should not be used until
-new prekey messages are uploaded to the untrusted server as the consequences to
-participation deniability with this technique are currently undefined and, thus,
-risky.
+When this untrusted prekey server runs out of prekey messages, a "No
+Prekey-Messages on Storage" message should be returned. A default prekey message
+should not be returned until new prekey messages are uploaded to the untrusted
+server as the consequences to participation deniability with this technique are
+currently undefined and, thus, risky.
 
 Nevertheless, by waiting for the prekey server to send prekey messages, OTRv4
 protocol will be subject to DoS attacks when a server is compromised or the
-network is undermined to return a "no prekey message available" response from
+network is undermined to return a "No Prekey-Messages on Storage" message from
 the server.
 
 ## Notation and Parameters
@@ -597,6 +596,28 @@ Stored prekey messages (INT)
   long-term public key used in the DAKE.
 ```
 
+#### No Prekey-Messages on Storage Message
+
+This message is sent by the Prekey Server when it runs out of prekey messages
+(there are none on storage).
+
+It must be encoded as:
+
+```
+Message type (BYTE)
+  The message has type 0x07.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+No Prekey-Messages message (DATA)
+  The human-readable details of this message. It contains the string "No prekey
+  messages available for this identity".
+```
+
 ### State machine
 
 States:
@@ -674,6 +695,8 @@ In order to send an encrypted offline message, a client must obtain a prekey
 message:
 
 1. Client informs which identity it wants a Prekey Message for.
+1. Server checks if there are prekey messages on storage for this identity.
+   If there are none, it sends a No Prekey-Messages on Storage message.
 1. Server selects one prekey message for each instance tag of the identity.
    1. Group all prekey messages by long-term public key and by instance tag.
    1. Filter out expired prekey messages from each group.
