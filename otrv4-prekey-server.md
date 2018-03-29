@@ -702,7 +702,20 @@ prekey messages and receives them, is the one that checks.
 
 // TODO: here is missing the trust on the long-term public keys.
 
-![Retrieving prekey messages](./img/retrieve-prekey.svg)
+```
+Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
+The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
+
+Bob                                                  Prekey Server
+----------------------------------------------------------------------------------------
+Informs his identity                 ------------->
+
+                                     <-------------  Sends prekey messages for
+                                                     this identity
+
+Receives prekey messages and
+verifies them.
+```
 
 In order to send an encrypted offline message, a client must obtain a prekey
 message:
@@ -730,7 +743,22 @@ message:
 
 ## Query the server for its storage status
 
-![Get status of prekey messages](./img/status-prekey.svg)
+```
+Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
+The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
+
+Alice                                                Prekey Server
+----------------------------------------------------------------------------------------
+Sends a DAKE-1 message               ------------->
+
+                                     <-------------  Receives a DAKE-1 message and
+                                                     sends a DAKE-2 message
+
+Receives a DAKE-2 message and
+sends a DAKE-3 message with a
+Storage information request message  ------------->  Receives a DAKE-3 message and
+                                                     sends a Storage Status message
+```
 
 1. Client uses a DAKEZ to authenticate with the server. See section
    [Interacive DAKE](#interactive-dake).
