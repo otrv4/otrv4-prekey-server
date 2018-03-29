@@ -767,10 +767,11 @@ The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
 
 Bob                                                  Prekey Server
 ----------------------------------------------------------------------------------------
-Informs his identity                 ------------->
+Informs Alice's identity             ------------->
+(for example, alice@xmpp.org)
 
                                      <-------------  Sends prekey messages for
-                                                     this identity
+                                                     alice@xmpp.org
 
 Receives prekey messages and
 verifies them.
