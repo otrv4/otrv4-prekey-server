@@ -76,8 +76,6 @@ behavior when a misbehavior could potentially affect the security of the
 protocol. To this reason we include verifications that must be performed by
 a client even though the server is expected to perform similar verifications.
 
-We expect a server to behave in certain conditions (store our prekey messages, give them to who ask, not give them to tho people, give them one prekey for each of our devices). Writing this in the spec won't hurt.
-
 This document aims to describe how the untrusted Prekey Server can be used to
 securely publish, store and retrieve prekey messages.
 
