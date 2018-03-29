@@ -668,10 +668,11 @@ Sends a DAKE-1 message               ------------->
 
 Receives a DAKE-2 message and
 sends a DAKE-3 message with a
-Prekey publication message           ------------->  Receives a DAKE-3 message and
-                                                     stores the prekey message
+Prekey publication message           ------------->
 
-                                     <-------------  Sends a Success message
+                                     <-------------  Receives a DAKE-3 message and
+                                                     stores the prekey message.
+                                                     Sends a Success message
 ```
 
 // TODO: the server does not perform any check, as far as I know. The server is
@@ -756,7 +757,9 @@ Sends a DAKE-1 message               ------------->
 
 Receives a DAKE-2 message and
 sends a DAKE-3 message with a
-Storage information request message  ------------->  Receives a DAKE-3 message and
+Storage information request message  ------------->
+
+                                     <-------------  Receives a DAKE-3 message and
                                                      sends a Storage Status message
 ```
 
