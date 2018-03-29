@@ -87,6 +87,8 @@ attacker performing Denial of Service attacks.
 During the DAKE perfomed by the publisher with the Prekey Server, the network
 model provides in-order delivery of messages.
 
+The server must have the capability of generating long-term and ephermeral keys.
+
 ## Prekey Server Specifications
 
 The Prekey Server used in this specification should be considered untrusted.
