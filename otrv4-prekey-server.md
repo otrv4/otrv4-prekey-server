@@ -655,7 +655,24 @@ Otherwise:
 
 ## Publishing Prekey Messages
 
-![Publishing prekey messages](./img/publish-prekey.svg)
+```
+Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
+The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
+
+Alice                                                Prekey Server
+----------------------------------------------------------------------------------------
+Sends a DAKE-1 message               ------------->
+
+                                     <-------------  Receives a DAKE-1 message and
+                                                     sends a DAKE-2 message
+
+Receives a DAKE-2 message and
+sends a DAKE-3 message with a
+Prekey publication message           ------------->  Receives a DAKE-3 message and
+                                                     stores the prekey message
+
+                                     <-------------  Sends a Success message
+```
 
 // TODO: the server does not perform any check, as far as I know. The server is
 untrusted and therefore cannot perform any check. The client that asks for
