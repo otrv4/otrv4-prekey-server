@@ -106,9 +106,7 @@ publisher and the server, which preserves deniability.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted prekey
 server should be able to generate ephemeral ECDH keys and long-term
-ed488-EdDSA keys,
-
-// TODO: should in this case the server return a "No-Prekey messages response"?
+ed488-EdDSA keys.
 
 When this untrusted prekey server runs out of prekey messages, a "No
 Prekey-Messages on Storage" message should be returned. A default prekey message
@@ -224,12 +222,12 @@ server's long-term public key's fingerprint.
 
 ```
 Server's Indentifier (PREKEY-SERVER-ID):
-  Server's username (DATA)
+  Server's identity (DATA)
   Fingerprint (DATA)
 ```
 
 For a prekey server that uses XMPP, this must be the prekey server's bare JID
-(for example, prekey.xmpp.org) and its fingerprint:
+(for example, prekey.xmpp.org) and its long-term public key's fingerprint:
 
 ```
   server's identifier = "prekey.xmpp.org" || "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
