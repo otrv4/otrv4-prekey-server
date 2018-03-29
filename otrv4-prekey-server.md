@@ -245,15 +245,13 @@ channel or by untrusted prekey server to encrypt the stored prekey messages
 
 ### Shared secrets
 
-// TODO: change these names
-
 ```
-  K_ecdh:
+  SK_ecdh:
     The serialized ECDH shared secret computed from an ECDH exchange, serialized
     as a 'POINT'.
-  K:
+  SK:
     The Shared secret is the final shared secret derived from both the ECDH
-    shared secret: 'KDF(0x01 || K_ecdh)'.
+    shared secret: 'KDF(0x01 || SK_ecdh)'.
 ```
 
 ### Generating Shared Secrets
@@ -261,15 +259,15 @@ channel or by untrusted prekey server to encrypt the stored prekey messages
 ```
   ECDH(a, B)
     B * cofactor
-    K_ecdh = a * B
-    if K_ecdh == 0 (check that it is an all-zero value)
+    SK_ecdh = a * B
+    if SK_ecdh == 0 (check that it is an all-zero value)
        return error
     else
-       return K_ecdh
+       return SK_ecdh
 ```
 
-Check, without leaking extra information about the value of `K_ecdh`, whether
-`K_ecdh` is the all-zero value and abort if so, as this process involves
+Check, without leaking extra information about the value of `SK_ecdh`, whether
+`SK_ecdh` is the all-zero value and abort if so, as this process involves
 contributory behavior. Contributory behaviour means that both parties' private
 keys contribute to the resulting shared key. Since Ed448 have a cofactor of 4,
 an input point of small order will eliminate any contribution from the other
@@ -314,8 +312,8 @@ Alice will be initiating the DAKEZ with the server:
       the message and does not send anything further.
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
-1. Calculates the Shared secret (`K`):
-   * `K = KDF(0x01 ∥ ECDH(s, I))`.
+1. Calculates the Shared secret (`SK`):
+   * `SK = KDF(0x01 ∥ ECDH(s, I))`.
    * Securely erases `s`.
 1. Sends Alice the DAKE-2 message (see [DAKE-2 Message](#dake-2-message)
    section).
@@ -331,8 +329,8 @@ Alice will be initiating the DAKEZ with the server:
 1. Verifies the DAKE-2 message as defined in the
    [DAKE-2 message](#dake-2-message) section.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
-1. Calculates the Shared secret (`K`):
-   * `K = KDF(0x01 ∥ ECDH(i, S))`.
+1. Calculates the Shared secret (`SK`):
+   * `SK = KDF(0x01 ∥ ECDH(i, S))`.
    * Securely erases `i`.
 1. Calculates the Prekey MAC key `prekey_mac_k = KDF(0x08 || K, 64)`.
 1. Creates the message (`msg`) you want to send to the server.
