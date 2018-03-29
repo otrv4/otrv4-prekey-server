@@ -1101,13 +1101,6 @@ alice@jabber.org wants to send an offline message to bob@xmpp.org
 
 ## Attacks
 
-// TODO: check the attacks: replay, key reused, attacker modifies prekey or
-format?
-
-- What if the server delivers all the prekey messages to an adversary
-- How does forward secrecy is compromised when the prekey server refuses to hand
-  out prekey messages?
-
 ### KCI attacks and the unstrusted prekey server
 
 The security of Non-Interactive DAKE (XZDH) in OTRv4 specification does not
