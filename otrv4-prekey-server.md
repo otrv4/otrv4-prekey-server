@@ -548,12 +548,9 @@ Message (DATA)
 
 #### Prekey Publication Message
 
-// TODO: should they be sent all at once?, shouldn't the submission be
-// one by one and each one of them have a MAC? How is the MAC going to
-// actually work?
-
-This is the message you send when you want to store prekey messages in the
-server.
+This is the message sent when you want to store/publish prekey messages to the
+Prekey Server. The maximum number of prekey messages that can be published at
+one is 255.
 
 A valid Prekey Publication message is generated as follows:
 
