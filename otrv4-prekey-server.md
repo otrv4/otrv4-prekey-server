@@ -425,11 +425,6 @@ Message type (BYTE)
 Sender's instance tag (INT)
   The instance tag of the person sending this message.
 
-Receiver's instance tag (INT)
-  The instance tag of the intended recipient. As the instance tag is used to
-  differentiate the clients that a participant uses, this will often be 0 since
-  the other party may not have set its instance tag yet.
-
 Sender's User Profile (USER-PROF)
   As described in the section "Creating a User Profile" of the OTRv4
   specification.
@@ -488,9 +483,6 @@ A DAKE-2 message is an OTRv4 Prekey Server message encoded as:
 Message type (BYTE)
   The message has type 0x02.
 
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
-
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
@@ -544,9 +536,6 @@ Message type (BYTE)
 Sender's instance tag (INT)
   The instance tag of the person sending this message.
 
-Receiver's instance tag (INT)
-  The instance tag of the intended recipient.
-
 sigma (RING-SIG)
   The 'RING-SIG' proof of authentication value.
 
@@ -574,8 +563,11 @@ A valid Prekey Publication message is generated as follows:
    `KDF(0x09 ∥ prekey_mac_k || message id ∥ N ∥ prekeys, 64)`
 
 ```
-Message ID (BYTE)
-  This message has ID 0x04.
+Message type (BYTE)
+  This message has type 0x04.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
 
 N (BYTE)
    The number of prekey messages present in this message.
@@ -593,8 +585,11 @@ This is the message you send when you want to know how many prekey messages are
 there in storage. Only the publisher can send this message.
 
 ```
-Message ID (BYTE)
-  This message has ID 0x05.
+Message type (BYTE)
+  This message has type 0x05.
+
+Sender's instance tag (INT)
+  The instance tag of the person sending this message.
 ```
 
 #### Storage Status Message
@@ -632,9 +627,6 @@ It must be encoded as:
 Message type (BYTE)
   The message has type 0x07.
 
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
-
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
@@ -654,9 +646,6 @@ It must be encoded as:
 Message type (BYTE)
   The message has type 0x08.
 
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
-
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
@@ -675,9 +664,6 @@ It must be encoded as:
 ```
 Message type (BYTE)
   The message has type 0x09.
-
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
 
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
