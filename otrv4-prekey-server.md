@@ -1143,7 +1143,6 @@ using the compromised device.
 
 1. *OTR version 4*. Available at
    https://github.com/otrv4/otrv4/blob/master/otrv4.md
-2. https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-messages
 3. Goldberg, I. and Unger, N. (2016). Improved Strongly Deniable Authenticated
    Key Exchanges for Secure Messaging, Waterloo, Canada: University of Waterloo.
    Available at: http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
