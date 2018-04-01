@@ -556,8 +556,10 @@ A valid Prekey Publication message is generated as follows:
 
 1. Concatenate all the prekey messages. Assign `N` as the number of concatenated
    prekey messages.
-2. Calculates the `Prekey MAC`:
-   `KDF(0x09 ∥ prekey_mac_k || message id ∥ N ∥ prekeys, 64)`
+2. Calculate the `Prekey MAC`:
+   `KDF(0x09 || prekey_mac_k || message type || sender's instance tag || N || prekey messages, 64)`
+
+It must be encoded as:
 
 ```
 Message type (BYTE)
@@ -569,17 +571,21 @@ Sender's instance tag (INT)
 N (BYTE)
    The number of prekey messages present in this message.
 
-Prekeys (DATA)
-   All (N) prekey messages serialized according to OTRv4 spec.
+Prekey messages (DATA)
+   All 'N' prekey messages serialized according to OTRv4 specification.
 
 Prekey MAC (MAC)
-   The MAC for this entire message.
+  The MAC with the appropriate MAC key of everything: from the message type to
+  the prekey messages.
 ```
 
 #### Storage Information Message
 
-This is the message you send when you want to know how many prekey messages are
-there in storage. Only the publisher can send this message.
+This is the message sent when you want to know how many prekey messages are
+there in storage. Only the publisher of those prekey messages can send this
+message.
+
+It must be encoded as:
 
 ```
 Message type (BYTE)
@@ -600,17 +606,12 @@ It must be encoded as:
 Message type (BYTE)
   The message has type 0x06.
 
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
-
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
-// TODO: is this per long-term key, or per device?
-
 Stored prekey messages (INT)
   The number of prekey messages stored in the prekey server for the
-  long-term public key used in the DAKE.
+  long-term public key used during the DAKE.
 ```
 
 #### No Prekey-Messages on Storage Message
