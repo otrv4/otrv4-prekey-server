@@ -342,20 +342,21 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    DAKE-2 message):
     * Validates that the received ECDH ephemeral public key `S` is on curve
       Ed448, as defined in section
-      [Verifying that a point is on the curve](https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
-      section of the OTRv4 protocol.
+      [Verifying that a point is on the curve](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
+      section of the OTRv4 protocol. If the verification fails, she rejects the
+      message and does not send anything further.
 1. Verifies the DAKE-2 message as defined in the
    [DAKE-2 message](#dake-2-message) section.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
 1. Calculates the Shared secret (`SK`):
    * `SK = KDF(0x01 || ECDH(i, S))`.
    * Securely erases `i`.
-1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || K, 64)`.
-1. Creates the message (`msg`) you want to send to the server.
-   1. If you want to publish prekey messages, create a "Prekey publication
+1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || SK, 64)`.
+1. Creates a message (`msg`):
+   1. If she wants to publish prekey messages, she creates a "Prekey publication
       message", as defined in its [section](#prekey-publication-message).
-   1. If you want to retrieve storage information, create a "Storage information
-      request message", as defined in its
+   1. If she want to retrieve storage information, she creates a "Storage
+      information request message", as defined in its
       [section](#storage-information-message).
 1. Securely deletes the Prekey MAC key.
 1. Attaches the corresponding `msg` to the DAKE-3 message, and sends it.
@@ -364,35 +365,39 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 
 1. Receives the DAKE-3 message from Alice:
    * Verifies the DAKE-3 message as defined in the
-     [DAKE-3 message](#dake-3-message) section. If something fails, abort the
-     DAKE and send a failure message.
+     [DAKE-3 message](#dake-3-message) section. If something fails, the server
+     rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
    1. If this is a "Prekey publication message":
-      * Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || K, 64)`.
-      * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || message id || N ||
-        prekeys, 64)`. Checks that it is equal from the one received in the
-        Prekey publication message. If they are not, abort the DAKE and send a
-        "Failure Message", as defined in its [section](#failure-message).
+      * Uses the sender's instance tag from the DAKE-3 message as the receiver's
+        instance tag and checks that is equal to the previously seen.
+      * Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || SK, 64)`.
+      * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || receiver's instance
+        tag || message type || N || prekey messages, 64)`. Checks that it is
+        equal to the one received in the Prekey publication message. If it is
+        not, the server aborts the DAKE and sends a "Failure Message", as
+        defined in its [section](#failure-message).
       * Checks that `N` corresponds to the number of concatenated prekey
-        messages. If it is not, abort the DAKE and send a "Failure Message",
+        messages. If it is not, aborts the DAKE and sends a "Failure Message",
         as defined in its [section](#failure-message).
-      * Stores each prekey message, if there is space in the Prekey Server's
-        storage.
-      * Sends a "Success Message", as defined in it [section](#success-message).
+      * Stores each prekey message if there is enough space in the Prekey
+        Server's storage.
+      * Sends a "Success Message", as defined in its [section](#success-message).
    1. If this is a "Storage information request message":
       * Responds with a "Storage Status Message", as defined in its
         [section](#storage-status-message).
 
 ### DAKE-1 Message
 
-This is the first message of the DAKE. It is sent to commit to a choice of ECDH
-key.
+This is the first message of the DAKE. It is sent to commit to a choice of a
+ECDH key.
 
 A valid DAKE-1 message is generated as follows:
 
-1. Generate an ephemeral ECDH key pair, as defined in
-   the "Generating ECDH and DH keys" of the OTRv4 specification (ignore the
-   generation of DH keys from this section):
+1. Generate an ephemeral ECDH key pair, as defined in the
+   [Generating ECDH and DH keys](https://github.com/otrv4/otrv4/blob/master/otrv4.md#generating-ecdh-and-dh-keys)
+   section of the OTRv4 specification (ignore the generation of DH keys from
+   this section):
    * secret key `i` (57 bytes).
    * public key `I`.
 2. Generate a 4-byte instance tag to use as the sender's instance tag.
@@ -404,10 +409,12 @@ A valid DAKE-1 message is generated as follows:
 
 To verify a DAKE-1 message:
 
-1. Validate the User Profile, as defined in
-   "Validating a User Profile" section of the OTRv4 specification.
+3. Validate the User Profile, as defined in
+   [Validating a User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
+   section of the OTRv4 specification.
 2. Verify that the point `I` received is on curve Ed448. See
-   "Verifying that a point is on the curve" section of the OTRv4 specification.
+   [Verifying that a point is on the curve](https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
+   section of the OTRv4 specification for details.
 
 An DAKE-1 message is an OTRv4 Prekey Server message encoded as:
 
@@ -441,9 +448,10 @@ curve Ed448.
 
 A valid Auth-R message is generated as follows:
 
-1. Generate an ephemeral ECDH key pair, as defined in
-   the "Generating ECDH and DH keys" of the OTRv4 specification (ignore the
-   generation of DH keys from this section):
+1. Generate an ephemeral ECDH key pair, as defined in the
+   [Generating ECDH and DH keys](https://github.com/otrv4/otrv4/blob/master/otrv4.md#generating-ecdh-and-dh-keys)
+   section of the OTRv4 specification (ignore the generation of DH keys from
+   this section):
    * secret key `s` (57 bytes).
    * public key `S`.
 2. Compute
@@ -452,13 +460,10 @@ A valid Auth-R message is generated as follows:
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
    identifier as mention in its [section](#servers-identifier).
-3. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See: OTRv4 section
-   "Ring Signature Authentication".
-4. Generate a 4-byte instance tag to use as the sender's instance tag.
-   Additional messages in this conversation will continue to use this tag as the
-   sender's instance tag. Also, this tag is used to filter future received
-   messages. For the other party, this will be the receiver's instance tag.
-5. Use the sender's instance tag from the DAKE-1 message as the receiver's
+3. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See
+   [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
+   section of the OTRv4 specification for details.
+4. Use the sender's instance tag from the DAKE-1 message as the receiver's
    instance tag.
 
 To verify an DAKE-2 message:
@@ -473,8 +478,9 @@ To verify an DAKE-2 message:
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
    identifier as mention in its [section](#servers-identifier).
-6. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`
-   See the "Ring Signature Authentication" section from the OTRv4 specification.
+6. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See
+   [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
+   section of the OTRv4 specification for details.
 
 A DAKE-2 message is an OTRv4 Prekey Server message encoded as:
 
@@ -512,7 +518,8 @@ A valid DAKE-3 message is generated as follows:
    [section](#shared-session-state). `Servers_Identifier` is the server's
    identifier as mention in its [section](#servers-identifier).
 2. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in
-   "Ring Signature Authentication" section of the OTRv4 specification.
+   [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
+   section of the OTRv4 specification.
 3. Continue to use the sender's instance tag.
 
 To verify a DAKE-3 message:
@@ -524,8 +531,9 @@ To verify a DAKE-3 message:
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
    identifier as mention in its [section](#servers-identifier).
-3. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See the
-   "Ring Signature Authentication" section on the OTRv4 specification.
+3. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See
+   [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
+   section of the OTRv4 specification for details.
 
 A DAKE-3 is an OTRv4 Prekey Server message encoded as:
 
