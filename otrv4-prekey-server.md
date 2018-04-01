@@ -860,8 +860,9 @@ Storage information request message  ------------->
 
 ## A prekey server for OTRv4 over XMPP
 
-A prekey server implementation over XMPP must support Service Discovery
-(XEP-0030) ("disco").
+This is an example of how a Prekey Server for OTRv4 acts over XMPP. Note that a
+Prekey Server's implementation over XMPP must support the Service Discovery
+(XEP-0030, "disco").
 
 ### Discovering a prekey service
 
@@ -877,7 +878,7 @@ An entity often discovers a prekey service by sending a Service Discovery items
   </iq>
 ```
 
-The server then returns the services that are associated with it.
+The server then returns the services that are associated with it:
 
 ```
   <iq from='xmpp.org'
@@ -886,15 +887,15 @@ The server then returns the services that are associated with it.
       type='result'>
     <query xmlns='http://jabber.org/protocol/disco#items'>
       <item jid='prekey.xmpp.org'
-            name='OTRv4 prekey server'/>
+            name='OTRv4 Prekey Server'/>
     </query>
   </iq>
 ```
 
 ### Discovering the features supported by a prekey service
 
-An entity may wish to discover if a service implements the prekey server
-protocol; in order to do so, it sends a service discovery information
+An entity may wish to discover if a service implements the OTRv4 Prekey Server
+protocol. In order to do so, it sends a service discovery information
 ("disco#info") query to the prekey service's JID.
 
 ```
@@ -906,7 +907,7 @@ protocol; in order to do so, it sends a service discovery information
   </iq>
 ```
 
-The service must return its identity and the features it supports.
+The service must return its identity and the features it supports:
 
 ```
   <iq from='prekey.xmpp.org'
@@ -916,7 +917,7 @@ The service must return its identity and the features it supports.
     <query xmlns='http://jabber.org/protocol/disco#info'>
       <identity
           category='otrv4-prekey'
-          name='OTRv4 prekey server'
+          name='OTRv4 Prekey Server'
           type='text'/>
       <feature var='http://jabber.org/protocol/otrv4-prekey'/>
     </query>
@@ -929,7 +930,7 @@ An entity authenticates to the service through an interactive DAKE. DAKE
 messages are send in "message" stanzas.
 
 An entity starts the DAKE by sending the first encoded message in the body
-of a message.
+of a message:
 
 ```
   <message
@@ -940,7 +941,7 @@ of a message.
   </message>
 ```
 
-The service responds with another message.
+The service responds with another message:
 
 ```
   <message
@@ -951,8 +952,8 @@ The service responds with another message.
   </message>
 ```
 
-And the entity terminates the DAKE and send the prekey messages (DAKE-3 message
-has action 0x01):
+And the entity terminates the DAKE and sends the prekey messages (DAKE-3 message
+has action 0x03):
 
 ```
   <message
@@ -963,7 +964,7 @@ has action 0x01):
   </message>
 ```
 
-And the server respond with a success message:
+And the server responds with a success message:
 
 // TODO: Should this message also have instance tags?
 
@@ -1005,7 +1006,7 @@ The service responds with another message.
 ```
 
 And the entity terminates the DAKE and asks for storage information (DAKE-3
-message has action 0x02):
+message has action 0x05):
 
 ```
   <message
@@ -1041,8 +1042,8 @@ for example, "bob@xmpp.net".
   </message>
 ```
 
-The service responds with a Prekey Publication message, this time not inside
-a DAKE-3 message and without a MAC field.
+The service responds with a Prekey Publication message, this time not attached
+to a DAKE-3 message and without the Prekey MAC field:
 
 ```
   <message
@@ -1055,71 +1056,76 @@ a DAKE-3 message and without a MAC field.
 
 ## Detailed example of the prekey server over XMPP
 
-bob@xmpp.org wants to know how many prekeys remain unused on the server
+`bob@xmpp.org` wants to know how many prekeys messages remain unused on the
+Prekey Server:
 
-1. bob@xmpp.org logs in to his server (talk.xmpp.org).
-1. bob@xmpp.org uses service discovery to find a prekey server on his server
-   (prekey.xmpp.org).
-   1. The service discovery also informs the prekey server's long-term public
+1. bob@xmpp.org logs in to his server (`talk.xmpp.org`).
+1. bob@xmpp.org uses service discovery to find a Prekey Server on his server
+   (`prekey.xmpp.org`).
+   1. The service discovery also informs the Prekey Server's long-term public
       key.
-1. bob@xmpp.org discovers the capabilities of prekey.xmpp.org.
-   1. prekey.xmpp.org is capable of all features of a prekey server.
-1. bob@xmpp.org asks prekey.xmpp.org about the number of prekeys it has stored
-   for him.
+1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
+   1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
+1. `bob@xmpp.org` asks `prekey.xmpp.org` about the number of prekeys messages
+   it has stored for him.
    1. TODO: Explain the DAKE.
 
-bob@xmpp.org wants to publish prekey messages
+`bob@xmpp.org` wants to publish/store prekey messages in the Prekey Server:
 
-1. bob@xmpp.org logs to his server (talk.xmpp.org).
-1. bob@xmpp.org uses service discovery to find a prekey server on his server
-   (prekey.xmpp.org).
-   1. The service discovery also informs the prekey server's long-term public
+1. `bob@xmpp.org` logs to his server (`talk.xmpp.org`).
+1. `bob@xmpp.org` uses service discovery to find a Prekey Server on his server
+   (`prekey.xmpp.org`).
+   1. The service discovery also informs the Prekey Server's long-term public
       key.
-1. bob@xmpp.org discovers the capabilities of prekey.xmpp.org.
-   1. prekey.xmpp.org is capable of all features of a prekey server.
+1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
+   1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
 1. bob@xmpp.org generates 3 prekeys:
    1. prekey1: instance tag 90
    1. prekey2: instance tag 90
    1. prekey3: instance tag 90
-1. bob@xmpp.org sends DAKE-msg1 to prekey.xmpp.org.
+1. `bob@xmpp.org` sends DAKE-1 to `prekey.xmpp.org`:
    1. TODO: details of how ephemeral keys will be generated.
-1. bob@xmpp.org receives DAKE-msg2 from prekey.xmpp.org/123980831. (The resource
-   identifies this DAKE).
+1. `bob@xmpp.org` receives DAKE-2 from `prekey.xmpp.org/123980831`: (the
+   resource identifies this in progress DAKE):
    1. TODO: details of how ephemeral keys will be generated.
-   1. bob@xmpp.org verifies prekey.xmpp.org long-term public key.
-1. bob@xmpp.org sends DAKE-msg3 to prekey.xmpp.org/123980831.
-   1. TODO: details of how to attach prekeys to the DAKE-msg3.
-   1. DAKE-msg3 also contains prekey1, prekey2, prekey3.
-1. bob@xmpp.org receives a SUCCESS/FAILURE msg from prekey.xmpp.org/123980831.
+   1. `bob@xmpp.org` verifies `prekey.xmpp.org` long-term public key.
+1. `bob@xmpp.org` sends DAKE-3 to `prekey.xmpp.org/123980831`:
+   1. TODO: details of how to attach prekeys to the DAKE-3.
+   1. DAKE-3 also contains prekey1, prekey2, prekey3.
+1. `bob@xmpp.org` receives a SUCCESS/FAILURE message from
+   `prekey.xmpp.org/123980831`.
 
-alice@jabber.org wants to send an offline message to bob@xmpp.org
+`alice@jabber.org` wants to send an offline message to `bob@xmpp.org`:
 
-1. alice@jabber.org logs to his server (xmpp.jabber.org).
-1. alice@jabber.org uses service discovery to find a prekey server on bob's
-   server (prekey.xmpp.org).
-   1. The service discovery also informs the prekey server's long-term public
+1. `alice@jabber.org` logs to his server (`xmpp.jabber.org`).
+1. `alice@jabber.org` uses service discovery to find a Prekey Server on Bob's
+   server (`prekey.xmpp.org`).
+   1. The service discovery also informs the Prekey Server's long-term public
       key.
-1. alice@jabber.org discovers the capabilities of prekey.xmpp.org.
-   1. prekey.xmpp.org is capable of all features of a prekey server.
-1. alice@jabber.org asks prekey.xmpp.org for prekeys from bob@xmpp.org.
-1. prekey.xmpp.org delivers 3 prekeys to her:
-   1. Server has the following prekey messages stored for bob@xmpp.org
+1. `alice@jabber.org` discovers the capabilities of `prekey.xmpp.org`.
+   1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
+1. `alice@jabber.org` asks `prekey.xmpp.org` for prekeys from `bob@xmpp.org`.
+1. `prekey.xmpp.org` delivers 3 prekeys to her:
+   1. Server has the following prekey messages stored for `bob@xmpp.org`
       1. prekey1: instance tag 90. Expired.
       1. prekey2: instance tag 90. Not expired.
       1. prekey3: instance tag 91. Not expired.
       1. prekey4: instance tag 91. Not expired.
-   1. Server chooses to deliver the following instance tags to alice@jabber.org
+   1. Server chooses to deliver the following prekey messages to
+      `alice@jabber.org`:
       1. prekey2: instance tag 90. Not expired.
       1. prekey3: instance tag 91. Not expired.
-1. alice@jabber.org choses which prekey messages to use.
-   1. Validate received prekey messages.
-      1. The received prekey messages are not expired.
-      1. The received prekey messages are from different instance tags, no need
-         to choose by latest expiration time.
-   1. Client asks the user if they want to send one message to each instance tag.
-      1. If user says: "yes", send one message to each instance tag.
-      1. If user says: "no", send one message to the instance tag chosen by the user.
-1. alice@jabber.org sends an offline encrypted message to bob@xmpp.org.
+1. `alice@jabber.org` choses which prekey messages to use:
+   1. Validates the received prekey messages:
+      1. Checks that they are not expired.
+      1. As the received prekey messages have different instance tags, ther is
+         no need to choose by latest expiration time.
+   1. Client asks the user if they want to send one message to each instance
+      tag:
+      1. If the user accepts, sends one message to each instance tag.
+      1. If user does not accept, sends one message to the instance tag/device
+         chosen by the user.
+1. `alice@jabber.org` sends offline encrypted messages to `bob@xmpp.org`.
 
 ## Attacks
 
