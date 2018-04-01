@@ -65,16 +65,10 @@ OTRv4 specification [\[1\]](#references). These prekey messages are used for
 starting offline conversations.
 
 In order to perform offline conversations, OTRv4 specification defines a
-non-interactive DAKE. This protocol is derived from the XZDH protocol. It begins
-when Alice, who wants to initiate an offline conversation with Bob, asks an
-untrusted Prekey Server for Bob's prekey messages. These prekey messages have
-previously been stored in the Prekey Server by Bob.
-
-Although this spec defines behavior for the server (for example, in regard to
-how prekeys should be validated) a client should not rely on this prescribed
-behavior when a misbehavior could potentially affect the security of the
-protocol. To this reason we include verifications that must be performed by
-a client even though the server is expected to perform similar verifications.
+non-interactive DAKE, which is derived from the XZDH protocol. It begins when
+Alice, who wants to initiate an offline conversation with Bob, asks an untrusted
+Prekey Server for Bob's prekey messages. These prekey messages have previously
+been stored in the Prekey Server by Bob.
 
 This document aims to describe how the untrusted Prekey Server can be used to
 securely publish, store and retrieve prekey messages.
@@ -86,8 +80,6 @@ attacker performing Denial of Service attacks.
 
 During the DAKE perfomed by the publisher with the Prekey Server, the network
 model provides in-order delivery of messages.
-
-The server must have the capability of generating long-term and ephermeral keys.
 
 ## Prekey Server Specifications
 
@@ -105,10 +97,18 @@ The Prekey Server must have these capabilities:
 
 The Prekey Server expects to only receive messages on the same network
 authenticated clients use to exchange messages. This means that a message
-received should be from the same network the publisher is believed to be
-authenticated to.
+received should be from the same network the publisher is believed to have
+been authenticated to.
 
-Note that prekey submissions to the untrusted Prekey Server have to be
+Although this specification defines an specific behavior from the Prekey Server
+(e.g., by specifying that prekey messages submissions should be validated by the
+Prekey Server), clients should not rely on this prescribed behavior, as the
+Prekey Server is unstrusted. It must be taken into account that a misbehavior
+from the Prekey Server can potentially affect the security of the whole OTRv4
+protocol. For this reason, verifications must be performed by clients as well,
+even though the Prekey Server should be expected to perform them.
+
+Note that prekey messages submissions to the untrusted Prekey Server have to be
 authenticated. If they are not authenticated, then malicious users can perform
 denial-of-service attacks. To preserve the deniability of the overall OTRv4
 protocol, prekeys messages should never be digitally signed. The best approach
@@ -116,19 +116,18 @@ is to authenticate prekey message uploads using a DAKEZ exchange between the
 publisher and the Prekey Server, which preserves deniability.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
-Server should be able to generate ephemeral ECDH keys and long-term ed488-EdDSA
-keys.
+Server should be able to correctly generate ephemeral ECDH keys and long-term
+ed488-EdDSA keys.
 
 When this untrusted Prekey Server runs out of prekey messages, a "No
 Prekey-Messages on Storage" message should be returned, as define in its
 [section](#no-prekey-messages-on-storage-message). A default prekey message
 should not be returned until new prekey messages are uploaded to the untrusted
 server as the consequences to participation deniability with this technique are
-currently undefined and, thus, risky.
-
-Nevertheless, this causes that OTRv4 protocol to be subject of DoS attacks when
-a Prekey Server is compromised or the network is undermined to return a "No
-Prekey-Messages on Storage" message from the Prekey Server.
+currently undefined and, thus, risky. Nevertheless, with this, the OTRv4
+protocol can be subject of DoS attacks when a Prekey Server is compromised or
+the network is undermined to return a "No Prekey-Messages on Storage" message
+from the Prekey Server.
 
 ## Notation and Parameters
 
