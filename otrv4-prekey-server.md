@@ -749,33 +749,34 @@ Prekey publication message           ------------->
                                                      Sends a Success message
 ```
 
-// TODO: the server does not perform any check, as far as I know. The server is
-untrusted and therefore cannot perform any check. The client that asks for
-prekey messages and receives them, is the one that checks.
+Notice that this section refers to the ideal functionality of a Prekey Server.
+Nevertheless, consider that an unstrusted Prekey Server can, for example, not
+perform some of the verifications here noted.
 
-1. Client creates prekey messages.
-   1. Prekey messages are created as defined in OTRv4 spec.
-1. Client receives a server identifier (e.g. prekey.autonomia.digital) and the
-   server's long-term public key from some source. In XMPP, this happens through
-   your server's service discovery.
-1. Client authenticates with the server through an interactive DAKE and, by
-   that, it deniably authenticates and generates a shared secret.
-   See section [Interactive DAKE](#interactive-dake).
-1. Client sends prekey messages to the Prekey Server. It should send a prekey
-   message for every long term key that belongs to the publisher for this
-   device/client.
-1. Server verifies the received prekey messages.
-   1. Checks the integrity of the prekey messages.
-   1. Checks the User Profile (and if it is signed by the same long-term key
-      that was used in the DAKE).
-   1. Checks the Prekey Profile (and if it is signed by the same long-term key
-      that was used in the DAKE and stated in the User Profile).
+1. Client creates prekey messages, as defined in OTRv4 specification. See
+   the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
+   section of the OTRv4 specification for details.
+1. Client receives a Prekey Server's identifier (e.g. prekey.autonomia.digital)
+   and the Prekey Server's long-term public key from a source. In XMPP, for
+   example, it happens over the server's service discovery.
+1. Client authenticates (in a deniable way) with the server through the
+   interactive DAKE 'DAKEZ' and, with that, it generates a shared secret.
+   See section [Interactive DAKE](#interactive-dake) for details.
+1. Client sends prekey messages to the Prekey Server, in the last message of the
+   DAKE (DAKE-3 with a Prekey publication message attached). It sends a prekey
+   message for every long-term public key that belongs to the publisher and that
+   exists in this client/device.
+1. Server verifies the received prekey messages. For every prekey message:
+   1. Checks the integrity of the prekey message.
+   1. Discard any duplicated prekey message.
+   1. Checks that the User Profile is not expired.
+   1. Checks that the Prekey Profile is not expired.
+   1. Checks that the OTR version in the prekey message matches one of the
+      versions signed in the User Profile contained in the prekey message.
 1. Server stores the prekey messages.
 1. Server sends acknowledgment that the operation succeeded.
 
 ## Retrieving Prekey Messages
-
-// TODO: here is missing the trust on the long-term public keys.
 
 ```
 Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
@@ -794,26 +795,39 @@ verifies them.
 ```
 
 In order to send an encrypted offline message, a client must obtain a prekey
-message:
+message from the party they are willing to start a conversation with:
 
-1. Client informs which identity it wants a Prekey Message for.
+1. Client informs which identity it wants Prekey Messages for.
 1. Server checks if there are prekey messages on storage for this identity.
-   If there are none, it sends a No Prekey-Messages on Storage message.
-1. Server selects one prekey message for each instance tag of the identity.
+   If there are none, it sends a "No Prekey-Messages on Storage" message.
+1. Server selects one prekey message for each instance tag and long-term public
+   key for the identity.
    1. Group all prekey messages by long-term public key and by instance tag.
-   1. Filter out expired prekey messages from each group.
+   1. Filter out expired prekey messages from each group (by checking if the
+      User Profile and/or the Prekey Profile are expired).
    1. Choose one prekey message from each group.
 1. Server delivers all selected prekey messages to the Client.
 1. Server removes the selected prekey messages from its storage.
-1. Client selects the latest prekey messages form each instance tag.
+1. Client selects prekey messages with the latest expiration date form each
+   instance tag and long-term public key group:
    1. Group all prekey messages by long-term public key and by instance tag.
-   1. Filter out invalid prekey messages (expired, for example) from each group,
-      as defined in the "Receiving Prekey Messages" section of the OTRv4
-      specification.
-   1. Choose the prekey message with the latest expiry time from each group.
+   1. Choose the prekey message with the latest expiry time from the group.
+   1. Discards any duplicated prekey message.
+   1. Filter out invalid prekey messages from the group, as defined in the
+      [Validating Prekey Messages](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-message)
+      section of the OTRv4 specification:
+      1. Checks that the User Profile is not expired.
+      1. Checks that the Prekey Profile is not expired.
+      1. Checks that the OTR version of the prekey message matches one of the
+         versions signed in the User Profile contained in the prekey message.
+      1. Check if the User Profile's version is supported by the receiver.
 1. Client chooses which prekey messages to send an encrypted offline message to:
-   1. Inform the user if the message will be send to multiple instance tags
-      and/or long-term keys.
+   1. Optionally, a client can only use prekey messages that contain trusted
+      long-term public keys.
+   1. If there are several instance tags in the list of prekey messages, the
+      client can optionally decide which instance tags to send messages to.
+      Inform the user if the encrypted messages will be send to multiple
+      instance tags (multiple devices).
    1. Decide if multiple conversations should be kept simultaneously (one per
       instance tag).
 
@@ -838,11 +852,11 @@ Storage information request message  ------------->
                                                      sends a Storage Status message
 ```
 
-1. Client uses a DAKEZ to authenticate with the server. See section
+1. Client uses DAKEZ to authenticate with the server. See section
    [Interacive DAKE](#interactive-dake).
-2. Server responds with a "storage status message" containing the number of
-   prekey messages stored for the long-term public key and identity used in the
-   DAKEZ.
+2. Server responds with a "Storage Status message" containing the number of
+   prekey messages stored for the long-term public key and identity used during
+   the DAKEZ.
 
 ## A prekey server for OTRv4 over XMPP
 
