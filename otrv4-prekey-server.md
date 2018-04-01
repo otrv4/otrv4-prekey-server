@@ -12,48 +12,45 @@ messages.
 
 ## Table of Contents
 
-<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
-
-1. [OTRv4 Prekey Server](#otrv4-prekey-server)
-   1. [Table of Contents](#table-of-contents)
-   1. [High Level Overview](#high-level-overview)
-   1. [Assumptions](#assumptions)
-   1. [Prekey Server Specifications](#prekey-server-specifications)
-   1. [Notation and Parameters](#notation-and-parameters)
-      1. [Notation](#notation)
-      1. [Elliptic Curve Parameters](#elliptic-curve-parameters)
-      1. [Key Derivation Functions](#key-derivation-functions)
-   1. [Data Types](#data-types)
-      1. [Encoded Messages](#encoded-messages)
-      1. [Public keys and Fingerprints](#public-keys-and-fingerprints)
-      1. [Shared Session State](#shared-session-state)
-      1. [Prekey Server's Identifier](#prekey-servers-identifier)
-   1. [Key Management](#key-management)
-      1. [Shared secrets](#shared-secrets)
-      1. [Generating Shared Secrets](#generating-shared-secrets)
-   1. [Interactive DAKE](#interactive-dake)
-      1. [DAKE-1 Message](#dake-1-message)
-      1. [DAKE-2 Message](#dake-2-message)
-      1. [DAKE-3 Message](#dake-3-message)
-      1. [Prekey Publication Message](#prekey-publication-message)
-      1. [Storage Information Message](#storage-information-message)
-      1. [Storage Status Message](#storage-status-message)
-    1. [State machine](#state-machine)
-    1. [Publishing Prekey Messages](#publishing-prekey-messages)
-    1. [Retrieving Prekey Messages](#retrieving-prekey-messages)
-    1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
-    1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
-       1. [Discovering a prekey service](#discovering-a-prekey-service)
-       1. [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
-       1. [Publishing prekeys to the service](#publishing-prekeys-to-the-service)
-       1. [Obtaining information about your prekeys from the service](#obtaining-information-about-your-prekeys-from-the-service)
-            - [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
-    1. [Detailed example of the prekey server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
-    1. [Attacks](#attacks)
-       1. [KCI attacks and the unstrusted prekey server](#kci-attacks-and-the-unstrusted-prekey-server)
-    1. [References](#references)
-
-<!-- /TOC -->
+1. [High Level Overview](#high-level-overview)
+1. [Assumptions](#assumptions)
+1. [Prekey Server Specifications](#prekey-server-specifications)
+1. [Notation and Parameters](#notation-and-parameters)
+   1. [Notation](#notation)
+   1. [Elliptic Curve Parameters](#elliptic-curve-parameters)
+   1. [Key Derivation Functions](#key-derivation-functions)
+1. [Data Types](#data-types)
+   1. [Encoded Messages](#encoded-messages)
+   1. [Public keys and Fingerprints](#public-keys-and-fingerprints)
+   1. [Shared Session State](#shared-session-state)
+   1. [Prekey Server's Identifier](#prekey-servers-identifier)
+1. [Key Management](#key-management)
+   1. [Shared secrets](#shared-secrets)
+   1. [Generating Shared Secrets](#generating-shared-secrets)
+1. [Interactive DAKE](#interactive-dake)
+   1. [DAKE-1 Message](#dake-1-message)
+   1. [DAKE-2 Message](#dake-2-message)
+   1. [DAKE-3 Message](#dake-3-message)
+   1. [Prekey Publication Message](#prekey-publication-message)
+   1. [Storage Information Message](#storage-information-message)
+   1. [Storage Status Message](#storage-status-message)
+   1. [No Prekey-Messages on Storage Message](#no-prekey-messages-on-storage-message)
+   1. [Success Message](#success-message)
+   1. [Failure Message](#failure-message)
+1. [State machine](#state-machine)
+1. [Publishing Prekey Messages](#publishing-prekey-messages)
+1. [Retrieving Prekey Messages](#retrieving-prekey-messages)
+1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
+1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
+   1. [Discovering a prekey service](#discovering-a-prekey-service)
+   1. [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
+   1. [Publishing prekeys to the service](#publishing-prekeys-to-the-service)
+   1. [Obtaining information about your prekeys from the service](#obtaining-information-about-your-prekeys-from-the-service)
+      1. [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
+1. [Detailed example of the prekey server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
+1. [Attacks](#attacks)
+   1. [KCI attacks and the unstrusted prekey server](#kci-attacks-and-the-unstrusted-prekey-server)
+1. [References](#references)
 
 ## High Level Overview
 
@@ -147,7 +144,7 @@ values.
 ### Elliptic Curve Parameters
 
 The OTRv4 Prekey Server specification uses the Ed448-Goldilocks
-[\[4\]](#references) elliptic curve [\[5\]](#references), with the same
+[\[3\]](#references) elliptic curve [\[4\]](#references), with the same
 parameters as those defined in the
 [Elliptic Curve Parameters](https://github.com/otrv4/otrv4/blob/master/otrv4.md#elliptic-curve-parameters)
 section of the OTRv4 specification.
@@ -496,7 +493,7 @@ sigma (RING-SIG)
   The 'RING-SIG' proof of authentication value.
 ```
 
-#### DAKE-3 Message
+### DAKE-3 Message
 
 This is the final message of the DAKE. It is sent to verify the authentication
 `sigma`.
@@ -546,7 +543,7 @@ Message (DATA)
     - Storage information
 ```
 
-#### Prekey Publication Message
+### Prekey Publication Message
 
 This is the message sent when you want to store/publish prekey messages to the
 Prekey Server. The maximum number of prekey messages that can be published at
@@ -579,7 +576,7 @@ Prekey MAC (MAC)
   the prekey messages.
 ```
 
-#### Storage Information Message
+### Storage Information Message
 
 This is the message sent when you want to know how many prekey messages are
 there in storage. Only the publisher of those prekey messages can send this
@@ -595,7 +592,7 @@ Sender's instance tag (INT)
   The instance tag of the person sending this message.
 ```
 
-#### Storage Status Message
+### Storage Status Message
 
 The storage status message is sent by the Prekey Server in response to a
 Storage information request.
@@ -614,7 +611,7 @@ Stored prekey messages (INT)
   long-term public key used during the DAKE.
 ```
 
-#### No Prekey-Messages on Storage Message
+### No Prekey-Messages on Storage Message
 
 This message is sent by the Prekey Server when it runs out of prekey messages
 (there are none on storage).
@@ -633,7 +630,7 @@ No Prekey-Messages message (DATA)
   messages available for this identity".
 ```
 
-#### Success Message
+### Success Message
 
 The success message is sent by the Prekey Server when an action (storing a
 prekey message, for example) has been successful.
@@ -651,7 +648,7 @@ Success message (DATA)
   The human-readable details of this message. It contains the string "Success".
 ```
 
-#### Failure Message
+### Failure Message
 
 The failure message is sent by the Prekey Server when an action (storing a
 prekey message, for example) has not been successful. This can happen when the
@@ -671,7 +668,7 @@ Success message (DATA)
   occurred".
 ```
 
-### State machine
+## State machine
 
 This is the state machine for when a client wants to publish prekey messages to
 the Prekey Server or query it for status.
@@ -1143,11 +1140,11 @@ using the compromised device.
 
 1. *OTR version 4*. Available at
    https://github.com/otrv4/otrv4/blob/master/otrv4.md
-3. Goldberg, I. and Unger, N. (2016). Improved Strongly Deniable Authenticated
-   Key Exchanges for Secure Messaging, Waterloo, Canada: University of Waterloo.
+2. Goldberg, I. and Unger, N. (2016). *Improved Strongly Deniable Authenticated
+   Key Exchanges for Secure Messaging*, Waterloo, Canada: University of Waterloo.
    Available at: http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
-4. Hamburg, M. (2015). *Ed448-Goldilocks, a new elliptic curve*, NIST ECC
+3. Hamburg, M. (2015). *Ed448-Goldilocks, a new elliptic curve*, NIST ECC
    workshop. Available at: https://eprint.iacr.org/2015/625.pdf
-5. Hamburg, M., Langley, A. and Turner, S. (2016). *Elliptic Curves for
+4. Hamburg, M., Langley, A. and Turner, S. (2016). *Elliptic Curves for
    Security*, Internet Engineering Task Force, RFC 7748. Available at:
    http://www.ietf.org/rfc/rfc7748.txt
