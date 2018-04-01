@@ -38,7 +38,7 @@ messages.
       1. [Prekey Publication Message](#prekey-publication-message)
       1. [Storage Information Message](#storage-information-message)
       1. [Storage Status Message](#storage-status-message)
-      1. [State machine](#state-machine)
+    1. [State machine](#state-machine)
     1. [Publishing Prekey Messages](#publishing-prekey-messages)
     1. [Retrieving Prekey Messages](#retrieving-prekey-messages)
     1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
@@ -673,41 +673,58 @@ Success message (DATA)
 
 ### State machine
 
-States:
+This is the state machine for when a client wants to publish prekey messages to
+the Prekey Server or query it for status.
 
-- IN_DAKE: Client has sent a DAKE-1 message, or Server has sent a DAKE-2 message.
-- NOT_IN_DAKE: Not on IN_DAKE state.
+Protocol States:
+
+```
+IN_DAKE:
+
+  This is the state where a client has sent a DAKE-1 message, or when the Prekey
+  Server has sent a DAKE-2 message.
+
+NOT_IN_DAKE:
+  This is the state where a client or the Prekey Server are not in the
+  'IN_DAKE' state.
+```
+There are four events an OTRv4 client must handle:
+
+* Starting the DAKE
+* Receiving a DAKE-1 message
+* Receiving a DAKE-2 message
+* Receibing a DAKE-3 message
 
 **Starting the DAKE**
 
-- Client sends DAKE-1 message.
-- Transitions to IN_DAKE.
+* Client generates and sends a DAKE-1 message.
+* Transitions to IN_DAKE.
 
 **Receiving a DAKE-1 message**
 
-- Server sends DAKE-2 message.
-- Transitions to IN_DAKE.
+* Prekey Server generates and sends a DAKE-2 message.
+* Transitions to IN_DAKE state.
 
 **Receiving a DAKE-2 message**
 
-If client is in state IN_DAKE:
+* If client is in state IN_DAKE:
 
-- Client sends DAKE-3 message.
-- Transitions to NOT_IN_DAKE.
+  * Client generates and sends a DAKE-3 message.
+  * Transitions to NOT_IN_DAKE state.
 
-Otherwise:
+* Otherwise:
 
-- Ignore message.
+  * Ignores message.
 
 **Receiving a DAKE-3 message**
 
-If server is in state IN_DAKE:
+* If server is in state IN_DAKE:
 
-- Transitions to NOT_IN_DAKE.
+  * Transitions to NOT_IN_DAKE state.
 
-Otherwise:
+* Otherwise:
 
-- Ignore message.
+  * Ignores the message.
 
 
 ## Publishing Prekey Messages
