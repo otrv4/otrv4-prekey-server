@@ -562,9 +562,6 @@ It must be encoded as:
 Message type (BYTE)
   This message has type 0x04.
 
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
-
 N (BYTE)
    The number of prekey messages present in this message.
 
@@ -575,6 +572,8 @@ Prekey MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
   the prekey messages.
 ```
+
+This message MUST immediatelly follow a DAKE-3 message.
 
 ### Storage Information Message
 
@@ -587,10 +586,9 @@ It must be encoded as:
 ```
 Message type (BYTE)
   This message has type 0x05.
-
-Sender's instance tag (INT)
-  The instance tag of the person sending this message.
 ```
+
+This message MUST immediatelly follow a DAKE-3 message.
 
 ### Storage Status Message
 
