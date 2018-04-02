@@ -824,7 +824,9 @@ message from the party they are willing to start a conversation with:
    If there are none, it sends a "No Prekey-Messages on Storage" message.
 1. Server selects one prekey message for each instance tag and long-term public
    key for the identity.
-   1. Group all prekey messages by long-term public key and by instance tag.
+   1. Group all prekey messages by instance tag, and then by long-term
+      public key. That is, only return multiple prekeys for the same
+      instance tag if they have different long-term keys.
    1. Filter out expired prekey messages from each group (by checking if the
       User Profile and/or the Prekey Profile are expired).
    1. Choose one prekey message from each group.
@@ -832,7 +834,9 @@ message from the party they are willing to start a conversation with:
 1. Server removes the selected prekey messages from its storage.
 1. Client selects prekey messages with the latest expiration date form each
    instance tag and long-term public key group:
-   1. Group all prekey messages by long-term public key and by instance tag.
+   1. Group all prekey messages by instance tag, and then by long-term
+      public key. That is, only return multiple prekeys for the same
+      instance tag if they have different long-term keys.
    1. Choose the prekey message with the latest expiry time from the group.
    1. Discards any duplicated prekey message.
    1. Filter out invalid prekey messages from the group, as defined in the
