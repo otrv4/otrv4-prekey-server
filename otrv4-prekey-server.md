@@ -78,14 +78,8 @@ attacker performing Denial of Service attacks.
 During the DAKE perfomed by the publisher with the Prekey Server, the network
 model provides in-order delivery of messages.
 
-The server knows how to match a version string in the User Profile
-and the protocol version field in the Prekey Messages. That is, it
-must know that "4" in a User Profile's version matcher 0x004 in the
-prekey message "protocol version" field. Otherwise, the server cannot
-receive Prekey messages from multiple versions.
-
-The server support for multiple versions of prekey messages also depends
-on each future OTR version to keep Prekey messages with the same header:
+The server support for multiple versions of prekey messages depends on
+each future OTR version to keep Prekey messages with the same header:
 
 ```
 Protocol version (SHORT)
