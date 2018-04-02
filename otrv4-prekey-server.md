@@ -83,10 +83,10 @@ each future OTR version to keep Prekey messages with the same header:
 
 ```
 Protocol version (SHORT)
-  The version number of this protocol is 0x0004.
+  The version number of this protocol is 0x0004 (for OTRv4).
 
 Message type (BYTE)
-  The message has type 0x0F.
+  The message has type 0x0F (for OTRv4).
 
 Prekey Message Indentifier (INT)
   A prekey message id used for local retrieval.
