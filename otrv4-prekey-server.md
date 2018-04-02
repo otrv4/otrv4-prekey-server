@@ -369,8 +369,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Uses the sender's instance tag from the DAKE-3 message as the receiver's
         instance tag and checks that is equal to the previously seen.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || SK, 64)`.
-      * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || receiver's instance
-        tag || message type || N || prekey messages, 64)`. Checks that it is
+      * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || message type ||
+        N || prekey messages, 64)`. Checks that it is
         equal to the one received in the Prekey publication message. If it is
         not, the server aborts the DAKE and sends a "Failure Message", as
         defined in its [section](#failure-message).
@@ -554,7 +554,7 @@ A valid Prekey Publication message is generated as follows:
 1. Concatenate all the prekey messages. Assign `N` as the number of concatenated
    prekey messages.
 2. Calculate the `Prekey MAC`:
-   `KDF(0x09 || prekey_mac_k || message type || sender's instance tag || N || prekey messages, 64)`
+   `KDF(0x09 || prekey_mac_k || message type || N || prekey messages, 64)`
 
 It must be encoded as:
 
