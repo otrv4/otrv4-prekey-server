@@ -839,24 +839,31 @@ verifies them.
 In order to send an encrypted offline message, a client must obtain a prekey
 message from the party they are willing to start a conversation with:
 
-1. Client informs which identity it wants Prekey Messages for.
+1. Client informs which identity and protocol versions it wants Prekey Messages for.
 1. Server checks if there are prekey messages on storage for this identity.
    If there are none, it sends a "No Prekey-Messages on Storage" message.
 1. Server selects one prekey message for each instance tag and long-term public
    key for the identity.
-   1. Group all prekey messages by instance tag, and then by long-term
-      public key. That is, only return multiple prekeys for the same
-      instance tag if they have different long-term keys.
-   1. Filter out expired prekey messages from each group (by checking if the
-      User Profile and/or the Prekey Profile are expired).
-   1. Choose one prekey message from each group.
+   1. For each requested version:
+      1. Group all prekey messages that match the version by instance tag,
+         and then by long-term public key. That is, only return multiple
+         prekey messages for the same instance tag if they have different
+         long-term keys.
+      1. Filter out expired prekey messages from each group (by checking if the
+         User Profile and/or the Prekey Profile are expired).
+      1. Choose one prekey message from each group.
 1. Server delivers all selected prekey messages to the Client.
 1. Server removes the selected prekey messages from its storage.
-1. Client selects prekey messages with the latest expiration date form each
-   instance tag and long-term public key group:
-   1. Group all prekey messages by instance tag, and then by long-term
-      public key. That is, only return multiple prekeys for the same
-      instance tag if they have different long-term keys.
+1. For each requested version, the Client selects prekey messages with the
+   latest expiration date form each instance tag and long-term public key
+   group:
+   1. For each requested version:
+      1. Group all prekey messages that match the version by instance tag,
+         and then by long-term public key. That is, only return multiple
+         prekey messages for the same instance tag if they have different
+         long-term keys.
+      1. Filter out expired prekey messages from each group (by checking if the
+         User Profile and/or the Prekey Profile are expired).
    1. Choose the prekey message with the latest expiry time from the group.
    1. Discards any duplicated prekey message.
    1. Filter out invalid prekey messages from the group, as defined in the
@@ -1077,14 +1084,16 @@ And the server respond with a storage status message:
 #### Retrieving published prekeys from a prekey service
 
 An entity asks the service for prekey messages from a particular subject,
-for example, "bob@xmpp.net".
+for example, "bob@xmpp.net". Use the resourcePart of a JID to say which
+versions you are interested on, for example "45" if you are interested on
+verisons "4" and "5".
 
 ```
   <message
       from='alice@xmpp.org/notebook'
       id='nzd143v8'
       to='prekey.xmpp.org'>
-    <subject>bob@xmpp.net</subject>
+    <subject>bob@xmpp.net/45</subject>
   </message>
 ```
 
@@ -1096,6 +1105,7 @@ to a DAKE-3 message and without the Prekey MAC field:
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
+    <subject>bob@xmpp.net/45</subject>
     <body>?OTRP...</body>
   </message>
 ```
