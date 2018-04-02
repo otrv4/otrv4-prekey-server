@@ -78,6 +78,32 @@ attacker performing Denial of Service attacks.
 During the DAKE perfomed by the publisher with the Prekey Server, the network
 model provides in-order delivery of messages.
 
+The server knows how to match a version string in the User Profile
+and the protocol version field in the Prekey Messages. That is, it
+must know that "4" in a User Profile's version matcher 0x004 in the
+prekey message "protocol version" field. Otherwise, the server cannot
+receive Prekey messages from multiple versions.
+
+The server support for multiple versions of prekey messages also depends
+on each future OTR version to keep Prekey messages with the same header:
+
+```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0004.
+
+Message type (BYTE)
+  The message has type 0x0F.
+
+Prekey Message Indentifier (INT)
+  A prekey message id used for local retrieval.
+
+Prekey owner's instance tag (INT)
+  The instance tag of the client that created the prekey.
+
+Prekey owner's User Profile (USER-PROF)
+  As described in the section "Creating a User Profile".
+```
+
 ## Prekey Server Specifications
 
 The Prekey Server used in this specification should be considered untrusted.
