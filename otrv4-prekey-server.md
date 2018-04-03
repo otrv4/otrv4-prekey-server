@@ -588,7 +588,7 @@ Message (DATA)
 
 This is the message sent when you want to store/publish prekey messages to the
 Prekey Server. The maximum number of prekey messages that can be published at
-one is 255.
+one is 255. This message must be attached to a DAKE-3 message.
 
 A valid Prekey Publication message is generated as follows:
 
@@ -614,13 +614,11 @@ Prekey MAC (MAC)
   the prekey messages.
 ```
 
-This message MUST immediatelly follow a DAKE-3 message.
-
 ### Storage Information Message
 
 This is the message sent when you want to know how many prekey messages are
 there in storage. Only the publisher of those prekey messages can send this
-message.
+message. This message must be attached to a DAKE-3 message.
 
 It must be encoded as:
 
@@ -628,8 +626,6 @@ It must be encoded as:
 Message type (BYTE)
   This message has type 0x05.
 ```
-
-This message MUST immediatelly follow a DAKE-3 message.
 
 ### Storage Status Message
 
