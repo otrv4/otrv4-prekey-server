@@ -665,25 +665,6 @@ Status MAC (MAC)
   the stored prekey messages.
 ```
 
-### No Prekey-Messages on Storage Message
-
-This message is sent by the Prekey Server when it runs out of prekey messages
-(there are none on storage).
-
-It must be encoded as:
-
-```
-Message type (BYTE)
-  The message has type 0x07.
-
-Receiver's instance tag (INT)
-  The instance tag of the intended recipient.
-
-No Prekey-Messages message (DATA)
-  The human-readable details of this message. It contains the string "No prekey
-  messages available for this identity".
-```
-
 ### Success Message
 
 The success message is sent by the Prekey Server when an action (storing a
@@ -907,6 +888,25 @@ message from the party they are willing to start a conversation with:
       instance tags (multiple devices).
    1. Decide if multiple conversations should be kept simultaneously (one per
       instance tag).
+
+### No Prekey-Messages on Storage Message
+
+This message is sent by the Prekey Server when it runs out of prekey messages
+(there are none on storage).
+
+It must be encoded as:
+
+```
+Message type (BYTE)
+  The message has type 0x07.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+No Prekey-Messages message (DATA)
+  The human-readable details of this message. It contains the string "No prekey
+  messages available for this identity".
+```
 
 ## Query the server for its storage status
 
