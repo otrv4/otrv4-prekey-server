@@ -660,11 +660,6 @@ Status MAC (MAC)
 This message is sent by the Prekey Server when it runs out of prekey messages
 (there are none on storage).
 
-A valid No Prekey-Message on Storage message is generated as follows:
-
-1. Calculate the `MAC`:
-   `KDF(0x11 || prekey_mac_k || message type || receiver's instance tag || "No prekey messages available for this identity", 64)`
-
 It must be encoded as:
 
 ```
@@ -677,10 +672,6 @@ Receiver's instance tag (INT)
 No Prekey-Messages message (DATA)
   The human-readable details of this message. It contains the string "No prekey
   messages available for this identity".
-
-MAC (MAC)
-  The MAC with the appropriate MAC key of everything: from the message type to
-  the No Prekey-Messages message.
 ```
 
 ### Success Message
