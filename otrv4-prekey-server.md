@@ -103,7 +103,7 @@ been authenticated to.
 Although this specification defines an specific behavior from the Prekey Server
 (e.g., by specifying that prekey messages submissions should be validated by the
 Prekey Server), clients should not rely on this prescribed behavior, as the
-Prekey Server is unstrusted. It must be taken into account that a misbehavior
+Prekey Server is untrusted. It must be taken into account that a misbehavior
 from the Prekey Server can potentially affect the security of the whole OTRv4
 protocol. For this reason, verifications must be performed by clients as well,
 even though the Prekey Server should be expected to perform them.
@@ -130,7 +130,7 @@ the network is undermined to return a "No Prekey-Messages on Storage" message
 from the Prekey Server.
 
 Notice that the Prekey Server should be able to support future versions,
-starting from version 4. This means that the Prekey Sever will accept prekey
+starting from version 4. This means that the Prekey Server will accept prekey
 ensembles with different versions. For this, the header on the prekey messages
 should remain the same:
 
@@ -469,7 +469,6 @@ Sender's User Profile (USER-PROF)
 
 I (POINT)
   The ephemeral public ECDH key.
-
 ```
 
 ### DAKE-2 Message
@@ -747,7 +746,6 @@ Protocol States:
 
 ```
 IN_DAKE:
-
   This is the state where a client has sent a DAKE-1 message, or when the Prekey
   Server has sent a DAKE-2 message.
 
@@ -760,7 +758,7 @@ There are four events an OTRv4 client must handle:
 * Starting the DAKE
 * Receiving a DAKE-1 message
 * Receiving a DAKE-2 message
-* Receibing a DAKE-3 message
+* Receiving a DAKE-3 message
 
 **Starting the DAKE**
 
@@ -817,7 +815,7 @@ Prekey publication message           ------------->
 ```
 
 Notice that this section refers to the ideal functionality of a Prekey Server.
-Nevertheless, consider that an unstrusted Prekey Server can, for example, not
+Nevertheless, consider that an untrusted Prekey Server can, for example, not
 perform some of the verifications here noted.
 
 1. Client creates prekey messages, as defined in OTRv4 specification. See
