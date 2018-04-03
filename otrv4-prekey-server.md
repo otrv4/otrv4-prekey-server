@@ -834,10 +834,10 @@ Bob                                                  Prekey Server
 Informs Alice's identity             ------------->
 (for example, alice@xmpp.org)
 
-                                     <-------------  Sends prekey messages for
+                                     <-------------  Sends prekey ensembles for
                                                      alice@xmpp.org
 
-Receives prekey messages and
+Receives prekey ensembles and
 verifies them.
 ```
 
@@ -856,8 +856,10 @@ message from the party they are willing to start a conversation with:
          long-term keys.
       1. Filter out expired prekey messages from each group (by checking if the
          User Profile and/or the Prekey Profile are expired).
-      1. Choose one prekey message from each group.
-1. Server delivers all selected prekey messages to the Client.
+      1. Choose the prekey message with the latest expiry time from each group.
+1. Server build prekey ensembles with the selected prekey messages.
+   1. Each ensemble contains: a prekey message, its user profile and prekey profile.
+1. Server delivers all selected prekey ensembles to the Client.
 1. Server removes the selected prekey messages from its storage.
 1. For each requested version, the Client selects prekey messages with the
    latest expiration date form each instance tag and long-term public key
@@ -869,7 +871,7 @@ message from the party they are willing to start a conversation with:
          long-term keys.
       1. Filter out expired prekey messages from each group (by checking if the
          User Profile and/or the Prekey Profile are expired).
-   1. Choose the prekey message with the latest expiry time from the group.
+      1. Choose the prekey message with the latest expiry time from each group.
    1. Discards any duplicated prekey message.
    1. Filter out invalid prekey messages from the group, as defined in the
       [Validating Prekey Messages](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-message)
@@ -889,6 +891,29 @@ message from the party they are willing to start a conversation with:
    1. Decide if multiple conversations should be kept simultaneously (one per
       instance tag).
 
+### Ensemble retrieval message
+
+It must be encoded as:
+
+```
+Message type (BYTE)
+  The message has type 0x07.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+N (INT)
+  The number of ensembles
+
+Ensembles (DATA)
+  The ensembles. Each ensemble is encoded as:
+
+   User Profile (USER-PROF)
+   A Prekey Profile (PREKEY-PROF)
+   Prekey message
+      Prekey messages are encoded as specified in OTR.
+```
+
 ### No Prekey-Messages on Storage Message
 
 This message is sent by the Prekey Server when it runs out of prekey messages
@@ -898,7 +923,7 @@ It must be encoded as:
 
 ```
 Message type (BYTE)
-  The message has type 0x07.
+  The message has type 0x08.
 
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
