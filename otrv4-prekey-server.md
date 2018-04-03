@@ -579,22 +579,22 @@ sigma (RING-SIG)
 Message (DATA)
   The message sent to the prekey server.
   In this protocol there are 2 kinds of messages:
-    - Prekey publication
+    - Ensemble publication
     - Storage information
 ```
 
-### Prekey Publication Message
+### Ensemble Publication Message
 
 This is the message sent when you want to store/publish prekey messages to the
 Prekey Server. The maximum number of prekey messages that can be published at
 one is 255. This message must be attached to a DAKE-3 message.
 
-A valid Prekey Publication message is generated as follows:
+A valid Ensemble Publication message is generated as follows:
 
 1. Concatenate all the prekey messages. Assign `N` as the number of concatenated
    prekey messages.
-2. Calculate the `Prekey MAC`:
-   `KDF(0x09 || prekey_mac_k || message type || N || prekey messages, 64)`
+2. Calculate the `Ensemble MAC`:
+   `KDF(0x07 || prekey_mac_k || message type || N || prekey messages || user profile || prekey profile, 64)`
 
 It must be encoded as:
 
@@ -608,10 +608,20 @@ N (BYTE)
 Prekey messages (DATA)
    All 'N' prekey messages serialized according to OTRv4 specification.
 
-Prekey MAC (MAC)
+User Profile (USER-PROF)
+  (Optional).
+
+Prekey Profile (PREKEY-PROF)
+  (Optional).
+
+Ensemble MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
   the prekey messages.
 ```
+
+The server must verify is the profile is not expired and if the signature is valid. If the profiles are not present in this message, the server can't check the expiry and returns and error.
+
+User profile and Prekey profile are published once, and should not be published again until they expire. The client is expected to know when they should not be sent to the server.
 
 ### Storage Information Message
 
