@@ -406,6 +406,25 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Responds with a "Storage Status Message", as defined in its
         [section](#storage-status-message).
 
+**Alice**
+
+1. Receives a message from the Prekey Server:
+   1. If this is a "Storage Status Message":
+      * Computes the `Status_MAC: KDF(0x10 || prekey_mac_k || message type ||
+        receiver's instance tag || stored prekey messages, 64)`. Checks that it
+        is equal to the one received in the Storage Status message. If it is
+        not, Alice ignores the message.
+   1. If this is a "Success Message":
+      * Computes the `Success_MAC: KDF(0x12 || prekey_mac_k || message type ||
+        receiver's instance tag || "Success", 64)`. Checks that it
+        is equal to the one received in the Sucess message. If it is
+        not, Alice ignores the message.
+   1. If this is a "Failure Message":
+      * Computes the `Failure_MAC: KDF(0x13 || prekey_mac_k || message type ||
+        receiver's instance tag || "An error occurred", 64)`. Checks that it
+        is equal to the one received in the Failure message. If it is
+        not, Alice ignores the message.
+
 ### DAKE-1 Message
 
 This is the first message of the DAKE. It is sent to commit to a choice of a
@@ -619,8 +638,9 @@ Storage information request.
 
 A valid Storage Status message is generated as follows:
 
-1. Calculate the `MAC`:
-   `KDF(0x10 || prekey_mac_k || message type || receiver's instance tag || stored prekey messages, 64)`
+1. Calculate the `Status MAC`:
+   `KDF(0x10 || prekey_mac_k || message type || receiver's instance tag ||
+    stored prekey messages, 64)`
 
 It must be encoded as:
 
@@ -635,7 +655,7 @@ Stored prekey messages (INT)
   The number of prekey messages stored in the prekey server for the
   long-term public key used during the DAKE.
 
-MAC (MAC)
+Status MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
   the stored prekey messages.
 ```
@@ -675,8 +695,9 @@ prekey message, for example) has been successful.
 
 A valid Success message is generated as follows:
 
-1. Calculate the `MAC`:
-   `KDF(0x12 || prekey_mac_k || message type || receiver's instance tag || "Success", 64)`
+1. Calculate the `Success MAC`:
+   `KDF(0x12 || prekey_mac_k || message type || receiver's instance tag ||
+    "Success", 64)`
 
 It must be encoded as:
 
@@ -690,7 +711,7 @@ Receiver's instance tag (INT)
 Success message (DATA)
   The human-readable details of this message. It contains the string "Success".
 
-MAC (MAC)
+Success MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
   the Success message.
 ```
@@ -700,6 +721,12 @@ MAC (MAC)
 The failure message is sent by the Prekey Server when an action (storing a
 prekey message, for example) has not been successful. This can happen when the
 Prekey Server's storage is full.
+
+A valid Failure message is generated as follows:
+
+1. Calculate the `Failure MAC`:
+   `KDF(0x12 || prekey_mac_k || message type || receiver's instance tag ||
+    "An error occurred", 64)`
 
 It must be encoded as:
 
