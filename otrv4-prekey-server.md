@@ -75,28 +75,11 @@ securely publish, store and retrieve prekey messages.
 OTRv4 Prekey Server specification does not fully protect against an active
 attacker performing Denial of Service attacks.
 
-During the DAKE perfomed by the publisher with the Prekey Server, the network
+During the DAKE performed by the publisher with the Prekey Server, the network
 model provides in-order delivery of messages.
 
-The server support for multiple versions of prekey messages depends on
-each future OTR version to keep Prekey messages with the same header:
-
-```
-Protocol version (SHORT)
-  The version number of this protocol is 0x0004 (for OTRv4).
-
-Message type (BYTE)
-  The message has type 0x0F (for OTRv4).
-
-Prekey Message Indentifier (INT)
-  A prekey message id used for local retrieval.
-
-Prekey owner's instance tag (INT)
-  The instance tag of the client that created the prekey.
-
-Prekey owner's User Profile (USER-PROF)
-  As described in the section "Creating a User Profile".
-```
+The Prekey Server should support multiple prekey messages from different/future
+OTR versions, starting with version 4.
 
 ## Prekey Server Specifications
 
@@ -145,6 +128,25 @@ currently undefined and, thus, risky. Nevertheless, with this, the OTRv4
 protocol can be subject of DoS attacks when a Prekey Server is compromised or
 the network is undermined to return a "No Prekey-Messages on Storage" message
 from the Prekey Server.
+
+Notice that the Prekey Server should be able to support future versions,
+starting from version 4. This means that the Prekey Sever will accept prekey
+ensembles with different versions. For this, the header on the prekey messages
+should remain the same:
+
+```
+Protocol version (SHORT)
+  The version number of the protocol, e.g, 0x0004 for OTRv4.
+
+Message type (BYTE)
+  The message type, e.g., 0x0F for OTRv4.
+
+Prekey Message Indentifier (INT)
+  A prekey message id used for local retrieval.
+
+Prekey owner's instance tag (INT)
+  The instance tag of the client that created the prekey message.
+```
 
 ## Notation and Parameters
 
