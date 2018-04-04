@@ -594,18 +594,46 @@ Message (DATA)
     - Storage information
 ```
 
-### Ensemble Publication Message
+### Prekey Publication Message
 
-This is the message sent when you want to store/publish prekey messages to the
-Prekey Server. The maximum number of prekey messages that can be published at
-one is 255. This message must be attached to a DAKE-3 message.
+This is the message sent when you want to store/publish prekey ensembles to the
+Prekey Server. This message can have three types of values to be published:
+
+- User profiles
+- Prekey profiles
+- Prekey messages
+
+User profiles and prekey profiles are included in this message when there are
+none of these values on the Prekey Server (this is the first time a client
+uploads those valued), when a new User or Prekey Profile is generated with a
+different long-term public key, and when the stored User or Prekey Profile is
+expired. A client is mandated to always upload new User and Prekey Profiles when
+one of these scenarios happen. A client does not delete the old values but
+rather replace them on these scenarios.
+
+Prekey messages are included in this message when there are none of this values
+on the Prekey Server. This can be checked by sending a "Storage Status Message"
+to the Prekey Server. If the client that received the "Storage Status Message"
+see that the storage of prekey message is getting low, it is mandated to
+upload more prekey messages. The maximum number of prekey messages that can be
+published at once is 255.
+
+Notice that this message must be attached to a DAKE-3 message.
 
 A valid Ensemble Publication message is generated as follows:
 
-1. Concatenate all the prekey messages. Assign `N` as the number of concatenated
+1. Concatenate all user profiles, if they are needed to be published. Assign `K`
+   as the number of concatenated user profiles.
+2. Concatenate all prekey profiles, if they are needed to be published. Assign
+   `J` as the number of concatenated prekey profiles.
+3. Concatenate all the prekey messages. Assign `N` as the number of concatenated
    prekey messages.
-2. Calculate the `Ensemble MAC`:
-   `KDF(0x07 || prekey_mac_k || message type || N || prekey messages || user profile || prekey profile, 64)`
+4. Calculate the `Ensemble MAC`:
+   * If user profiles and prekey profiles are present:
+     `KDF(0x07 || prekey_mac_k || message type || K || user profile || J ||
+      prekey profiles || N || prekey messages, 64)`
+   * If only prekey messages are present:
+     `KDF(0x07 || prekey_mac_k || message type || N || prekey messages, 64)`
 
 It must be encoded as:
 
@@ -613,26 +641,35 @@ It must be encoded as:
 Message type (BYTE)
   This message has type 0x04.
 
+K (BYTE)
+   The number of user profiles present in this message. This value is optional.
+
+User Profile (USER-PROF)
+  All 'K' user profiles created as described in the section "Creating a User
+  Profile" of the OTRv4 specification. This value is optional.
+
+J (BYTE)
+   The number of prekey profiles present in this message. This value is
+   optional.
+
+Prekey Profile (PREKEY-PROF)
+  All 'J' prekey profiles created as described in the section "Creating a User
+  Profile" of the OTRv4 specification. This value is optional.
+
 N (BYTE)
    The number of prekey messages present in this message.
 
 Prekey messages (DATA)
    All 'N' prekey messages serialized according to OTRv4 specification.
 
-User Profile (USER-PROF)
-  (Optional).
-
-Prekey Profile (PREKEY-PROF)
-  (Optional).
-
 Ensemble MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
   the prekey messages.
 ```
 
-The server must verify is the profile is not expired and if the signature is valid. If the profiles are not present in this message, the server can't check the expiry and returns and error.
-
-User profile and Prekey profile are published once, and should not be published again until they expire. The client is expected to know when they should not be sent to the server.
+The server must verify is the profile is not expired and if the signature is
+valid. If the profiles are not present in this message, the server can't check
+the expiry and returns and error.
 
 ### Storage Information Message
 
@@ -678,8 +715,8 @@ Status MAC (MAC)
 
 ### Success Message
 
-The success message is sent by the Prekey Server when an action (storing a
-prekey message, for example) has been successful.
+The success message is sent by the Prekey Server when an action (storing prekey
+messages, for example) has been successful.
 
 A valid Success message is generated as follows:
 
@@ -785,7 +822,7 @@ There are four events an OTRv4 client must handle:
   * Ignores the message.
 
 
-## Publishing Prekey Messages
+## Publishing Prekey Values
 
 ```
 Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
@@ -803,14 +840,24 @@ sends a DAKE-3 message with a
 Prekey publication message           ------------->
 
                                      <-------------  Receives a DAKE-3 message and
-                                                     stores the prekey message.
-                                                     Sends a Success message
+                                                     stores the user profiles and
+                                                     prekey profiles (if present),
+                                                     and the prekey messages.
+                                                     Sends a Success message.
 ```
 
 Notice that this section refers to the ideal functionality of a Prekey Server.
 Nevertheless, consider that an untrusted Prekey Server can, for example, not
 perform some of the verifications here noted.
 
+1. Client creates user profiles, as defined in OTRv4 specification. See
+   the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
+   section of the OTRv4 specification for details. It must create a user profile
+   for each local long-term public key it has.
+1. Client creates prekey messages, as defined in OTRv4 specification. See
+   the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
+   section of the OTRv4 specification for details. It must create a prekey
+   profile for each local long-term public key it has and sign with it.
 1. Client creates prekey messages, as defined in OTRv4 specification. See
    the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
    section of the OTRv4 specification for details.
