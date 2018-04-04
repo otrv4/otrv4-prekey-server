@@ -55,45 +55,54 @@ messages.
 ## High Level Overview
 
 The OTRv4 Prekey Server specification defines a way by which parties can
-publish, store and retrieve prekey messages from an untrusted Prekey Server.
-A Prekey message contains the publisher's User Profile, the publisher's Prekey
-Profile and two one-time use ephemeral public prekey values, as defined in the
-OTRv4 specification [\[1\]](#references). These prekey messages are used for
-starting offline conversations.
+publish and store user profiles, prekey profiles and prekey messages, and
+retrieve prekey ensembles from an untrusted Prekey Server. A Prekey ensemble
+contains the publisher's User Profile, the publisher's Prekey Profile and two
+one-time use ephemeral public prekey values (denoted a prekey message), as
+defined in the OTRv4 specification [\[1\]](#references). These prekey ensembles
+are used for starting offline conversations.
 
 In order to perform offline conversations, OTRv4 specification defines a
-non-interactive DAKE, which is derived from the XZDH protocol. It begins when
-Alice, who wants to initiate an offline conversation with Bob, asks an untrusted
-Prekey Server for Bob's prekey messages. These prekey messages have previously
-been stored in the Prekey Server by Bob.
+non-interactive DAKE, which is derived from the XZDH protocol. This DAKE begins
+when Alice, who wants to initiate an offline conversation with Bob, asks an
+untrusted Prekey Server for Bob's prekey ensembles. The values for the prekeys
+ensembles have previously been stored in the Prekey Server by a request from
+Bob.
 
 This document aims to describe how the untrusted Prekey Server can be used to
-securely publish, store and retrieve prekey messages.
+securely publish, store and retrieve prekey ensembles and its values.
 
 ## Assumptions
 
 OTRv4 Prekey Server specification does not fully protect against an active
-attacker performing Denial of Service attacks.
+attacker performing Denial of Service attacks (DoS).
 
 During the DAKE performed by the publisher with the Prekey Server, the network
 model provides in-order delivery of messages.
 
-The Prekey Server should support multiple prekey messages from different/future
-OTR versions, starting with version 4.
+This specification aims to support future OTR versions. Because of that, the
+Prekey Server should support multiple prekey messages from different/future
+OTR versions, starting with the current version, 4.
 
 ## Prekey Server Specifications
 
 The Prekey Server used in this specification should be considered untrusted.
 This means that a malicious server could cause communication between parties to
-fail (e.g. by refusing to deliver prekey messages).
+fail. This can happen in, for example these ways:
+
+- By refusing to deliver prekey ensembles.
+- By refusing to deliver one of the values of a prekey emsemble (by,
+  for example, refusing to deliver a User Profile).
+- By refusing to delete already used prekey messages and delivering as valid.
 
 The Prekey Server must have these capabilities:
 
-- Receive prekey messages and store them. Inform that this operation have failed
-  or has been successful.
-- Deliver prekey messages previously stored.
+- Receive user profiles, prekey profiles and a set of prekey messages, and store
+  them. Inform that this operation have failed or has been successful.
+- Deliver prekey ensembles previously stored.
 - Inform the publisher about how many prekey messages are stored for them.
-- Inform the retriever when there are no prekey messages from an specific party.
+- Inform the retriever when there are no prekey ensembles (or any of its values)
+  from an specific party.
 
 The Prekey Server expects to only receive messages on the same network
 authenticated clients use to exchange messages. This means that a message
@@ -108,12 +117,13 @@ from the Prekey Server can potentially affect the security of the whole OTRv4
 protocol. For this reason, verifications must be performed by clients as well,
 even though the Prekey Server should be expected to perform them.
 
-Note that prekey messages submissions to the untrusted Prekey Server have to be
-authenticated. If they are not authenticated, then malicious users can perform
-denial-of-service attacks. To preserve the deniability of the overall OTRv4
-protocol, prekeys messages should never be digitally signed. The best approach
-is to authenticate prekey message uploads using a DAKEZ exchange between the
-publisher and the Prekey Server, which preserves deniability.
+Note that user profile, prekey profiles and prekey messages submissions to the
+untrusted Prekey Server have to be authenticated. If they are not authenticated,
+then malicious users can perform denial-of-service attacks. To preserve the
+deniability of the overall OTRv4 protocol, prekeys messages should never be
+digitally signed. The best approach is to authenticate prekey message uploads
+using a DAKEZ exchange between the publisher and the Prekey Server, which
+preserves deniability.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
 Server should be able to correctly generate ephemeral ECDH keys and long-term
@@ -309,11 +319,12 @@ all-zero output.
 
 ## Interactive DAKE
 
-As previously stated, prekey submissions (publishing) have to be authenticated.
-If they are not authenticated, then malicious users can perform
-denial-of-service attacks. To preserve the deniability of the overall OTRv4
-protocol, they are authenticated using a DAKEZ [\[3\]](#references) exchange
-between the publisher and the Prekey Server, which preserves deniability.
+As previously stated, user profiles, prekey profiles and prekey messages
+submissions (publishing) have to be authenticated. If they are not
+authenticated, then malicious users can perform denial-of-service attacks. To
+preserve the deniability of the overall OTRv4 protocol, they are authenticated
+using a DAKEZ [\[3\]](#references) exchange between the publisher and the Prekey
+Server, which preserves deniability.
 
 The following parameters are expected to be generated beforehand:
 
