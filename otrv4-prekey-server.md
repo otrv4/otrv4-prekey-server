@@ -867,21 +867,29 @@ perform some of the verifications here noted.
 1. Client authenticates (in a deniable way) with the server through the
    interactive DAKE 'DAKEZ' and, with that, it generates a shared secret.
    See section [Interactive DAKE](#interactive-dake) for details.
-1. Client sends prekey messages to the Prekey Server, in the last message of the
-   DAKE (DAKE-3 with a Prekey publication message attached). It sends a prekey
-   message for every long-term public key that belongs to the publisher and that
-   exists in this client/device.
-1. Server verifies the received prekey messages. For every prekey message:
-   1. Checks the integrity of the prekey message.
-   1. Discard any duplicated prekey message.
-   1. Checks that the User Profile is not expired.
-   1. Checks that the Prekey Profile is not expired.
-   1. Checks that the OTR version in the prekey message matches one of the
-      versions signed in the User Profile contained in the prekey message.
-1. Server stores the prekey messages.
-1. Server sends acknowledgment that the operation succeeded.
+1. Client sends user profiles and prekey profiles (if present), and prekey
+   messages to the Prekey Server, in the last message of the
+   DAKE (DAKE-3 with a Prekey publication message attached). It sends the
+   available user and prekey profiles for every long-term public key it exists
+   locally on the client/device (if needed), and a set of prekey messages.
+1. Server verifies the received values:
+   1. For every value, check the integrity.
+   1. If user and prekey profiles are present:
+      1. Validate the user profiles as defined on
+         [Validating a User Profile](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
+         section of the OTRv4 specification.
+      1. Validate the prekey profiles as defined on
+         [Validating a Prekey Profile](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile)
+         section of the OTRv4 specification.
+   1. If prekey messages are present:
+      1. Validate the prekey messages as defined on
+         [Prekey Message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
+         section of the OTRv4 specification.
+      1. Discard any invalid or duplicated prekey messages.
+1. Server stores the prekey messages associated with the identity.
+1. Server sends an acknowledgment that the operation succeeded.
 
-## Retrieving Prekey Messages
+## Retrieving Prekey Ensembles
 
 ```
 Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
@@ -900,56 +908,74 @@ verifies them.
 ```
 
 In order to send an encrypted offline message, a client must obtain a prekey
-message from the party they are willing to start a conversation with:
+ensemble from the party they are willing to start a conversation with:
 
-1. Client informs which identity and protocol versions it wants Prekey Messages for.
-1. Server checks if there are prekey messages on storage for this identity.
+1. Client informs which identity and protocol versions it wants prekey ensembles
+   for.
+1. Server checks if there are prekey ensembles on storage for this identity.
    If there are none, it sends a "No Prekey-Messages on Storage" message.
-1. Server selects one prekey message for each instance tag and long-term public
-   key for the identity.
-   1. For each requested version:
-      1. Group all prekey messages that match the version by instance tag,
-         and then by long-term public key. That is, only return multiple
-         prekey messages for the same instance tag if they have different
-         long-term keys.
-      1. Filter out expired prekey messages from each group (by checking if the
-         User Profile and/or the Prekey Profile are expired).
-      1. Choose the prekey message with the latest expiry time from each group.
-1. Server build prekey ensembles with the selected prekey messages.
-   1. Each ensemble contains: a prekey message, its user profile and prekey profile.
-1. Server delivers all selected prekey ensembles to the Client.
-1. Server removes the selected prekey messages from its storage.
-1. For each requested version, the Client selects prekey messages with the
-   latest expiration date form each instance tag and long-term public key
-   group:
-   1. For each requested version:
-      1. Group all prekey messages that match the version by instance tag,
-         and then by long-term public key. That is, only return multiple
-         prekey messages for the same instance tag if they have different
-         long-term keys.
-      1. Filter out expired prekey messages from each group (by checking if the
-         User Profile and/or the Prekey Profile are expired).
-      1. Choose the prekey message with the latest expiry time from each group.
-   1. Discards any duplicated prekey message.
-   1. Filter out invalid prekey messages from the group, as defined in the
-      [Validating Prekey Messages](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-prekey-message)
-      section of the OTRv4 specification:
-      1. Checks that the User Profile is not expired.
-      1. Checks that the Prekey Profile is not expired.
-      1. Checks that the OTR version of the prekey message matches one of the
-         versions signed in the User Profile contained in the prekey message.
+1. Server selects prekey ensembles for the requested version consisting of:
+   * A valid user profile for every instance tag and long-term public key for
+     the identity. That is, selects different user profiles if they have the
+     same instance tag but different long-term public keys on it. Always selects
+     the user profiles with the latest expiry date.
+   * A valid prekey profile for every instance tag and long-term public key for
+     the identity. That is, different prekey profiles if they have the same
+     instance tag but different long-term public keys on it. Always selects
+     the user profiles with the latest expiry date.
+   * One prekey message for every user profile and prekey profile selected.
+     This prekey messages should have the same instance tag as the user and
+     prekey profiles.
+   * Builds prekey ensembles with the selected values, for example:
+
+     ```
+     Identity || User Profile (with instance tag 0x01, and long-term public key 1) ||
+     Prekey Profile (with instance tag 0x01 and long-term public key 1) ||
+     prekey message (with instance tag 0x01).
+
+     Identity || User Profile (with instance tag 0x01, and long-term public key 2) ||
+     Prekey Profile (with instance tag 0x01 and long-term public key 2) ||
+     prekey message (with instance tag 0x01).
+
+     Identity || User Profile (with instance tag 0x02, and long-term public key 3) ||
+     Prekey Profile (with instance tag 0x02 and long-term public key 3) ||
+     prekey message (with instance tag 0x02).
+     ```
+
+1. Server delivers all selected prekey ensembles to the Client and removes any
+   duplicated values.
+1. Server removes the selected prekey messages from its storage. It does not
+   delete neither the user nor prekey profiles.
+1. For each requested version, the Client gets the prekey ensembles:
+   1. Checks that there is at least one user profile, one prekey profile and
+      one prekey message.
+   1. Group all prekey values by instance tag. Subgroup the user profiles and
+      prekey profiles from here by long-term public key.
+   1. Validate all prekey ensembles:
+      1. Check that all the instance tags on the Prekey Ensemble's values are
+         the same.
+      1. [Validate the User Profile](#validating-a-user-profile).
+      1. [Validate the Prekey Profile](#validating-a-prekey-profile).
+      1. Check that the Prekey Profile is signed by the same long-term public
+         key stated on it and on the User Profile.
+      1. Verify the Prekey message as stated on its [section](#prekey-message).
+      1. Check that the OTR version of the prekey message matches one of the
+         versions signed in the User Profile contained in the Prekey Ensemble.
       1. Check if the User Profile's version is supported by the receiver.
-1. Client chooses which prekey messages to send an encrypted offline message to:
-   1. Optionally, a client can only use prekey messages that contain trusted
+      1. Choose the prekey message with the latest expiry time from each group.
+   1. Discards any invalid or duplicated prekey ensemble.
+1. Client chooses which prekey ensembles to send an encrypted offline message
+   to:
+   1. Optionally, a client can only use prekey ensembles that contain trusted
       long-term public keys.
-   1. If there are several instance tags in the list of prekey messages, the
+   1. If there are several instance tags in the list of prekey ensembles, the
       client can optionally decide which instance tags to send messages to.
       Inform the user if the encrypted messages will be send to multiple
       instance tags (multiple devices).
-   1. Decide if multiple conversations should be kept simultaneously (one per
-      instance tag).
+   1. If there are multiple prekey ensembles per instance tag, decide whether to
+      send multiple messages to the same instance tag.
 
-### Ensemble retrieval message
+### Prekey Ensemble retrieval message
 
 It must be encoded as:
 
