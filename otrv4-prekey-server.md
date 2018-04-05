@@ -132,6 +132,13 @@ communication between to parties to fail. This can happen in several ways:
 Furthermore, there can be a reduction in forward secrecy if one party
 maliciously drains another party's prekey messages.
 
+Notice that the security of Non-Interactive DAKE (XZDH) in OTRv4 specification
+does not require trusting the Prekey Server. However, if we allow a scenario in
+which the user’s keys have been compromised but the Prekey Server has not, then
+we can achieve better plausible deniability. The user may ask the Prekey Server
+in advance to assist with a forged conversation, casting doubt on all
+conversations conducted by an online adversary using the compromised device.
+
 ## Prekey Server Specifications
 
 The Prekey Server used in this specification should be considered untrusted.
@@ -1355,18 +1362,6 @@ Prekey Server:
        DAKEZ message to `prekey.xmpp.org`.
    1. `bob@xmpp.org` receives a "Success" or "Failure" message depending if the
        above operation was successful or not from `prekey.xmpp.org`.
-
-## Attacks
-
-### KCI attacks and the unstrusted prekey server
-
-The security of Non-Interactive DAKE (XZDH) in OTRv4 specification does not
-require trusting the central server used to distribute prekeys messages.
-However, if we allow a scenario in which the user’s keys have been compromised
-but the central prekey server has not, then we can achieve better plausible
-deniability. The user may ask the central server in advance to assist with a
-forged conversation, casting doubt on all conversations conducted by the judge
-using the compromised device.
 
 ## References
 
