@@ -1087,9 +1087,6 @@ No Prekey-Messages message (DATA)
 ## Query the server for its storage status
 
 ```
-Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
-The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
-
 Alice                                                Prekey Server
 ----------------------------------------------------------------------------------------
 Sends a DAKE-1 message               ------------->
@@ -1099,17 +1096,17 @@ Sends a DAKE-1 message               ------------->
 
 Receives a DAKE-2 message and
 sends a DAKE-3 message with a
-Storage information request message  ------------->
+Storage Information Request message  ------------->
 
                                      <-------------  Receives a DAKE-3 message and
                                                      sends a Storage Status message
 ```
 
 1. Client uses DAKEZ to authenticate with the server. See section
-   [Interacive DAKE](#interactive-dake).
+   [Interactive DAKE](#interactive-dake) for details.
 2. Server responds with a "Storage Status message" containing the number of
-   prekey messages stored for the long-term public key and identity used during
-   the DAKEZ.
+   prekey messages stored for the long-term public key, identity and instance
+   tag used during the DAKEZ.
 
 ## A prekey server for OTRv4 over XMPP
 
