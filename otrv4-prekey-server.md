@@ -35,7 +35,7 @@ messages.
    1. [Prekey Publication Message](#prekey-publication-message)
    1. [Storage Information Request Message](#storage-information-request-message)
    1. [Storage Status Message](#storage-status-message)
-   1. [No Prekey-Messages on Storage Message](#no-prekey-messages-on-storage-message)
+   1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
    1. [Success Message](#success-message)
    1. [Failure Message](#failure-message)
 1. [State machine](#state-machine)
@@ -47,8 +47,8 @@ messages.
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
    1. [Discovering a prekey service](#discovering-a-prekey-service)
    1. [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
-   1. [Publishing prekeys values to the service](#publishing-prekeys-to-the-service)
-   1. [Obtaining information about prekey messages from the service](#obtaining-information-about-prekeys-messages-from-the-service)
+   1. [Publishing prekey values to the service](#publishing-prekey-values-to-the-service)
+   1. [Obtaining information about prekey messages from the service](#obtaining-information-about-prekey-messages-from-the-service)
    1. [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
 1. [Detailed example of the prekey server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
 1. [References](#references)
@@ -1182,7 +1182,7 @@ The service must return its identity and the features it supports:
   </iq>
 ```
 
-### Publishing prekeys values to the service
+### Publishing prekey values to the service
 
 An entity authenticates to the service through an interactive DAKE. DAKE
 messages are send in "message" stanzas.
