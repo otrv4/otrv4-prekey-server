@@ -974,7 +974,7 @@ ensemble from the party they are willing to start a conversation with:
    tag.
 1. Server checks if there are prekey ensembles on storage for this identity.
    If there are none (or one of its values is missing), it sends a
-   "No Prekey-Ensembles on Storage" message.
+   "No Prekey Ensembles on Storage" message.
 1. Server selects prekey ensembles for the requested version consisting of:
    * A valid user profile for every instance tag and long-term public key for
      the identity. That is, selects different user profiles if they have the
@@ -1041,7 +1041,7 @@ ensemble from the party they are willing to start a conversation with:
    1. If there are multiple prekey ensembles per instance tag, decides whether
       to send multiple messages to the same instance tag.
 
-### Prekey Ensemble retrieval message
+### Prekey Ensemble Retrieval message
 
 It must be encoded as:
 
@@ -1065,10 +1065,10 @@ Ensembles (DATA)
       'Prekey message'.
 ```
 
-### No Prekey-Messages on Storage Message
+### No Prekey Ensembles on Storage Message
 
-This message is sent by the Prekey Server when it runs out of prekey messages
-(there are none on storage).
+This message is sent by the Prekey Server when it runs out of prekey messages,
+or when it does not have a user or prekey profile (there are none on storage).
 
 It must be encoded as:
 
@@ -1110,9 +1110,9 @@ Storage Information Request message  ------------->
 
 ## A prekey server for OTRv4 over XMPP
 
-This is an example of how a Prekey Server for OTRv4 acts over XMPP. Note that a
-Prekey Server's implementation over XMPP must support the Service Discovery
-(XEP-0030, "disco").
+This is an example of how a Prekey Server for the OTRv4 protocol will act over
+XMPP. Note that a Prekey Server's implementation over XMPP must support the
+Service Discovery specification (XEP-0030, "disco").
 
 ### Discovering a prekey service
 
@@ -1137,7 +1137,7 @@ The server then returns the services that are associated with it:
       type='result'>
     <query xmlns='http://jabber.org/protocol/disco#items'>
       <item jid='prekey.xmpp.org'
-            name='OTRv4 Prekey Server'/>
+            name='OTR Prekey Server'/>
     </query>
   </iq>
 ```
@@ -1166,7 +1166,7 @@ The service must return its identity and the features it supports:
       type='result'>
     <query xmlns='http://jabber.org/protocol/disco#info'>
       <identity
-          category='otrv4-prekey'
+          category='otrv4-prekey-server'
           name='OTRv4 Prekey Server'
           type='text'/>
       <feature var='http://jabber.org/protocol/otrv4-prekey'/>
@@ -1202,8 +1202,8 @@ The service responds with another message:
   </message>
 ```
 
-And the entity terminates the DAKE and sends the prekey messages (DAKE-3 message
-has action 0x03):
+And the entity terminates the DAKE and sends the prekey values attached to the
+last DAKE message:
 
 ```
   <message
@@ -1214,20 +1214,18 @@ has action 0x03):
   </message>
 ```
 
-And the server responds with a success message:
-
-// TODO: Should this message also have instance tags?
+And the server responds with a "Success" message:
 
 ```
   <message
       from='prekey.xmpp.org'
       id='0kdytsmslkd'
       to='alice@xmpp.org/notebook'>
-    <body>?OTRP OK</body>
+    <body>?OTRPEF...</body> // TODO: check the type
   </message>
 ```
 
-### Obtaining information about your prekeys from the service
+### Obtaining information about prekey messages from the service
 
 An entity authenticates to the service through a DAKE. DAKE messages are send
 in "message" stanzas.
@@ -1255,8 +1253,7 @@ The service responds with another message.
   </message>
 ```
 
-And the entity terminates the DAKE and asks for storage information (DAKE-3
-message has action 0x05):
+And the entity terminates the DAKE and asks for storage information:
 
 ```
   <message
@@ -1280,10 +1277,10 @@ And the server respond with a storage status message:
 
 #### Retrieving published prekeys from a prekey service
 
-An entity asks the service for prekey messages from a particular subject,
-for example, "bob@xmpp.net". Use the resourcePart of a JID to say which
-versions you are interested on, for example "45" if you are interested on
-verisons "4" and "5".
+An entity asks the service for prekey messages from a particular party, for
+example, "bob@xmpp.net". Use the resourcePart of a JID to say which versions
+you are interested on, for example "45" if you are interested on verisons "4"
+and "5".
 
 ```
   <message
@@ -1294,8 +1291,8 @@ verisons "4" and "5".
   </message>
 ```
 
-The service responds with a Prekey Publication message, this time not attached
-to a DAKE-3 message and without the Prekey MAC field:
+The service responds with a "Prekey Ensemble Retrieval" message if there are
+prekey ensembles's values on storage:
 
 ```
   <message
@@ -1303,7 +1300,20 @@ to a DAKE-3 message and without the Prekey MAC field:
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
     <subject>bob@xmpp.net/45</subject>
-    <body>?OTRP...</body>
+    <body>?OTRPL...</body>
+  </message>
+```
+
+The service responds with a "No Prekey-Ensembles on Storage Message" if there
+are no prekey ensembles's values on storage:
+
+```
+  <message
+      from='prekey.xmpp.org'
+      id='13fd16378'
+      to='alice@xmpp.org/notebook'>
+    <subject>bob@xmpp.net/45</subject>
+    <body>?OTRPK...</body>
   </message>
 ```
 
