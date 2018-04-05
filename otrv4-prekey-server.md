@@ -953,11 +953,7 @@ Note here that by client we mean each device a client has.
    "Success Message". See its [section](#success-message) for details.
 
 ## Retrieving Prekey Ensembles
-
 ```
-Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
-The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
-
 Bob                                                  Prekey Server
 ----------------------------------------------------------------------------------------
 Informs Alice's identity             ------------->
@@ -974,9 +970,11 @@ In order to send an encrypted offline message, a client must obtain a prekey
 ensemble from the party they are willing to start a conversation with:
 
 1. Client informs which identity and protocol versions it wants prekey ensembles
-   for.
+   for. It also informs from which device its talking by specifying the instance
+   tag.
 1. Server checks if there are prekey ensembles on storage for this identity.
-   If there are none, it sends a "No Prekey-Messages on Storage" message.
+   If there are none (or one of its values is missing), it sends a
+   "No Prekey-Ensembles on Storage" message.
 1. Server selects prekey ensembles for the requested version consisting of:
    * A valid user profile for every instance tag and long-term public key for
      the identity. That is, selects different user profiles if they have the
@@ -1005,38 +1003,43 @@ ensemble from the party they are willing to start a conversation with:
      prekey message (with instance tag 0x02).
      ```
 
-1. Server delivers all selected prekey ensembles to the Client and removes any
-   duplicated values.
+1. Server delivers all selected prekey ensembles to the Client in the form of
+   a "Prekey Ensemble Retrieval" message. Uses the instance tag of the retriever
+   as the "receiver's instance tag".
 1. Server removes the selected prekey messages from its storage. It does not
    delete neither the user nor prekey profiles.
 1. For each requested version, the Client gets the prekey ensembles:
+   1. Checks that there are 'L' number of prekey emsembles as stated on the
+      "Prekey "Ensemble Retrieval" message.
    1. Checks that there is at least one user profile, one prekey profile and
       one prekey message.
-   1. Group all prekey values by instance tag. Subgroup the user profiles and
-      prekey profiles from here by long-term public key.
-   1. Validate all prekey ensembles:
-      1. Check that all the instance tags on the Prekey Ensemble's values are
+   1. Groups all prekey values by instance tag. Subgroups the user profiles and
+      prekey profiles from this group by the long-term public key, and groups
+      them by that.
+   1. Validates all prekey ensembles:
+      1. Checks that all the instance tags on the Prekey Ensemble's values are
          the same.
-      1. [Validate the User Profile](#validating-a-user-profile).
-      1. [Validate the Prekey Profile](#validating-a-prekey-profile).
-      1. Check that the Prekey Profile is signed by the same long-term public
+      1. [Validates the User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile).
+      1. [Validates the Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile).
+      1. Checks that the Prekey Profile is signed by the same long-term public
          key stated on it and on the User Profile.
-      1. Verify the Prekey message as stated on its [section](#prekey-message).
+      1. Verifies the Prekey message as stated on its
+         [section](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message).
       1. Check that the OTR version of the prekey message matches one of the
          versions signed in the User Profile contained in the Prekey Ensemble.
       1. Check if the User Profile's version is supported by the receiver.
-      1. Choose the prekey message with the latest expiry time from each group.
-   1. Discards any invalid or duplicated prekey ensemble.
+      1. Choose the prekey ensemble with the latest expiry time from each group.
+   1. Discards any invalid or duplicated prekey ensembles.
 1. Client chooses which prekey ensembles to send an encrypted offline message
    to:
-   1. Optionally, a client can only use prekey ensembles that contain trusted
+   1. A client can optionally only use prekey ensembles that contain trusted
       long-term public keys.
    1. If there are several instance tags in the list of prekey ensembles, the
       client can optionally decide which instance tags to send messages to.
-      Inform the user if the encrypted messages will be send to multiple
+      Informs the user if the encrypted messages will be send to multiple
       instance tags (multiple devices).
-   1. If there are multiple prekey ensembles per instance tag, decide whether to
-      send multiple messages to the same instance tag.
+   1. If there are multiple prekey ensembles per instance tag, decides whether
+      to send multiple messages to the same instance tag.
 
 ### Prekey Ensemble retrieval message
 
@@ -1049,16 +1052,17 @@ Message type (BYTE)
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
-N (INT)
-  The number of ensembles
+L (INT)
+  The number of prekey ensembles
 
 Ensembles (DATA)
-  The ensembles. Each ensemble is encoded as:
+  The concatenated prekey ensembles. Each ensemble is encoded as:
 
    User Profile (USER-PROF)
    A Prekey Profile (PREKEY-PROF)
    Prekey message
-      Prekey messages are encoded as specified in OTR.
+      Prekey messages are encoded as specified in OTRv4 specification, section
+      'Prekey message'.
 ```
 
 ### No Prekey-Messages on Storage Message
