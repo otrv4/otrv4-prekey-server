@@ -885,9 +885,6 @@ There are four events an OTRv4 client must handle:
 ## Publishing Prekey Values
 
 ```
-Alice has 'sk_a' and Ha' and 'Alices_User_Profile'
-The Prekey Server has 'sk_s' and 'Hs' and 'Servers_Identifier'.
-
 Alice                                                Prekey Server
 ----------------------------------------------------------------------------------------
 Sends a DAKE-1 message               ------------->
@@ -910,20 +907,23 @@ Notice that this section refers to the ideal functionality of a Prekey Server.
 Nevertheless, consider that an untrusted Prekey Server can, for example, not
 perform some of the verifications here noted.
 
+Note here that by client we mean each device a client has.
+
 1. Client creates user profiles, as defined in OTRv4 specification. See
-   the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
+   the [User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
    section of the OTRv4 specification for details. It must create a user profile
    for each local long-term public key it has.
 1. Client creates prekey messages, as defined in OTRv4 specification. See
-   the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
+   the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
    section of the OTRv4 specification for details. It must create a prekey
-   profile for each local long-term public key it has and sign with it.
+   profile for each local long-term public key it has and sign the prekey
+   profile with it.
 1. Client creates prekey messages, as defined in OTRv4 specification. See
-   the [Prekey message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
+   the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
    section of the OTRv4 specification for details.
 1. Client receives a Prekey Server's identifier (e.g. prekey.autonomia.digital)
    and the Prekey Server's long-term public key from a source. In XMPP, for
-   example, it happens over the server's service discovery.
+   example, this source is the server's service discovery.
 1. Client authenticates (in a deniable way) with the server through the
    interactive DAKE 'DAKEZ' and, with that, it generates a shared secret.
    See section [Interactive DAKE](#interactive-dake) for details.
@@ -932,22 +932,25 @@ perform some of the verifications here noted.
    DAKE (DAKE-3 with a Prekey publication message attached). It sends the
    available user and prekey profiles for every long-term public key it exists
    locally on the client/device (if needed), and a set of prekey messages.
+   See the [Prekey Publication message](#prekey-publication-message) section
+   for details.
 1. Server verifies the received values:
    1. For every value, check the integrity.
    1. If user and prekey profiles are present:
       1. Validate the user profiles as defined on
-         [Validating a User Profile](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
+         [Validating a User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
          section of the OTRv4 specification.
       1. Validate the prekey profiles as defined on
-         [Validating a Prekey Profile](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile)
+         [Validating a Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile)
          section of the OTRv4 specification.
    1. If prekey messages are present:
       1. Validate the prekey messages as defined on
-         [Prekey Message](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
+         [Prekey Message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
          section of the OTRv4 specification.
-      1. Discard any invalid or duplicated prekey messages.
+   1. Discard any invalid or duplicated prekey values.
 1. Server stores the prekey messages associated with the identity.
-1. Server sends an acknowledgment that the operation succeeded.
+1. Server sends an acknowledgment that the operation succeeded in the form of a
+   "Success Message". See its [section](#success-message) for details.
 
 ## Retrieving Prekey Ensembles
 
