@@ -184,15 +184,15 @@ In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
 Server should be able to correctly generate ephemeral ECDH keys and long-term
 ed488-EdDSA keys.
 
-When this untrusted Prekey Server runs out of prekey messages, a "No
-Prekey-Messages on Storage" message should be returned, as define in its
-[section](#no-prekey-messages-on-storage-message). A default prekey message
-should not be returned until new prekey messages are uploaded to the untrusted
-server as the consequences to participation deniability with this technique are
-currently undefined and, thus, risky. Nevertheless, with this, the OTRv4
-protocol can be subject of DoS attacks when a Prekey Server is compromised or
-the network is undermined to return a "No Prekey-Messages on Storage" message
-from the Prekey Server.
+When this untrusted Prekey Server runs out of prekey messages, or when it has no
+user or prekey profiles, a "No Prekey Ensembles on Storage" message should be
+returned, as defined in its [section](#no-prekey-ensembles-on-storage-message).
+A default prekey message should not be returned until new prekey messages are
+uploaded to the untrusted server as the consequences to participation
+deniability with this technique are currently undefined and, thus, risky.
+Nevertheless, with this, the OTRv4 protocol can be subject of DoS attacks when
+a Prekey Server is compromised or the network is undermined to return a "No
+Prekey Ensembles on Storage" message from the Prekey Server.
 
 Notice that the Prekey Server should be able to support future versions,
 starting from version 4. This means that the Prekey Server will accept prekey
@@ -439,11 +439,11 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || SK, 64)`.
 1. Creates a message (`msg`):
    1. If she wants to publish user profiles and prekey profiles, and/or prekey
-      messages, she creates a "Prekey publication message", as defined in
+      messages, she creates a "Prekey Publication message", as defined in
       its [section](#prekey-publication-message).
    1. If she wants to ask for storage information, she creates a "Storage
-      information request message", as defined in its
-      [section](#storage-information-message).
+      Information Request message", as defined in its
+      [section](#storage-information-request-message).
 1. Securely deletes the Prekey MAC key.
 1. Attaches the corresponding `msg` to the DAKE-3 message, and sends it.
 
@@ -574,7 +574,7 @@ A valid Auth-R message is generated as follows:
     KDF(0x03 || Servers_Identifier, 64) || I || S || KDF(0x04 || phi, 64)`.
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
-   identifier as mention in its [section](#servers-identifier).
+   identifier as mention in its [section](#prekey-servers-identifier).
 3. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -592,7 +592,7 @@ To verify an DAKE-2 message:
    KDF(0x03 || Servers_Indentifier, 64) || I || S || KDF(0x04 || phi, 64)`.
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
-   identifier as mention in its [section](#servers-identifier).
+   identifier as mention in its [section](#prekey-servers-identifier).
 6. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -628,7 +628,7 @@ A valid DAKE-3 message is generated as follows:
     KDF(0x06 || Servers_Identifier, 64) || I || S || KDF(0x07 || phi, 64)`.
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
-   identifier as mention in its [section](#servers-identifier).
+   identifier as mention in its [section](#prekey-servers-identifier).
 2. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification.
@@ -642,7 +642,7 @@ To verify a DAKE-3 message:
     KDF(0x06 || Servers_Identifier, 64) || I || S || KDF(0x07 || phi, 64)`.
    `phi` is the shared session state as mention in its
    [section](#shared-session-state). `Servers_Identifier` is the server's
-   identifier as mention in its [section](#servers-identifier).
+   identifier as mention in its [section](#prekey-servers-identifier).
 3. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -921,8 +921,8 @@ Note here that by client we mean each device a client has.
    the [User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
    section of the OTRv4 specification for details. It must create a user profile
    for each local long-term public key it has.
-1. Client creates prekey messages, as defined in OTRv4 specification. See
-   the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
+1. Client creates prekey profiles, as defined in OTRv4 specification. See
+   the [Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
    section of the OTRv4 specification for details. It must create a prekey
    profile for each local long-term public key it has and sign the prekey
    profile with it.
@@ -1286,7 +1286,7 @@ And the server respond with a storage status message:
 ### Retrieving published prekeys from a prekey service
 
 An entity asks the service for prekey messages from a particular party, for
-example, "bob@xmpp.net". Use the resourcePart of a JID to say which versions
+example, `bob@xmpp.net`. Use the resourcePart of a JID to say which versions
 you are interested on, for example "45" if you are interested on verisons "4"
 and "5".
 
@@ -1330,8 +1330,8 @@ are no prekey ensembles's values on storage:
 `bob@xmpp.org` wants to know how many prekeys messages remain unused on the
 Prekey Server:
 
-1. bob@xmpp.org logs in to his server (`talk.xmpp.org`).
-1. bob@xmpp.org uses service discovery to find a Prekey Server on his server
+1. `bob@xmpp.org` logs in to his server (`talk.xmpp.org`).
+1. `bob@xmpp.org` uses service discovery to find a Prekey Server on his server
    (`prekey.xmpp.org`).
    1. The service discovery informs the Prekey Server's long-term public key.
 1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
