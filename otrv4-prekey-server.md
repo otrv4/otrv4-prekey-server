@@ -1325,13 +1325,18 @@ Prekey Server:
 1. bob@xmpp.org logs in to his server (`talk.xmpp.org`).
 1. bob@xmpp.org uses service discovery to find a Prekey Server on his server
    (`prekey.xmpp.org`).
-   1. The service discovery also informs the Prekey Server's long-term public
-      key.
+   1. The service discovery informs the Prekey Server's long-term public key.
 1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
-   1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
+   1. `prekey.xmpp.org` is capable of all features of the Prekey Server
+       specification.
 1. `bob@xmpp.org` asks `prekey.xmpp.org` about the number of prekeys messages
-   it has stored for him.
-   1. TODO: Explain the DAKE.
+   it has stored for him:
+   1. `bob@xmpp.org` deniable authenticates by using DAKEZ with
+      `prekey.xmpp.org`.
+   1. `bob@xmpp.org` sends a "Storage Status Message" attached to the last
+       DAKEZ message to `prekey.xmpp.org`.
+   1. `bob@xmpp.org` receives a "Storage Status Message" message depending from
+      `prekey.xmpp.org`.
 
 `bob@xmpp.org` wants to publish/store prekey messages in the Prekey Server:
 
@@ -1342,53 +1347,14 @@ Prekey Server:
       key.
 1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
    1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
-1. bob@xmpp.org generates 3 prekeys:
-   1. prekey1: instance tag 90
-   1. prekey2: instance tag 90
-   1. prekey3: instance tag 90
-1. `bob@xmpp.org` sends DAKE-1 to `prekey.xmpp.org`:
-   1. TODO: details of how ephemeral keys will be generated.
-1. `bob@xmpp.org` receives DAKE-2 from `prekey.xmpp.org/123980831`: (the
-   resource identifies this in progress DAKE):
-   1. TODO: details of how ephemeral keys will be generated.
-   1. `bob@xmpp.org` verifies `prekey.xmpp.org` long-term public key.
-1. `bob@xmpp.org` sends DAKE-3 to `prekey.xmpp.org/123980831`:
-   1. TODO: details of how to attach prekeys to the DAKE-3.
-   1. DAKE-3 also contains prekey1, prekey2, prekey3.
-1. `bob@xmpp.org` receives a SUCCESS/FAILURE message from
-   `prekey.xmpp.org/123980831`.
-
-`alice@jabber.org` wants to send an offline message to `bob@xmpp.org`:
-
-1. `alice@jabber.org` logs to his server (`xmpp.jabber.org`).
-1. `alice@jabber.org` uses service discovery to find a Prekey Server on Bob's
-   server (`prekey.xmpp.org`).
-   1. The service discovery also informs the Prekey Server's long-term public
-      key.
-1. `alice@jabber.org` discovers the capabilities of `prekey.xmpp.org`.
-   1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
-1. `alice@jabber.org` asks `prekey.xmpp.org` for prekeys from `bob@xmpp.org`.
-1. `prekey.xmpp.org` delivers 3 prekeys to her:
-   1. Server has the following prekey messages stored for `bob@xmpp.org`
-      1. prekey1: instance tag 90. Expired.
-      1. prekey2: instance tag 90. Not expired.
-      1. prekey3: instance tag 91. Not expired.
-      1. prekey4: instance tag 91. Not expired.
-   1. Server chooses to deliver the following prekey messages to
-      `alice@jabber.org`:
-      1. prekey2: instance tag 90. Not expired.
-      1. prekey3: instance tag 91. Not expired.
-1. `alice@jabber.org` choses which prekey messages to use:
-   1. Validates the received prekey messages:
-      1. Checks that they are not expired.
-      1. As the received prekey messages have different instance tags, ther is
-         no need to choose by latest expiration time.
-   1. Client asks the user if they want to send one message to each instance
-      tag:
-      1. If the user accepts, sends one message to each instance tag.
-      1. If user does not accept, sends one message to the instance tag/device
-         chosen by the user.
-1. `alice@jabber.org` sends offline encrypted messages to `bob@xmpp.org`.
+1. `bob@xmpp.org` wants to publish `prekey.xmpp.org` a user profile, a prekey
+   profile and 5 prekey messages:
+   1. `bob@xmpp.org` deniable authenticates by using DAKEZ with
+      `prekey.xmpp.org`.
+   1. `bob@xmpp.org` sends a "Prekey Publication Message" attached to the last
+       DAKEZ message to `prekey.xmpp.org`.
+   1. `bob@xmpp.org` receives a "Success" or "Failure" message depending if the
+       above operation was successful or not from `prekey.xmpp.org`.
 
 ## Attacks
 
