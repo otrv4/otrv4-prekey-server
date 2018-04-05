@@ -14,6 +14,7 @@ messages.
 
 1. [High Level Overview](#high-level-overview)
 1. [Assumptions](#assumptions)
+1. [Security Properties](#security-properties)
 1. [Prekey Server Specifications](#prekey-server-specifications)
 1. [Notation and Parameters](#notation-and-parameters)
    1. [Notation](#notation)
@@ -32,24 +33,24 @@ messages.
    1. [DAKE-2 Message](#dake-2-message)
    1. [DAKE-3 Message](#dake-3-message)
    1. [Prekey Publication Message](#prekey-publication-message)
-   1. [Storage Information Message](#storage-information-message)
+   1. [Storage Information Request Message](#storage-information-request-message)
    1. [Storage Status Message](#storage-status-message)
    1. [No Prekey-Messages on Storage Message](#no-prekey-messages-on-storage-message)
    1. [Success Message](#success-message)
    1. [Failure Message](#failure-message)
 1. [State machine](#state-machine)
-1. [Publishing Prekey Messages](#publishing-prekey-messages)
-1. [Retrieving Prekey Messages](#retrieving-prekey-messages)
+1. [Publishing Prekey Values](#publishing-prekey-values)
+1. [Retrieving Prekey Ensembles](#retrieving-prekey-ensembles)
+   1. [Prekey Ensemble Retrieval Message](#prekey-ensemble-retrieval-message)
+   1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
 1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
    1. [Discovering a prekey service](#discovering-a-prekey-service)
    1. [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
-   1. [Publishing prekeys to the service](#publishing-prekeys-to-the-service)
-   1. [Obtaining information about your prekeys from the service](#obtaining-information-about-your-prekeys-from-the-service)
-      1. [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
+   1. [Publishing prekeys values to the service](#publishing-prekeys-to-the-service)
+   1. [Obtaining information about prekey messages from the service](#obtaining-information-about-prekeys-messages-from-the-service)
+   1. [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
 1. [Detailed example of the prekey server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
-1. [Attacks](#attacks)
-   1. [KCI attacks and the unstrusted prekey server](#kci-attacks-and-the-unstrusted-prekey-server)
 1. [References](#references)
 
 ## High Level Overview
@@ -1091,7 +1092,7 @@ No Prekey-Messages message (DATA)
   messages available for this identity".
 ```
 
-## Query the server for its storage status
+## Query the Prekey Server for its Storage Status
 
 ```
 Alice                                                Prekey Server
@@ -1181,7 +1182,7 @@ The service must return its identity and the features it supports:
   </iq>
 ```
 
-### Publishing prekeys to the service
+### Publishing prekeys values to the service
 
 An entity authenticates to the service through an interactive DAKE. DAKE
 messages are send in "message" stanzas.
@@ -1282,7 +1283,7 @@ And the server respond with a storage status message:
   </message>
 ```
 
-#### Retrieving published prekeys from a prekey service
+### Retrieving published prekeys from a prekey service
 
 An entity asks the service for prekey messages from a particular party, for
 example, "bob@xmpp.net". Use the resourcePart of a JID to say which versions
