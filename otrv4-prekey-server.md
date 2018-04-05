@@ -136,17 +136,13 @@ maliciously drains another party's prekey messages.
 
 The Prekey Server used in this specification should be considered untrusted.
 This means that a malicious server could cause communication between parties to
-fail. This can happen in, for example these ways:
-
-- By refusing to deliver prekey ensembles.
-- By refusing to deliver one of the values of a prekey emsemble (by,
-  for example, refusing to deliver a User Profile).
-- By refusing to delete already used prekey messages and delivering as valid.
+fail, as stated above.
 
 The Prekey Server must have these capabilities:
 
 - Receive user profiles, prekey profiles and a set of prekey messages, and store
-  them. Inform that this operation have failed or has been successful.
+  them by the corresponding identity. Inform that this operation have failed or
+  has been successful.
 - Deliver prekey ensembles previously stored.
 - Inform the publisher about how many prekey messages are stored for them.
 - Inform the retriever when there are no prekey ensembles (or any of its values)
@@ -158,12 +154,15 @@ received should be from the same network the publisher is believed to have
 been authenticated to.
 
 Although this specification defines an specific behavior from the Prekey Server
-(e.g., by specifying that prekey messages submissions should be validated by the
-Prekey Server), clients should not rely on this prescribed behavior, as the
-Prekey Server is untrusted. It must be taken into account that a misbehavior
-from the Prekey Server can potentially affect the security of the whole OTRv4
-protocol. For this reason, verifications must be performed by clients as well,
-even though the Prekey Server should be expected to perform them.
+(e.g., by specifying that user profiles, prekey profiles and prekey messages
+submissions should be validated by the Prekey Server), clients should not rely
+on this prescribed behavior, as the Prekey Server is untrusted. It must be taken
+into account that a misbehavior from the Prekey Server can potentially affect
+the security of the whole OTRv4 protocol. For this reason, verifications must
+be performed by clients as well, even though the Prekey Server should be
+expected to perform them. Furthermore, clients working with a Prekey Server
+are expected to upload new user profiles and prekey profiles when they get
+expired or a new long-term public key is created.
 
 Note that user profile, prekey profiles and prekey messages submissions to the
 untrusted Prekey Server have to be authenticated. If they are not authenticated,
