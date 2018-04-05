@@ -367,7 +367,7 @@ all-zero output.
 ## Interactive DAKE
 
 As previously stated, user profiles, prekey profiles and prekey messages
-submissions (publishing) have to be authenticated. If they are not
+submissions to the Prekey Server have to be authenticated. If they are not
 authenticated, then malicious users can perform denial-of-service attacks. To
 preserve the deniability of the overall OTRv4 protocol, they are authenticated
 using a DAKEZ [\[3\]](#references) exchange between the publisher and the Prekey
@@ -403,7 +403,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
     * Verifies the DAKE-1 message as defined in the
       [DAKE-1 message](#dake-1-message) section. If the verification fails
       (for example, if Alice's public key -`I`- is not valid), rejects
-      the message and does not send anything further. // TODO: send a failure?
+      the message and does not send anything further.
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
 1. Calculates the Shared secret (`SK`):
@@ -430,9 +430,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    * Securely erases `i`.
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || SK, 64)`.
 1. Creates a message (`msg`):
-   1. If she wants to publish prekey messages, she creates a "Prekey publication
-      message", as defined in its [section](#prekey-publication-message).
-   1. If she want to retrieve storage information, she creates a "Storage
+   1. If she wants to publish user profiles and prekey profiles, and/or prekey
+      messages, she creates a "Prekey publication message", as defined in
+      its [section](#prekey-publication-message).
+   1. If she wants to ask for storage information, she creates a "Storage
       information request message", as defined in its
       [section](#storage-information-message).
 1. Securely deletes the Prekey MAC key.
@@ -445,39 +446,55 @@ Alice will be initiating the DAKEZ with the Prekey Server:
      [DAKE-3 message](#dake-3-message) section. If something fails, the server
      rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
-   1. If this is a "Prekey publication message":
+   1. If this is a "Prekey Publication message":
       * Uses the sender's instance tag from the DAKE-3 message as the receiver's
         instance tag and checks that is equal to the previously seen.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08 || SK, 64)`.
-      * Computes the Prekey MAC: `KDF(0x09 ∥ prekey_mac_k || message type ||
-        N || prekey messages, 64)`. Checks that it is
-        equal to the one received in the Prekey publication message. If it is
-        not, the server aborts the DAKE and sends a "Failure Message", as
-        defined in its [section](#failure-message).
-      * Checks that `N` corresponds to the number of concatenated prekey
-        messages. If it is not, aborts the DAKE and sends a "Failure Message",
-        as defined in its [section](#failure-message).
-      * Stores each prekey message if there is enough space in the Prekey
-        Server's storage.
+      * Computes the `Prekey MAC`:
+        * If user profiles and prekey profiles are present on the message:
+          `KDF(0x07 || prekey_mac_k || message type || K || user profile || J
+           || prekey profiles || N || prekey messages, 64)`.
+        * If only prekey messages are present on the message:
+          `KDF(0x07 || prekey_mac_k || message type || N || prekey messages, 64)`.
+        * Checks that this `Prekey MAC` is equal to the one received in the
+          "Prekey publication message". If it is not, the server aborts the DAKE
+          and sends a "Failure Message", as defined in its
+          [section](#failure-message).
+      * Check the counters for the values on the message:
+        * If user profiles and prekey profiles are present on the message:
+          * Checks that `K` corresponds to the number of concatenated user
+            profiles. If it is not, aborts the DAKE and sends a "Failure Message",
+            as defined in its [section](#failure-message).
+          * Checks that `J` corresponds to the number of concatenated prekey
+            profiles. If it is not, aborts the DAKE and sends a "Failure Message",
+            as defined in its [section](#failure-message).
+        * If and prekey messages are present on the message:
+          * Checks that `N` corresponds to the number of concatenated prekey
+            messages. If it is not, aborts the DAKE and sends a "Failure Message",
+            as defined in its [section](#failure-message).
+      * Stores each user profile, prekey profile and prekey message if there is
+        enough space in the Prekey Server's storage. If there is not, aborts the
+        DAKE and sends a "Failure Message" as defined in its
+        [section](#failure-message).
       * Sends a "Success Message", as defined in its [section](#success-message).
-   1. If this is a "Storage information request message":
+   1. If this is a "Storage Information Request message":
       * Responds with a "Storage Status Message", as defined in its
         [section](#storage-status-message).
 
 **Alice**
 
 1. Receives a message from the Prekey Server:
-   1. If this is a "Storage Status Message":
+   1. If this is a "Storage Status message":
       * Computes the `Status_MAC: KDF(0x10 || prekey_mac_k || message type ||
-        receiver's instance tag || stored prekey messages, 64)`. Checks that it
-        is equal to the one received in the Storage Status message. If it is
-        not, Alice ignores the message.
-   1. If this is a "Success Message":
+        receiver's instance tag || stored prekey messages number, 64)`. Checks
+        that it is equal to the one received in the Storage Status message.
+        If it is not, Alice ignores the message.
+   1. If this is a "Success message":
       * Computes the `Success_MAC: KDF(0x12 || prekey_mac_k || message type ||
         receiver's instance tag || "Success", 64)`. Checks that it
         is equal to the one received in the Sucess message. If it is
         not, Alice ignores the message.
-   1. If this is a "Failure Message":
+   1. If this is a "Failure message":
       * Computes the `Failure_MAC: KDF(0x13 || prekey_mac_k || message type ||
         receiver's instance tag || "An error occurred", 64)`. Checks that it
         is equal to the one received in the Failure message. If it is
@@ -637,8 +654,8 @@ sigma (RING-SIG)
 Message (DATA)
   The message sent to the prekey server.
   In this protocol there are 2 kinds of messages:
-    - Ensemble publication
-    - Storage information
+    - Prekey Publication
+    - Storage Information Request
 ```
 
 ### Prekey Publication Message
@@ -652,7 +669,7 @@ Prekey Server. This message can have three types of values to be published:
 
 User profiles and prekey profiles are included in this message when there are
 none of these values on the Prekey Server (this is the first time a client
-uploads those valued), when a new User or Prekey Profile is generated with a
+uploads these values), when a new User or Prekey Profile is generated with a
 different long-term public key, and when the stored User or Prekey Profile is
 expired. A client is mandated to always upload new User and Prekey Profiles when
 one of these scenarios happen. A client does not delete the old values but
@@ -661,7 +678,7 @@ rather replace them on these scenarios.
 Prekey messages are included in this message when there are none of this values
 on the Prekey Server. This can be checked by sending a "Storage Status Message"
 to the Prekey Server. If the client that received the "Storage Status Message"
-see that the storage of prekey message is getting low, it is mandated to
+checks that the storage of prekey message is getting low, it is mandated to
 upload more prekey messages. The maximum number of prekey messages that can be
 published at once is 255.
 
@@ -709,16 +726,12 @@ N (BYTE)
 Prekey messages (DATA)
    All 'N' prekey messages serialized according to OTRv4 specification.
 
-Ensemble MAC (MAC)
+Prekey MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
   the prekey messages.
 ```
 
-The server must verify is the profile is not expired and if the signature is
-valid. If the profiles are not present in this message, the server can't check
-the expiry and returns and error.
-
-### Storage Information Message
+### Storage Information Request Message
 
 This is the message sent when you want to know how many prekey messages are
 there in storage. Only the publisher of those prekey messages can send this
@@ -733,14 +746,14 @@ Message type (BYTE)
 
 ### Storage Status Message
 
-The storage status message is sent by the Prekey Server in response to a
-Storage information request.
+The "Storage Status" message is sent by the Prekey Server in response to a
+"Storage Information Request" message.
 
-A valid Storage Status message is generated as follows:
+A valid "Storage Status" message is generated as follows:
 
 1. Calculate the `Status MAC`:
    `KDF(0x10 || prekey_mac_k || message type || receiver's instance tag ||
-    stored prekey messages, 64)`
+    Stored Prekey Messages Number, 64)`
 
 It must be encoded as:
 
@@ -751,13 +764,13 @@ Message type (BYTE)
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
-Stored prekey messages (INT)
+Stored prekey messages number (INT)
   The number of prekey messages stored in the prekey server for the
   long-term public key used during the DAKE.
 
 Status MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
-  the stored prekey messages.
+  the stored prekey messages number.
 ```
 
 ### Success Message
@@ -816,8 +829,9 @@ Success message (DATA)
 
 ## State machine
 
-This is the state machine for when a client wants to publish prekey messages to
-the Prekey Server or query it for status.
+This is the state machine for when a client wants to publish user profiles,
+prekey profiles or prekey messages to the Prekey Server, or when it queries for
+its status.
 
 Protocol States:
 
@@ -867,7 +881,6 @@ There are four events an OTRv4 client must handle:
 * Otherwise:
 
   * Ignores the message.
-
 
 ## Publishing Prekey Values
 
