@@ -62,12 +62,12 @@ one-time use ephemeral public prekey values (denoted a prekey message), as
 defined in the OTRv4 specification [\[1\]](#references). These prekey ensembles
 are used for starting offline conversations.
 
-In order to perform offline conversations, OTRv4 specification defines a
-non-interactive DAKE, which is derived from the XZDH protocol. This DAKE begins
-when Alice, who wants to initiate an offline conversation with Bob, asks an
-untrusted Prekey Server for Bob's prekey ensembles. The values for the prekeys
-ensembles have previously been stored in the Prekey Server by a request from
-Bob.
+This is needed in order to perform offline conversations. For this, OTRv4
+specification defines a non-interactive DAKE, which is derived from the XZDH
+protocol. This DAKE begins when Alice, who wants to initiate an offline
+conversation with Bob, asks an untrusted Prekey Server for Bob's prekey
+ensembles. The values for the prekeys ensembles have previously been stored in
+the Prekey Server by a request from Bob.
 
 This document aims to describe how the untrusted Prekey Server can be used to
 securely publish, store and retrieve prekey ensembles and its values.
@@ -83,6 +83,51 @@ model provides in-order delivery of messages.
 This specification aims to support future OTR versions. Because of that, the
 Prekey Server should support multiple prekey messages from different/future
 OTR versions, starting with the current version, 4.
+
+## Security Properties
+
+OTRv4 states the need for a service provider that stores key material used in
+a deniable trust establishment for offline conversations. This service provider
+is the Prekey Server, as establish in this specification.
+
+There are three things that should be uploaded to the Prekey Server: signed user
+profiles, signed prekey profiles and prekey messages. They are needed for
+starting a non-interactive DAKE. Prekey profiles are needed as if only prekey
+messages are used for starting non-interactive conversations, an active
+adversary can modify the first flow from the publisher to use an adversarially
+controlled ephemeral key, capture and drop the response from the retriever, and
+then compromise the publisher's long-term secret key. The publisher will never
+see the messages, and the adversary will be able to decrypt them. Moreover,
+since long-term keys are usually meant to last for years, a long time may pass
+between the retriever sending the messages and the adversary compromising the
+publisher's long-term key. This attack is mitigated with the use of Prekey
+Profiles that contain shared prekeys signed by the long-term secret key, and
+that are reusable.
+
+A set of prekey messages (with the one-time ephemeral secrets) is stored in the
+Prekey Server to achieve forward secrecy. These prekey messages should be
+immediately deleted after been retrieved.
+
+The submissions of these values to the untrusted Prekey Server are deniably
+authenticated by using DAKEZ. If they are not authenticated, then malicious
+users can perform denial-of-service attacks (DoS). In order to preserve the
+deniability properties of the whole OTRv4 protocol, they should be deniably
+authenticated.
+
+Furthermore, in order to safeguard the integrity of the submitted values to the
+Prekey Server, a MAC of those values is used. The Prekey Server should check
+when receiving these values for this integrity.
+
+Note that the Prekey Server is untrusted and, therefore, can cause the
+communication between to parties to fail. This can happen in several ways:
+
+- The Prekey Server refuses to hand out Prekey Ensembles.
+- The Prekey Server hands out incomplete Prekey Ensembles.
+- The Prekey Server says a wrong number for how many values of the Prekey
+  Ensemble there are.
+
+Furthermore, there can be a reduction in forward secrecy if one party
+maliciously drains another party's prekey messages.
 
 ## Prekey Server Specifications
 
