@@ -62,9 +62,8 @@ one-time use ephemeral public prekey values (denoted a prekey message), as
 defined in the OTRv4 specification [\[1\]](#references). These prekey ensembles
 are used for starting offline conversations.
 
-This is needed in order to perform offline conversations. For this, OTRv4
-specification defines a non-interactive DAKE, which is derived from the XZDH
-protocol. This DAKE begins when Alice, who wants to initiate an offline
+OTRv4 specification defines a non-interactive DAKE, which is derived from the
+XZDH protocol. This DAKE begins when Alice, who wants to initiate an offline
 conversation with Bob, asks an untrusted Prekey Server for Bob's prekey
 ensembles. The values for the prekeys ensembles have previously been stored in
 the Prekey Server by a request from Bob.
@@ -115,16 +114,20 @@ deniability properties of the whole OTRv4 protocol, they should be deniably
 authenticated.
 
 Furthermore, in order to safeguard the integrity of the submitted values to the
-Prekey Server, a MAC of those values is used. The Prekey Server should check
-when receiving these values for this integrity.
+Prekey Server, a MAC of those values is used. The Prekey Server should check,
+when receiving these values, for their integrity.
 
 Note that the Prekey Server is untrusted and, therefore, can cause the
 communication between to parties to fail. This can happen in several ways:
 
 - The Prekey Server refuses to hand out Prekey Ensembles.
 - The Prekey Server hands out incomplete Prekey Ensembles.
+- The Prekey Server hands out expired values on the Prekey Ensembles.
+- The Prekey Server can refuse to delete the prekey messages from it storage.
+- The Prekey Server can say that "there are no prekey ensembles available" even
+  if they are.
 - The Prekey Server says a wrong number for how many values of the Prekey
-  Ensemble there are.
+  Ensemble there are on storage.
 
 Furthermore, there can be a reduction in forward secrecy if one party
 maliciously drains another party's prekey messages.
