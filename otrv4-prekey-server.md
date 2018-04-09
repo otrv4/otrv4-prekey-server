@@ -363,40 +363,40 @@ all-zero output.
 
 ## Key Exchange
 
-As previously stated, user profiles, prekey profiles and prekey messages
+As previously stated, user profile, prekey profile and prekey message
 submissions to the Prekey Server have to be authenticated. If they are not
-authenticated, then malicious users can perform denial-of-service attacks. To
-preserve the deniability of the overall OTRv4 protocol, they are authenticated
-using a DAKEZ [\[3\]](#references) exchange between the publisher and the Prekey
-Server, which preserves deniability.
+authenticated, malicious users can perform denial-of-service attacks. To
+preserve the deniability of the overall OTRv4 protocol, the submissions are
+authenticated using a DAKEZ [\[3\]](#references) exchange between the publisher
+and the Prekey Server, which preserves deniability.
 
-The following parameters are expected to be generated beforehand:
+The following parameters are expected to have been generated:
 
 * `(sk_a, Ha)`: Alice's long-term keypair. As defined in section
-   [Public keys, Shared Prekeyes and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
+   [Public keys, Shared Prekeys and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
    of the OTRv4 protocol.
 * `(sk_s, Hs)`: Server's long-term keypair. As defined in section
-   [Public keys, Shared Prekeyes and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
+   [Public keys, Shared Prekeys and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
    of the OTRv4 protocol.
 * `Alices_User_Profile`: Alice's User Profile. As defined in section
    [Creating a User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#creating-a-user-profile)
    of the OTRv4 protocol.
 * `Prekey_Server_Identifier`: the Prekey Server Identifier.
 
-Alice is also expected to receive beforehand the Prekey Server Identifier and
-its long-term public key, so they can be manually verified by her.
+Alice is also expected to have the Prekey Server Identifier and the server
+lnog-term public key, so that they can be manually verified by her.
 
 Alice will be initiating the DAKEZ with the Prekey Server:
 
 **Alice**
 
-1. Generates a DAKE-1 message, as defined in [DAKE-1 Message](#dake-1-message)
+1. Generates a DAKE-1 message, as defined in the [DAKE-1 Message](#dake-1-message)
    section.
 1. Sends the DAKE-1 message to the Prekey Server.
 
 **Prekey Server**
 
-1. Receives a DAKE-1 message from Alice:
+1. Receives the DAKE-1 message from Alice:
     * Verifies the DAKE-1 message as defined in the
       [DAKE-1 message](#dake-1-message) section. If the verification fails
       (for example, if Alice's public key -`I`- is not valid), rejects
@@ -412,10 +412,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives the DAKE-2 message from the Prekey Server.
-1. Retrieves the ephemeral public keys from the Prekey Server (encoded in the
+1. Retrieves the ephemeral public keys for the Prekey Server (encoded in the
    DAKE-2 message):
     * Validates that the received ECDH ephemeral public key `S` is on curve
-      Ed448, as defined in section
+      Ed448, as defined in the 
       [Verifying that a point is on the curve](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
       section of the OTRv4 protocol. If the verification fails, she rejects the
       message and does not send anything further.
@@ -429,10 +429,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Creates a message (`msg`):
    1. If she wants to publish user profiles and prekey profiles, and/or prekey
       messages, she creates a "Prekey Publication message", as defined in
-      its [section](#prekey-publication-message).
+      [Prekey Publication Message](#prekey-publication-message).
    1. If she wants to ask for storage information, she creates a "Storage
-      Information Request message", as defined in its
-      [section](#storage-information-request-message).
+      Information Request message", as defined in
+      [Storage Information Request Message](#storage-information-request-message).
 1. Securely deletes the Prekey MAC key.
 1. Attaches the corresponding `msg` to the DAKE-3 message, and sends it.
 
@@ -455,28 +455,26 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           `KDF(0x07 || prekey_mac_k || message type || N || prekey messages, 64)`.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the server aborts the DAKE
-          and sends a "Failure Message", as defined in its
-          [section](#failure-message).
+          and sends a "Failure Message", as defined in [Failure Message](#failure-message).
       * Check the counters for the values on the message:
         * If user profiles and prekey profiles are present on the message:
           * Checks that `K` corresponds to the number of concatenated user
             profiles. If it is not, aborts the DAKE and sends a "Failure Message",
-            as defined in its [section](#failure-message).
+            as defined in [Failure Message](#failure-message).
           * Checks that `J` corresponds to the number of concatenated prekey
             profiles. If it is not, aborts the DAKE and sends a "Failure Message",
-            as defined in its [section](#failure-message).
+            as defined in  [Failure Message](#failure-message).
         * If and prekey messages are present on the message:
           * Checks that `N` corresponds to the number of concatenated prekey
             messages. If it is not, aborts the DAKE and sends a "Failure Message",
-            as defined in its [section](#failure-message).
+            as defined in [Failure Message](#failure-message).
       * Stores each user profile, prekey profile and prekey message if there is
         enough space in the Prekey Server's storage. If there is not, aborts the
-        DAKE and sends a "Failure Message" as defined in its
-        [section](#failure-message).
-      * Sends a "Success Message", as defined in its [section](#success-message).
+        DAKE and sends a "Failure Message" as defined in [Failure Message](#failure-message).
+      * Sends a "Success Message", as defined in [Success Message](#success-message).
    1. If this is a "Storage Information Request message":
-      * Responds with a "Storage Status Message", as defined in its
-        [section](#storage-status-message).
+      * Responds with a "Storage Status Message", as defined in 
+        [Storage Status Message](#storage-status-message).
 
 **Alice**
 
@@ -513,30 +511,30 @@ A valid DAKE-1 message is generated as follows:
    this section):
    * secret key `i` (57 bytes).
    * public key `I`.
-2. Generate a 4-byte instance tag to use as the sender's instance tag.
+1. Generate a 4-byte instance tag to use as the sender's instance tag.
    Additional messages in this conversation will continue to use this tag as the
    sender's instance tag. Also, this tag is used to filter future received
    messages. Messages intended for this instance of the client will have this
    number as the receiver's instance tag.
-3. Concatenate the User Profile previously generated.
+1. Add the User Profile previously generated.
 
 To verify a DAKE-1 message:
 
-3. Validate the User Profile, as defined in
+1. Validate the User Profile, as defined in
    [Validating a User Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
    section of the OTRv4 specification.
-2. Verify that the point `I` received is on curve Ed448. See
+1. Verify that the point `I` received is on curve Ed448. See
    [Verifying that a point is on the curve](https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
    section of the OTRv4 specification for details.
 
-An DAKE-1 message is an OTRv4 Prekey Server message encoded as:
+A DAKE-1 message is an OTRv4 Prekey Server message encoded as:
 
 ```
 Message type (BYTE)
   The message has type 0x01.
 
 Sender's instance tag (INT)
-  The instance tag of the person sending this message.
+  The instance tag of the client sending this message.
 
 Sender's User Profile (USER-PROF)
   As described in the section "Creating a User Profile" of the OTRv4
@@ -548,12 +546,11 @@ I (POINT)
 
 ### DAKE-2 Message
 
-This is the second message of the DAKEZ. It is sent to commit to a choice of a
-ECDH ephemeral key, and to acknowledge the publisher's ECDH ephemeral key.
-This acknowledgment includes a validation that the publisher's ECDH key is on
-curve Ed448.
+This is the second message of the DAKEZ. It is sent to commit to a choice of an
+ECDH ephemeral key for the server, and to acknowledge the publisher's ECDH ephemeral key.
+Before this acknowledgment, validation of the publisher's ECDH key is done.
 
-A valid Auth-R message is generated as follows:
+A valid DAKE-2 message is generated as follows:
 
 1. Generate an ephemeral ECDH key pair, as defined in the
    [Generating ECDH and DH keys](https://github.com/otrv4/otrv4/blob/master/otrv4.md#generating-ecdh-and-dh-keys)
@@ -561,31 +558,32 @@ A valid Auth-R message is generated as follows:
    this section):
    * secret key `s` (57 bytes).
    * public key `S`.
-2. Compute
+1. Compute
    `t = 0x00 || KDF(0x02 || Alices_User_Profile, 64) ||
     KDF(0x03 || Server_Identifier, 64) || I || S || KDF(0x04 || phi, 64)`.
-   `phi` is the shared session state as mention in its
-   [section](#shared-session-state). `Server_Identifier` is the server
-   identifier as mention in its [section](#prekey-server-identifier).
-3. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See
+   `phi` is the shared session state as mentioned in 
+   [Shared Session State](#shared-session-state). `Server_Identifier` is the server
+   identifier as mention in [Prekey Server Identifier](#prekey-server-identifier).
+1. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
-4. Use the sender's instance tag from the DAKE-1 message as the receiver's
+1. Use the sender's instance tag from the DAKE-1 message as the receiver's
    instance tag.
 
-To verify an DAKE-2 message:
+To verify a DAKE-2 message:
 
-1. Check that the receiver's instance tag matches your sender's instance tag.
-4. Validate the Server Identifier by:
-   * Calculate the fingerprint of the Server long-term public key (`H_s`).
-   * Calculate the Server Identifier and compare with the one received.
+1. Check that the receiver's instance tag matches your instance tag.
+1. Validate the Server Identifier by:
+   * Calculating the fingerprint of the Server long-term public key (`H_s`).
+   * Calculating the Server Identifier and compare with the one received.
    Extract `H_s` from it.
-5. Compute `t = 0x00 || KDF(0x02 || Alices_User_Profile, 64) ||
+1. Compute `t = 0x00 || KDF(0x02 || Alices_User_Profile, 64) ||
    KDF(0x03 || Server_Identifier, 64) || I || S || KDF(0x04 || phi, 64)`.
-   `phi` is the shared session state as mention in its
-   [section](#shared-session-state). `Server_Identifier` is the server
-   identifier as mention in its [section](#prekey-server-identifier).
-6. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See
+   `phi` is the shared session state from 
+   [Shared Session State](#shared-session-state). `Server_Identifier` is 
+   the server identifier from
+   [Prekey Server Identifier](#prekey-server-identifier).
+1. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
 
@@ -599,7 +597,7 @@ Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
 Server Identifier (PREKEY-SERVER-ID)
-  As described in the section "Server Identifier".
+  As described in the section "Prekey Server Identifier".
 
 S (POINT)
   The ephemeral public ECDH key.
@@ -610,7 +608,7 @@ sigma (RING-SIG)
 
 ### DAKE-3 Message
 
-This is the final message of the DAKE. It is sent to verify the authentication
+This is the final message of the DAKE. It is sent to verify the authentication of
 `sigma`.
 
 A valid DAKE-3 message is generated as follows:
@@ -618,24 +616,24 @@ A valid DAKE-3 message is generated as follows:
 1. Compute
    `t = 0x01 || KDF(0x05 || Alices_User_Profile, 64) ||
     KDF(0x06 || Server_Identifier, 64) || I || S || KDF(0x07 || phi, 64)`.
-   `phi` is the shared session state as mention in its
-   [section](#shared-session-state). `Server_Identifier` is the server
-   identifier as mention in its [section](#prekey-server-identifier).
-2. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in
+   `phi` is the shared session state from 
+   [Shared Session State](#shared-session-state). `Server_Identifier` is 
+   the server identifier from [Prekey Server Identifier](#prekey-server-identifier).
+1. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification.
-3. Continue to use the sender's instance tag.
+1. Continue to use the sender's instance tag.
 
 To verify a DAKE-3 message:
 
 1. Check that the receiver's instance tag matches your sender's instance tag.
-2. Compute
+1. Compute
    `t = 0x01 || KDF(0x05 || Alices_User_Profile, 64) ||
     KDF(0x06 || Server_Identifier, 64) || I || S || KDF(0x07 || phi, 64)`.
-   `phi` is the shared session state as mention in its
-   [section](#shared-session-state). `Server_Identifier` is the server
-   identifier as mention in its [section](#prekey-server-identifier).
-3. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See
+   `phi` is the shared session state from 
+   [Shared Session State](#shared-session-state). `Server_Identifier` is the server
+   identifier from [Prekey Server Identifier](#prekey-server-identifier).
+1. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
 
