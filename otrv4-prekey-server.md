@@ -964,7 +964,7 @@ verifies them.
 ```
 
 In order to send an encrypted offline message, a client must obtain a Prekey
-Ensemble from the party they want tostart a conversation with:
+Ensemble from the party they want to start a conversation with:
 
 1. Client sends which identity and protocol versions it wants Prekey Ensembles
    for. It also adds from which device it's talking by specifying the instance
