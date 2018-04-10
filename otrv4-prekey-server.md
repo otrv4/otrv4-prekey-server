@@ -287,7 +287,7 @@ As an example, for a Prekey Server running over XMPP, this should be:
 For example:
 
 ```
-  phi = "alice@jabber.net" || "prekeys.xmpp.org"
+  phi = "alice@jabber.net/mobile" || "prekeys.xmpp.org"
 ```
 
 ### Prekey Server Identifier
