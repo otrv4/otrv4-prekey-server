@@ -24,7 +24,7 @@ messages.
    1. [Encoded Messages](#encoded-messages)
    1. [Public keys and Fingerprints](#public-keys-and-fingerprints)
    1. [Shared Session State](#shared-session-state)
-   1. [Prekey Server Identifier](#prekey-server-identifier)
+   1. [Prekey Server Composite Identity](#prekey-server-composite-identity)
 1. [Key Management](#key-management)
    1. [Shared secrets](#shared-secrets)
    1. [Generating Shared Secrets](#generating-shared-secrets)
@@ -245,9 +245,9 @@ The OTRv4 Prekey Server Specification uses many of the data types already
 specified in the OTRv4 specification, as defined in section
 [Data Types](https://github.com/otrv4/otrv4/blob/master/otrv4.md#data-types)
 
-The OTRv4 Prekey Server Specification also uses the Prekey Server Identifier
-data type, which is detailed in the
-[Prekey Server Identifier](#prekey-server-identifier) section.
+The OTRv4 Prekey Server Specification also uses the Prekey Server Composite
+Identity data type, which is detailed in the
+[Prekey Server Composite Identity](#prekey-server-composite-identity) section.
 
 ### Encoded Messages
 
@@ -291,7 +291,7 @@ For example:
   phi = "alice@jabber.net/mobile" || "prekeys.xmpp.org"
 ```
 
-### Prekey Server Identifier
+### Prekey Server Composite Identity
 
 For the DAKE performed by a publisher and the Prekey
 Server, an identifier is needed. This value will be denoted the "Prekey Server
@@ -301,8 +301,8 @@ It is the hash of the Prekey Server identity concatenated with
 the Prekey Server long-term public key's fingerprint.
 
 ```
-Prekey Server Identifier (PREKEY-SERVER-ID):
-  Prekey Server identity (DATA)
+Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID):
+  Prekey Server Identity (DATA)
   Fingerprint (DATA)
 ```
 
@@ -311,7 +311,7 @@ Server (for example, prekey.xmpp.org) and the fingerprint of its long-term
 public key:
 
 ```
-  Prekey Server Identifier = "prekey.xmpp.org" || "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
+  Prekey Server Composite Identity = "prekey.xmpp.org" || "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
 ```
 
 ## Key Management
@@ -377,10 +377,10 @@ The following parameters are expected to have been generated:
 * `Alices_Client_Profile`: Alice's Client Profile. As defined in section
    [Creating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#creating-a-user-profile)
    of the OTRv4 protocol.
-* `Prekey_Server_Identifier`: the Prekey Server Identifier.
+* `Prekey_Server_Composite_Identity`: the Prekey Server Composite Identity.
 
-Alice is also expected to have the Prekey Server Identifier and the server
-long-term public key, so that they can be manually verified by her.
+Alice is also expected to have the Prekey Server Composite Identity and the
+server long-term public key, so that they can be manually verified by her.
 
 Alice will be initiating the DAKEZ with the Prekey Server:
 
@@ -566,11 +566,12 @@ A valid DAKE-2 message is generated as follows:
    * public key `S`.
 1. Compute
    `t = 0x00 || KDF(0x02, Alices_Client_Profile, 64) ||
-    KDF(0x03, Server_Identifier, 64) || I || S || KDF(0x04, phi, 64)`.
+    KDF(0x03, Prekey_Server_Composite_Indentity, 64) || I || S ||
+    KDF(0x04, phi, 64)`.
    `phi` is the shared session state as mentioned in the
-   [Shared Session State](#shared-session-state) section. `Server_Identifier`
-   is the server identifier as mention in the
-   [Prekey Server Identifier](#prekey-server-identifier) section.
+   [Shared Session State](#shared-session-state) section.
+   `Prekey_Server_Composite_Identity` is the server identifier as mention in the
+   [Prekey Server Composite Identity](#prekey-server-composite-identity) section.
 1. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -584,11 +585,13 @@ To verify a DAKE-2 message:
    * Calculating the fingerprint of the Server long-term public key (`H_s`).
    * Calculating the Server Identifier and compare with the one received.
 1. Compute `t = 0x00 || KDF(0x02, Alices_Client_Profile, 64) ||
-   KDF(0x03, Server_Identifier, 64) || I || S || KDF(0x04, phi, 64)`.
+   KDF(0x03, Prekey_Server_Composite_Identity, 64) || I || S ||
+   KDF(0x04, phi, 64)`.
    `phi` is the shared session state from the
-   [Shared Session State](#shared-session-state) section. `Server_Identifier` is
-   the server identifier from the
-   [Prekey Server Identifier](#prekey-server-identifier) section.
+   [Shared Session State](#shared-session-state) section.
+   `Prekey_Server_Composite_Identity` is the server identifier from the
+   [Prekey Server Composite Identity](#prekey-server-composite-identity)
+   section.
 1. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -602,8 +605,8 @@ Message type (BYTE)
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
-Server Identifier (PREKEY-SERVER-ID)
-  As described in the section "Prekey Server Identifier".
+Server Composite Identity (PREKEY-SERVER-COMP-ID)
+  As described in the section "Prekey Server Composite Identity".
 
 S (POINT)
   The ephemeral public ECDH key.
@@ -621,10 +624,13 @@ A valid DAKE-3 message is generated as follows:
 
 1. Compute
    `t = 0x01 || KDF(0x05, Alices_Client_Profile, 64) ||
-    KDF(0x06, Server_Identifier, 64) || I || S || KDF(0x07, phi, 64)`.
+    KDF(0x06, Prekey_Server_Composite_Identity, 64) || I || S ||
+    KDF(0x07, phi, 64)`.
    `phi` is the shared session state from
-   [Shared Session State](#shared-session-state). `Server_Identifier` is
-   the server identifier from [Prekey Server Identifier](#prekey-server-identifier).
+   [Shared Session State](#shared-session-state).
+   `Prekey_Server_Composite_Identity` is the server identifier from the
+   [Prekey Server Composite Identity](#prekey-server-composite-identity)
+   section.
 1. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification.
@@ -635,10 +641,12 @@ To verify a DAKE-3 message:
 1. Check that the receiver's instance tag matches your sender's instance tag.
 1. Compute
    `t = 0x01 || KDF(0x05, Alices_Client_Profile, 64) ||
-    KDF(0x06, Server_Identifier, 64) || I || S || KDF(0x07, phi, 64)`.
+    KDF(0x06, Prekey_Server_Composite_Identity, 64) || I || S ||
+    KDF(0x07, phi, 64)`.
    `phi` is the shared session state from
-   [Shared Session State](#shared-session-state). `Server_Identifier` is the server
-   identifier from [Prekey Server Identifier](#prekey-server-identifier).
+   [Shared Session State](#shared-session-state).
+   `Prekey_Server_Composite_Identity` is the server identifier from the
+   [Prekey Server Composite Identity](#prekey-server-identifier) section.
 1. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -927,9 +935,9 @@ By client we mean each device a user has.
 1. Client creates Prekey Messages, as defined in OTRv4 specification. See
    the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
    section of the OTRv4 specification for details.
-1. Client receives a Prekey Server Identifier (e.g. prekey.autonomia.digital)
-   and the Prekey Server long-term public key from a source. In XMPP, for
-   example, this source is the server service discovery functionality.
+1. Client receives a Prekey Server Identity (e.g. prekey.autonomia.digital) and
+   the Prekey Server long-term public key from a source. In XMPP, for example,
+   this source is the server service discovery functionality.
 1. Client authenticates (in a deniable way) with the server through the
    DAKE and, with that, it generates a shared secret.
    See section [Key Exchange](#key-exchange) for details.
