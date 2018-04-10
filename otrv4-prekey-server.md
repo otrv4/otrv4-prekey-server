@@ -268,7 +268,7 @@ public keys for the Prekey Server have fingerprints as well. The fingerprint is
 generated as:
 
 * The first 56 bytes from the `KDF(0x00, byte(H), 56)` (224-bit security
-  level).
+  level), where `H` is the Prekey Server's long-term public key.
 
 ### Shared Session State
 
