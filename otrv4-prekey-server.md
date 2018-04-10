@@ -429,7 +429,6 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    1. If she wants to ask for storage information, she creates a "Storage
       Information Request message", as defined in
       [Storage Information Request Message](#storage-information-request-message).
-1. Securely deletes the Prekey MAC key.
 1. Attaches the corresponding `msg` to the DAKE-3 message, and sends it.
 
 **Prekey Server**
@@ -485,18 +484,21 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         that it is equal to the one received in the Storage Status message.
         * If it is not, Alice ignores the message.
         * If it is, the number of stored prekey messages is displayed.
+      * Securely deletes `prekey_mac_k`.
    1. If this is a "Success message":
       * Computes the `Success_MAC: KDF(0x12, prekey_mac_k || message type ||
         receiver's instance tag || "Success", 64)`. Checks that it
         is equal to the one received in the Sucess message.
         * If it is not, Alice ignores the message.
         * If it is, the human readable part of the message is displayed.
+      * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
       * Computes the `Failure_MAC: KDF(0x13, prekey_mac_k || message type ||
         receiver's instance tag || "An error occurred", 64)`. Checks that it
         is equal to the one received in the Failure message.
         * If it is not, Alice ignores the message.
         * If it is, the human readable part of the message is displayed.
+      * Securely deletes `prekey_mac_k`.
 
 ### DAKE-1 Message
 
