@@ -63,9 +63,9 @@ one-time use ephemeral public prekey values (denoted a Prekey Message), as
 defined in the OTRv4 specification [\[1\]](#references). These Prekey Ensembles
 are used for starting offline conversations.
 
-The OTRv4 specification defines a non-interactive DAKE, which is derived from the
-XZDH protocol. This DAKE begins when Alice, who wants to initiate an offline
-conversation with Bob, asks an untrusted Prekey Server for a Prekey Ensemble for 
+The OTRv4 specification defines a non-interactive DAKE, which is derived from
+the XZDH protocol. This DAKE begins when Alice, who wants to initiate an offline
+conversation with Bob, asks an untrusted Prekey Server for a Prekey Ensemble for
 Bob. The values for the Prekeys Ensembles have previously been stored in
 the Prekey Server by a request from Bob.
 
@@ -115,8 +115,8 @@ deniability properties of the whole OTRv4 protocol, they should be deniably
 authenticated.
 
 Furthermore, in order to safeguard the integrity of the submitted values to the
-Prekey Server, a MAC of those values is used. The Prekey Server should validate this MAC
-after receiving the values.
+Prekey Server, a MAC of those values is used. The Prekey Server should validate
+this MAC after receiving the values.
 
 Note that the Prekey Server is untrusted and therefore can cause the
 communication between two parties to fail. This can happen in several ways:
@@ -130,12 +130,12 @@ communication between two parties to fail. This can happen in several ways:
 Furthermore, there can be a reduction in forward secrecy if one party
 maliciously drains another party's prekey messages.
 
-Notice that the security of the non-Interactive DAKE (XZDH) in the OTRv4 specification
-does not require trusting the Prekey Server. However, if we allow a scenario in
-which the user’s keys have been compromised but the Prekey Server has not, then
-we can achieve better plausible deniability. The user may ask the Prekey Server
-in advance to assist with a forged conversation, casting doubt on all
-conversations conducted by an online adversary using the compromised device.
+Notice that the security of the non-Interactive DAKE (XZDH) in the OTRv4
+specification does not require trusting the Prekey Server. However, if we allow
+a scenario in which the user’s keys have been compromised but the Prekey Server
+has not, then we can achieve better plausible deniability. The user may ask the
+Prekey Server in advance to assist with a forged conversation, casting doubt on
+all conversations conducted by an online adversary using the compromised device.
 
 ## Prekey Server Requirements
 
@@ -166,14 +166,14 @@ into account that a misbehavior from the Prekey Server can potentially affect
 the security of the whole OTRv4 protocol. For this reason, verifications must
 be performed by clients as well, even though the Prekey Server should be
 expected to perform them. Furthermore, clients working with a Prekey Server
-are expected to upload new user profiles and prekey profiles before they expire 
+are expected to upload new user profiles and prekey profiles before they expire
 or when creating a new long-term public key.
 
 Note that user profiles, prekey profiles and prekey messages submissions to the
 untrusted Prekey Server have to be authenticated. If they are not authenticated,
 then malicious users can perform denial-of-service attacks. To preserve the
 deniability of the overall OTRv4 protocol, prekey messages should never be
-digitally signed. This specification uses a DAKEZ exchange between the publisher 
+digitally signed. This specification uses a DAKEZ exchange between the publisher
 and the Prekey Server to fulfill this need, and preserve deniability.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
@@ -183,12 +183,12 @@ Ed488-EdDSA keys.
 When the Prekey Server runs out of prekey messages, or when it has no
 user or prekey profiles, a "No Prekey Ensembles on Storage" message should be
 returned, as defined in this [section](#no-prekey-ensembles-on-storage-message).
-In theory, it would be possible to return a "multi use" default prekey message. 
-However, the consequences to participation deniability with this technique are 
-currently undefined and, thus, risky. Thus, this specification does not use 
-this kind of fallback behavior. As a consequence, the OTRv4 protocol can be 
-subject to DoS attacks by an attacker draining the Prekey Messages for another user.
-This can be partially mitigated using rate limiting.
+In theory, it would be possible to return a "multi use" default prekey message.
+However, the consequences to participation deniability with this technique are
+currently undefined and, thus, risky. Thus, this specification does not use
+this kind of fallback behavior. As a consequence, the OTRv4 protocol can be
+subject to DoS attacks by an attacker draining the Prekey Messages for another
+user. This can be partially mitigated using rate limiting.
 
 Notice that the Prekey Server should be able to support future versions,
 starting from version 4. This means that the Prekey Server will accept prekey
@@ -247,12 +247,13 @@ Unlike in the SHAKE standard, the output size (`size`) here is in bytes.
 
 ## Data Types
 
-The OTRv4 Prekey Server Specification uses many of the data types already specified
-in the OTRv4 specification, as defined in section
+The OTRv4 Prekey Server Specification uses many of the data types already
+specified in the OTRv4 specification, as defined in section
 [Data Types](https://github.com/otrv4/otrv4/blob/master/otrv4.md#data-types)
 
-The OTRv4 Prekey Server Specification also uses the Prekey Server Identifier data type,
-which is detailed in the [Prekey Server Identifier](#prekey-server-identifier) section.
+The OTRv4 Prekey Server Specification also uses the Prekey Server Identifier
+data type, which is detailed in the
+[Prekey Server Identifier](#prekey-server-identifier) section.
 
 ### Encoded Messages
 
@@ -278,11 +279,11 @@ generated as:
 
 ### Shared Session State
 
-A Shared Session State between the server and the publisher is needed for 
+A Shared Session State between the server and the publisher is needed for
 the same reasons as stated in the
 [Shared Session State](https://github.com/otrv4/otrv4/blob/master/otrv4.md#shared-session-state)
 section of the OTRv4 specification. It is used to authenticate contexts to
-prevent attacks that rebind the DAKE transcript into different contexts. 
+prevent attacks that rebind the DAKE transcript into different contexts.
 
 As an example, for a Prekey Server running over XMPP, this should be:
 
@@ -311,8 +312,9 @@ Prekey Server Identifier (PREKEY-SERVER-ID):
   Fingerprint (DATA)
 ```
 
-For a Prekey Server that uses XMPP, this must be the bare JID of the Prekey Server
-(for example, prekey.xmpp.org) and the fingerprint of its long-term public key:
+For a Prekey Server that uses XMPP, this must be the bare JID of the Prekey
+Server (for example, prekey.xmpp.org) and the fingerprint of its long-term
+public key:
 
 ```
   Prekey Server Identifier = "prekey.xmpp.org" || "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
@@ -415,7 +417,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Retrieves the ephemeral public keys for the Prekey Server (encoded in the
    DAKE-2 message):
     * Validates that the received ECDH ephemeral public key `S` is on curve
-      Ed448, as defined in the 
+      Ed448, as defined in the
       [Verifying that a point is on the curve](#https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
       section of the OTRv4 protocol. If the verification fails, she rejects the
       message and does not send anything further.
@@ -459,22 +461,26 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Check the counters for the values on the message:
         * If user profiles and prekey profiles are present on the message:
           * Checks that `K` corresponds to the number of concatenated user
-            profiles. If it is not, aborts the DAKE and sends a "Failure Message",
-            as defined in [Failure Message](#failure-message).
+            profiles. If it is not, aborts the DAKE and sends a
+            "Failure Message", as defined in the
+            [Failure Message](#failure-message) section.
           * Checks that `J` corresponds to the number of concatenated prekey
-            profiles. If it is not, aborts the DAKE and sends a "Failure Message",
-            as defined in  [Failure Message](#failure-message).
+            profiles. If it is not, aborts the DAKE and sends a
+            "Failure Message", as defined in the
+            [Failure Message](#failure-message) section.
         * If and prekey messages are present on the message:
           * Checks that `N` corresponds to the number of concatenated prekey
             messages. If it is not, aborts the DAKE and sends a "Failure Message",
             as defined in [Failure Message](#failure-message).
       * Stores each user profile, prekey profile and prekey message if there is
         enough space in the Prekey Server's storage. If there is not, aborts the
-        DAKE and sends a "Failure Message" as defined in [Failure Message](#failure-message).
-      * Sends a "Success Message", as defined in [Success Message](#success-message).
+        DAKE and sends a "Failure Message" as defined in the
+        [Failure Message](#failure-message) section.
+      * Sends a "Success Message", as defined in the
+        [Success Message](#success-message) section.
    1. If this is a "Storage Information Request message":
-      * Responds with a "Storage Status Message", as defined in 
-        [Storage Status Message](#storage-status-message).
+      * Responds with a "Storage Status Message", as defined in
+        the [Storage Status Message](#storage-status-message) section.
 
 **Alice**
 
@@ -547,8 +553,9 @@ I (POINT)
 ### DAKE-2 Message
 
 This is the second message of the DAKEZ. It is sent to commit to a choice of an
-ECDH ephemeral key for the server, and to acknowledge the publisher's ECDH ephemeral key.
-Before this acknowledgment, validation of the publisher's ECDH key is done.
+ECDH ephemeral key for the server, and to acknowledge the publisher's ECDH
+ephemeral key. Before this acknowledgment, validation of the publisher's ECDH
+key is done.
 
 A valid DAKE-2 message is generated as follows:
 
@@ -561,9 +568,10 @@ A valid DAKE-2 message is generated as follows:
 1. Compute
    `t = 0x00 || KDF(0x02 || Alices_User_Profile, 64) ||
     KDF(0x03 || Server_Identifier, 64) || I || S || KDF(0x04 || phi, 64)`.
-   `phi` is the shared session state as mentioned in 
-   [Shared Session State](#shared-session-state). `Server_Identifier` is the server
-   identifier as mention in [Prekey Server Identifier](#prekey-server-identifier).
+   `phi` is the shared session state as mentioned in the
+   [Shared Session State](#shared-session-state) section. `Server_Identifier`
+   is the server identifier as mention in the
+   [Prekey Server Identifier](#prekey-server-identifier) section.
 1. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -579,10 +587,10 @@ To verify a DAKE-2 message:
    Extract `H_s` from it.
 1. Compute `t = 0x00 || KDF(0x02 || Alices_User_Profile, 64) ||
    KDF(0x03 || Server_Identifier, 64) || I || S || KDF(0x04 || phi, 64)`.
-   `phi` is the shared session state from 
-   [Shared Session State](#shared-session-state). `Server_Identifier` is 
-   the server identifier from
-   [Prekey Server Identifier](#prekey-server-identifier).
+   `phi` is the shared session state from the
+   [Shared Session State](#shared-session-state) section. `Server_Identifier` is
+   the server identifier from the
+   [Prekey Server Identifier](#prekey-server-identifier) section.
 1. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -608,16 +616,16 @@ sigma (RING-SIG)
 
 ### DAKE-3 Message
 
-This is the final message of the DAKE. It is sent to verify the authentication of
-`sigma`.
+This is the final message of the DAKE. It is sent to verify the authentication
+of `sigma`.
 
 A valid DAKE-3 message is generated as follows:
 
 1. Compute
    `t = 0x01 || KDF(0x05 || Alices_User_Profile, 64) ||
     KDF(0x06 || Server_Identifier, 64) || I || S || KDF(0x07 || phi, 64)`.
-   `phi` is the shared session state from 
-   [Shared Session State](#shared-session-state). `Server_Identifier` is 
+   `phi` is the shared session state from
+   [Shared Session State](#shared-session-state). `Server_Identifier` is
    the server identifier from [Prekey Server Identifier](#prekey-server-identifier).
 1. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
@@ -630,7 +638,7 @@ To verify a DAKE-3 message:
 1. Compute
    `t = 0x01 || KDF(0x05 || Alices_User_Profile, 64) ||
     KDF(0x06 || Server_Identifier, 64) || I || S || KDF(0x07 || phi, 64)`.
-   `phi` is the shared session state from 
+   `phi` is the shared session state from
    [Shared Session State](#shared-session-state). `Server_Identifier` is the server
    identifier from [Prekey Server Identifier](#prekey-server-identifier).
 1. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See the
@@ -903,8 +911,8 @@ Prekey Publication Message           ------------->
 ```
 
 Notice that this section refers to the ideal functionality of a Prekey Server.
-Consider that a Prekey Server can, for example, decide to not perform some of the
-verifications noted here.
+Consider that a Prekey Server can, for example, decide to not perform some of
+the verifications noted here.
 
 By client we mean each device a user has.
 
@@ -950,6 +958,7 @@ By client we mean each device a user has.
    "Success" message. See [Success Message](#success-message) for details.
 
 ## Retrieving Prekey Ensembles
+
 ```
 Bob                                                  Prekey Server
 ----------------------------------------------------------------------------------------
@@ -1019,7 +1028,7 @@ Ensemble from the party they want to start a conversation with:
       1. [Validates the Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile).
       1. Checks that the Prekey Profile is signed by the same long-term public
          key stated in it and in the User Profile.
-      1. Verifies the Prekey Message as stated in the 
+      1. Verifies the Prekey Message as stated in the
          [Prekey Message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
          section.
       1. Check that the OTR version of the Prekey Message matches one of the
