@@ -422,7 +422,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       section of the OTRv4 protocol. If the verification fails, she rejects the
       message and does not send anything further.
 1. Verifies the DAKE-2 message as defined in the
-   [DAKE-2 message](#dake-2-message) section.
+   [DAKE-2 message](#dake-2-message) section. If the verification fails, rejects
+   the message and does not send anything further.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
 1. Calculates the Shared secret (`SK`):
    * `SK = KDF(0x01 || ECDH(i, S))`.
