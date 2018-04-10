@@ -514,11 +514,13 @@ A valid DAKE-1 message is generated as follows:
    this section):
    * secret key `i` (57 bytes).
    * public key `I`.
-1. Generate a 4-byte instance tag to use as the sender's instance tag.
-   Additional messages in this conversation will continue to use this tag as the
-   sender's instance tag. Also, this tag is used to filter future received
-   messages. Messages intended for this instance of the client will have this
-   number as the receiver's instance tag.
+1. Generate a 4-byte instance tag to use as the sender's instance tag. Only
+   generate it, if it hasn't been generated for the OTRv4 specification. If it
+   has, use that one instead. If it hasn't, generate it, and use it for the OTRv4
+   specification as well. Additional messages in this conversation will continue
+   to use this tag as the sender's instance tag. Also, this tag is used to
+   filter future received messages. Messages intended for this instance of the
+   client will have this number as the receiver's instance tag.
 1. Add the Client Profile previously generated.
 
 To verify a DAKE-1 message:
