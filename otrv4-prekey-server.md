@@ -386,7 +386,7 @@ The following parameters are expected to have been generated:
 * `Prekey_Server_Identifier`: the Prekey Server Identifier.
 
 Alice is also expected to have the Prekey Server Identifier and the server
-lnog-term public key, so that they can be manually verified by her.
+long-term public key, so that they can be manually verified by her.
 
 Alice will be initiating the DAKEZ with the Prekey Server:
 
@@ -680,7 +680,8 @@ uploads these values), when a new User or Prekey Profile is generated with a
 different long-term public key, and when the stored User or Prekey Profile will
 soon expire. A client must always upload new User and Prekey Profiles when one
 of these scenarios happen. A client does not delete the old values but rather
-replace them on these scenarios.
+replace them on these scenarios. The maximum number of user profiles and prekey
+profiles that can be published in one message is 255 respectively.
 
 Prekey Messages are included in this message when there are few or none messages
 left on the server. This can be checked by sending a "Storage Status Message" to
