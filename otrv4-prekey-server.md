@@ -583,7 +583,6 @@ To verify a DAKE-2 message:
 1. Validate the Server Identifier by:
    * Calculating the fingerprint of the Server long-term public key (`H_s`).
    * Calculating the Server Identifier and compare with the one received.
-   Extract `H_s` from it.
 1. Compute `t = 0x00 || KDF(0x02, Alices_Client_Profile, 64) ||
    KDF(0x03, Server_Identifier, 64) || I || S || KDF(0x04, phi, 64)`.
    `phi` is the shared session state from the
@@ -817,7 +816,7 @@ Prekey Server storage is full.
 A valid Failure message is generated as follows:
 
 1. Calculate the `Failure MAC`:
-   `KDF(0x12, prekey_mac_k || message type || receiver's instance tag ||
+   `KDF(0x13, prekey_mac_k || message type || receiver's instance tag ||
     "An error occurred", 64)`
 
 It must be encoded as:
