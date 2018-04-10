@@ -58,8 +58,8 @@ messages.
 The OTRv4 Prekey Server specification defines a way by which parties can
 publish and store User Profiles, Prekey Profiles and Prekey Messages, and
 retrieve Prekey Ensembles from an untrusted Prekey Server. A Prekey Ensemble
-contains the publisher's User Profile, the publisher's Prekey Profile and two
-one-time use ephemeral public prekey values (denoted a Prekey Message), as
+contains the publisher's User Profile, the publisher's Prekey Profile and one
+prekey message (which contains one-time use ephemeral public prekey values), as
 defined in the OTRv4 specification [\[1\]](#references). These Prekey Ensembles
 are used for starting offline conversations.
 
@@ -77,9 +77,6 @@ securely publish, store and retrieve prekey ensembles and its values.
 The OTRv4 Prekey Server specification can not protect against an active
 attacker performing Denial of Service attacks (DoS).
 
-During the DAKE performed by the publisher with the Prekey Server, the network
-model provides in-order delivery of messages.
-
 This specification aims to support future OTR versions. Because of that, the
 Prekey Server should support multiple prekey messages from different/future
 OTR versions, starting with the current version, 4.
@@ -90,23 +87,24 @@ OTRv4 states the need for a service provider that stores key material used in
 a deniable trust establishment for offline conversations. This service provider
 is the Prekey Server, as establish in this specification.
 
-There are three things that should be uploaded to the Prekey Server: signed user
-profiles, signed prekey profiles and prekey messages. They are needed for
-starting a non-interactive DAKE. Prekey profiles are needed as if only prekey
-messages are used for starting non-interactive conversations, an active
-adversary can modify the first flow from the publisher to use an adversarially
-controlled ephemeral key, capture and drop the response from the retriever, and
-then compromise the publisher's long-term secret key. The publisher will never
-see the messages, and the adversary will be able to decrypt them. Moreover,
-since long-term keys are usually meant to last for years, a long time may pass
-between the retriever sending the messages and the adversary compromising the
-publisher's long-term key. This attack is mitigated with the use of Prekey
-Profiles that contain shared prekeys signed by the long-term secret key, and
-that are reusable.
+There are three things that should be uploaded to the Prekey Server: user
+profiles, prekey profiles and prekey messages. They are needed for starting a
+non-interactive DAKE. Prekey profiles are needed as if only prekey messages are
+used for starting non-interactive conversations, an active adversary can modify
+the first flow from the publisher to use an adversarially controlled ephemeral
+key, capture and drop the response from the retriever, and then compromise the
+publisher's long-term secret key. The publisher will never see the messages, and
+the adversary will be able to decrypt them. Moreover, since long-term keys are
+usually meant to last for years, a long time may pass between the retriever
+sending the messages and the adversary compromising the publisher's long-term
+key. This attack is mitigated with the use of Prekey Profiles that contain
+shared prekeys signed by the long-term secret key, and that are reusable.
 
-A set of prekey messages (with the one-time ephemeral secrets) is stored in the
-Prekey Server to achieve forward secrecy. A Prekey Message should be
-immediately deleted after having been retrieved.
+A Prekey Server can also be used to publish the User Profile, even if OTRv4 is
+implemented in the OTRv4-interactive-only mode. This should be done in order to
+achieve deniability properties, as it allows two parties to send and verify each
+other's User Profile during the DAKEs without damaging participation deniability
+for the conversation, since the User Profile becomes public information.
 
 The submissions of these values to the untrusted Prekey Server are deniably
 authenticated by using DAKEZ. If they were not authenticated, malicious
@@ -126,9 +124,6 @@ communication between two parties to fail. This can happen in several ways:
 - The Prekey Server hands out expired Prekey Ensembles.
 - The Prekey Server hands out Prekey Messages that have been used.
 - The Prekey Server reports incorrect number of stored Prekey Ensembles.
-
-Furthermore, there can be a reduction in forward secrecy if one party
-maliciously drains another party's prekey messages.
 
 Notice that the security of the non-Interactive DAKE (XZDH) in the OTRv4
 specification does not require trusting the Prekey Server. However, if we allow
@@ -161,11 +156,9 @@ been authenticated to.
 Although this specification defines expected behavior from the Prekey Server
 (e.g., by specifying that user profiles, prekey profiles and prekey messages
 submissions should be validated by the Prekey Server), clients should not rely
-on this prescribed behavior, as the Prekey Server is untrusted. It must be taken
-into account that a misbehavior from the Prekey Server can potentially affect
-the security of the whole OTRv4 protocol. For this reason, verifications must
-be performed by clients as well, even though the Prekey Server should be
-expected to perform them. Furthermore, clients working with a Prekey Server
+on this prescribed behavior, as the Prekey Server is untrusted. Verifications
+must also be performed by clients as well, even though the Prekey Server should
+be expected to perform them. Furthermore, clients working with a Prekey Server
 are expected to upload new user profiles and prekey profiles before they expire
 or when creating a new long-term public key.
 
