@@ -312,7 +312,7 @@ Server (for example, prekey.xmpp.org) and the fingerprint of its long-term
 public key:
 
 ```
-  Prekey Server Composite Identity = "prekey.xmpp.org" || "8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07"
+  Prekey Server Composite Identity = DATA("prekey.xmpp.org") || DATA("8625CE01F8D06586DC5B58BB1DC7D9C74F42FB07")
 ```
 
 ## Key Management
