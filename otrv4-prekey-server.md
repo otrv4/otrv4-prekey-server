@@ -45,12 +45,12 @@ messages.
    1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
 1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
-   1. [Discovering a prekey service](#discovering-a-prekey-service)
-   1. [Discovering the features supported by a prekey service](#discovering-the-features-supported-by-a-prekey-service)
-   1. [Publishing prekey values to the service](#publishing-prekey-values-to-the-service)
-   1. [Obtaining information about prekey messages from the service](#obtaining-information-about-prekey-messages-from-the-service)
-   1. [Retrieving published prekeys from a prekey service](#retrieving-published-prekeys-from-a-prekey-service)
-1. [Detailed example of the prekey server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
+   1. [Discovering a Prekey Service](#discovering-a-prekey-service)
+   1. [Discovering the Features supported by a Prekey Service](#discovering-the-features-supported-by-a-prekey-service)
+   1. [Publishing Prekey Values to the Service](#publishing-prekey-values-to-the-service)
+   1. [Obtaining Information about Prekey Values from the Service](#obtaining-information-about-prekey-values-from-the-service)
+   1. [Retrieving published Prekeys from a Prekey Service](#retrieving-published-prekeys-from-a-prekey-service)
+1. [Detailed example of the Prekey Server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
 1. [References](#references)
 
 ## High Level Overview
@@ -275,7 +275,7 @@ generated as:
 
 ### Shared Session State
 
-A Shared Session State between the server and the publisher is needed for
+A Shared Session State between the Prekey Server and the publisher is needed for
 the same reasons as stated in the
 [Shared Session State](https://github.com/otrv4/otrv4/blob/master/otrv4.md#shared-session-state)
 section of the OTRv4 specification. It is used to authenticate contexts to
@@ -284,7 +284,7 @@ prevent attacks that rebind the DAKE transcript into different contexts.
 As an example, for a Prekey Server running over XMPP, this should be:
 
 ```
-  phi = publisher's bare JID || servers's bare JID
+  phi = publisher's JID || Prekey Servers's JID
 ```
 
 For example:
@@ -382,7 +382,8 @@ The following parameters are expected to have been generated:
 * `Prekey_Server_Composite_Identity`: the Prekey Server Composite Identity.
 
 Alice is also expected to have the Prekey Server Composite Identity and the
-server long-term public key, so that they can be manually verified by her.
+Prekey Server's long-term public key, so that they can be manually verified by
+her.
 
 Alice will be initiating the DAKEZ with the Prekey Server:
 
@@ -438,8 +439,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 
 1. Receives the DAKE-3 message from Alice:
    * Verifies the DAKE-3 message as defined in the
-     [DAKE-3 message](#dake-3-message) section. If something fails, the server
-     rejects the message and does not send anything further.
+     [DAKE-3 message](#dake-3-message) section. If something fails, the Prekey
+     Server rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
    1. If this is a "Prekey Publication message":
       * Uses the sender's instance tag from the DAKE-3 message as the receiver's
@@ -452,8 +453,9 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         * If only prekey messages are present on the message:
           `KDF(0x07, prekey_mac_k || message type || N || prekey messages, 64)`.
         * Checks that this `Prekey MAC` is equal to the one received in the
-          "Prekey publication message". If it is not, the server aborts the DAKE
-          and sends a "Failure Message", as defined in [Failure Message](#failure-message).
+          "Prekey publication message". If it is not, the Prekey Server aborts
+          the DAKE and sends a "Failure Message", as defined in
+          [Failure Message](#failure-message).
       * Check the counters for the values on the message:
         * If client profiles and prekey profiles are present on the message:
           * Checks that `K` corresponds to the number of concatenated client
@@ -554,9 +556,9 @@ I (POINT)
 ### DAKE-2 Message
 
 This is the second message of the DAKEZ. It is sent to commit to a choice of an
-ECDH ephemeral key for the server, and to acknowledge the publisher's ECDH
-ephemeral key. Before this acknowledgment, validation of the publisher's ECDH
-key is done.
+ECDH ephemeral key for the Prekey Server, and to acknowledge the publisher's
+ECDH ephemeral key. Before this acknowledgment, validation of the publisher's
+ECDH key is done.
 
 A valid DAKE-2 message is generated as follows:
 
@@ -572,8 +574,9 @@ A valid DAKE-2 message is generated as follows:
     KDF(0x04, phi, 64)`.
    `phi` is the shared session state as mentioned in the
    [Shared Session State](#shared-session-state) section.
-   `Prekey_Server_Composite_Identity` is the server identifier as mention in the
-   [Prekey Server Composite Identity](#prekey-server-composite-identity) section.
+   `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
+   as mention in the [Prekey Server Composite Identity](#prekey-server-composite-identity)
+   section.
 1. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
@@ -583,15 +586,18 @@ A valid DAKE-2 message is generated as follows:
 To verify a DAKE-2 message:
 
 1. Check that the receiver's instance tag matches your instance tag.
-1. Validate the Server Identifier by:
-   * Calculating the fingerprint of the Server long-term public key (`H_s`).
-   * Calculating the Server Identifier and compare with the one received.
+1. Validate the Prekey Server Composite Identity by:
+   * Calculating the fingerprint of the Prekey Server's long-term public key
+     (`H_s`).
+   * Calculating the Prekey Server Composite Identity and comparing it with the
+     one received.
 1. Compute `t = 0x00 || KDF(0x02, Alices_Client_Profile, 64) ||
    KDF(0x03, Prekey_Server_Composite_Identity, 64) || I || S ||
    KDF(0x04, phi, 64)`.
    `phi` is the shared session state from the
    [Shared Session State](#shared-session-state) section.
-   `Prekey_Server_Composite_Identity` is the server identifier from the
+   `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
+   from the
    [Prekey Server Composite Identity](#prekey-server-composite-identity)
    section.
 1. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See the
@@ -607,7 +613,7 @@ Message type (BYTE)
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
-Server Composite Identity (PREKEY-SERVER-COMP-ID)
+Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID)
   As described in the section "Prekey Server Composite Identity".
 
 S (POINT)
@@ -630,7 +636,8 @@ A valid DAKE-3 message is generated as follows:
     KDF(0x07, phi, 64)`.
    `phi` is the shared session state from
    [Shared Session State](#shared-session-state).
-   `Prekey_Server_Composite_Identity` is the server identifier from the
+   `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
+   from the
    [Prekey Server Composite Identity](#prekey-server-composite-identity)
    section.
 1. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in the
@@ -647,7 +654,8 @@ To verify a DAKE-3 message:
     KDF(0x07, phi, 64)`.
    `phi` is the shared session state from
    [Shared Session State](#shared-session-state).
-   `Prekey_Server_Composite_Identity` is the server identifier from the
+   `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
+   from the
    [Prekey Server Composite Identity](#prekey-server-identifier) section.
 1. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
@@ -666,8 +674,8 @@ sigma (RING-SIG)
   The 'RING-SIG' proof of authentication value.
 
 Message (DATA)
-  The message sent to the prekey server.
-  In this protocol there are 2 kinds of messages:
+  The message sent to the Prekey Server.
+  In this protocol there are 2 kinds of messages that can be sent:
     - Prekey Publication
     - Storage Information Request
 ```
@@ -691,12 +699,12 @@ rather replace them on these scenarios. The maximum number of client profiles
 and prekey profiles that can be published in one message is 255 respectively.
 
 Prekey Messages are included in this message when there are few or none messages
-left on the server. This can be checked by sending a "Storage Status Message" to
-the Prekey Server. If the result of the "Storage Status Message" message
-indicates that the number of stored Prekey Messages is getting low, the client
-should upload more Prekey Messages - otherwise it will be impossible for other
-clients to start non-interactive DAKE's with the client. The maximum number of
-prekey messages that can be published in one message is 255.
+left on the Prekey Server. This can be checked by sending a "Storage Status
+Message" to the Prekey Server. If the result of the "Storage Status Message"
+message indicates that the number of stored Prekey Messages is getting low, the
+client should upload more Prekey Messages - otherwise it will be impossible for
+other clients to start the non-interactive DAKE's with the client. The maximum
+number of prekey messages that can be published in one message is 255.
 
 This message must be attached to a DAKE-3 message.
 
@@ -781,7 +789,7 @@ Receiver's instance tag (INT)
   The instance tag of the intended recipient.
 
 Stored prekey messages number (INT)
-  The number of prekey messages stored in the prekey server for the
+  The number of prekey messages stored in the Prekey Server for the
   long-term public key used during the DAKE.
 
 Status MAC (MAC)
@@ -890,7 +898,7 @@ There are four events an OTRv4 client must handle:
 
 **Receiving a DAKE-3 message**
 
-* If server is in state IN_DAKE:
+* If the Prekey Server is in state IN_DAKE:
 
   * Transitions to NOT_IN_DAKE state.
 
@@ -939,8 +947,8 @@ By client we mean each device a user has.
    section of the OTRv4 specification for details.
 1. Client receives a Prekey Server Identity (e.g. prekey.autonomia.digital) and
    the Prekey Server long-term public key from a source. In XMPP, for example,
-   this source is the server service discovery functionality.
-1. Client authenticates (in a deniable way) with the server through the
+   this source is the Prekey Server' service discovery functionality.
+1. Client authenticates (in a deniable way) with the Prekey Server through the
    DAKE and, with that, it generates a shared secret.
    See section [Key Exchange](#key-exchange) for details.
 1. Client sends Client Profiles and Prekey Profiles (if needed) for every
@@ -948,7 +956,7 @@ By client we mean each device a user has.
    message of the DAKE (DAKE-3 with a Prekey Publication Message attached). See
    the [Prekey Publication message](#prekey-publication-message) section for
    details.
-1. Server verifies the received values:
+1. The Prekey Server verifies the received values:
    1. For every value, check the integrity.
    1. If Client and Prekey Profiles are present:
       1. Validate the Client Profiles as defined in the
@@ -962,9 +970,10 @@ By client we mean each device a user has.
          [Prekey Message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
          section of the OTRv4 specification.
    1. Discard any invalid or duplicated Prekey Messages.
-1. Server stores the Prekey Messages associated with the identity.
-1. Server sends an acknowledgment that the operation succeeded in the form of a
-   "Success" message. See [Success Message](#success-message) for details.
+1. The Prekey Server stores the Prekey Messages associated with the identity.
+1. The Prekey Server sends an acknowledgment that the operation succeeded in the
+   form of a "Success" message. See [Success Message](#success-message) for
+   details.
 
 ## Retrieving Prekey Ensembles
 
@@ -987,10 +996,11 @@ Ensemble from the party they want to start a conversation with:
 1. Client sends which identity and protocol versions it wants Prekey Ensembles
    for. It also adds from which device it's talking by specifying the instance
    tag.
-1. Server checks if there are any Prekey Ensembles available for this identity.
-   If there are none (or any of its values are missing), it sends a
+1. The Prekey Server checks if there are any Prekey Ensembles available for this
+   identity. If there are none (or any of its values are missing), it sends a
    "No Prekey Ensembles available" message.
-1. Server selects Prekey Ensembles for the requested version consisting of:
+1. The Prekey Server selects Prekey Ensembles for the requested version
+   consisting of:
    * A valid Client Profile for every instance tag and long-term public key for
      the identity. That is, it selects different Client Profiles if they have the
      same instance tag but different long-term public keys. It always selects
@@ -1018,11 +1028,11 @@ Ensemble from the party they want to start a conversation with:
      Prekey Message (with instance tag 0x02).
      ```
 
-1. Server delivers all selected Prekey Ensembles to the Client in the form of
-   a "Prekey Ensemble Retrieval" message. Uses the instance tag of the retriever
-   as the "receiver's instance tag".
-1. Server removes the selected Prekey Messages from its storage. It doesn't
-   delete the Client or Prekey Profiles.
+1. The Prekey Server delivers all selected Prekey Ensembles to the Client in the
+   form of a "Prekey Ensemble Retrieval" message. Uses the instance tag of the
+   retriever as the "receiver's instance tag".
+1. The Prekey Server removes the selected Prekey Messages from its storage. It
+   doesn't delete neither the Client nor the Prekey Profiles.
 1. For each requested version, the Client receives the Prekey Ensembles and:
    1. Checks that there are 'L' number of Prekey Emsembles as stated in the
       "Prekey Ensemble Retrieval" message.
@@ -1117,13 +1127,13 @@ Storage Information Request message  ------------->
                                                      sends a Storage Status message
 ```
 
-1. Client uses DAKEZ to authenticate with the server. See section
+1. Client uses DAKEZ to authenticate with the Prekey Server. See section
    [Key Exchange](#key-exchange) for details.
-2. Server responds with a "Storage Status message" containing the number of
-   Prekey Messages stored for the long-term public key, identity and instance
-   tag used during the DAKEZ.
+2. The Prekey Server responds with a "Storage Status message" containing the
+   number of Prekey Messages stored for the long-term public key, identity and
+   instance tag used during the DAKEZ.
 
-## A prekey server for OTRv4 over XMPP
+## A Prekey Server for OTRv4 over XMPP
 
 This is an example of how a Prekey Server for the OTRv4 protocol will act over
 XMPP. Note that a Prekey Server implementation for XMPP must support the
@@ -1162,7 +1172,7 @@ The server then returns the services that are associated with it:
 
 An entity may wish to discover if a service implements the OTRv4 Prekey Server
 protocol. In order to do so, it sends a service discovery information
-("disco#info") query to the prekey service's JID.
+("disco#info") query to the Prekey Server service's JID.
 
 ```
   <iq from='alice@xmpp.org/notebook'
@@ -1190,7 +1200,7 @@ The service must return its identity and the features it supports:
   </iq>
 ```
 
-### Publishing prekey values to the service
+### Publishing Prekey Values to the Service
 
 An entity authenticates to the service through an interactive DAKE. DAKE
 messages are send in "message" stanzas.
@@ -1230,7 +1240,7 @@ last DAKE message:
   </message>
 ```
 
-And the server responds with a "Success" message:
+And the Prekey Server responds with a "Success" message:
 
 ```
   <message
@@ -1241,7 +1251,7 @@ And the server responds with a "Success" message:
   </message>
 ```
 
-### Obtaining information about Prekey Messages from the service
+### Obtaining Information about Prekey Messages from the Service
 
 An entity authenticates to the service through a DAKE. DAKE messages are send
 in "message" stanzas.
@@ -1280,7 +1290,7 @@ And the entity terminates the DAKE and asks for storage information:
   </message>
 ```
 
-And the server respond with a storage status message:
+And the Prekey Server responds with a "Storage Status" message:
 
 ```
   <message
@@ -1291,9 +1301,9 @@ And the server respond with a storage status message:
   </message>
 ```
 
-### Retrieving published prekeys from a prekey service
+### Retrieving published Prekeys Values from a Prekey Service
 
-An entity asks the service for prekey messages from a particular party, for
+An entity asks the service for prekey ensembles from a particular party, for
 example, `bob@xmpp.net`. Use the resourcePart of a JID to say which versions
 you are interested on, for example "45" if you are interested on versions "4"
 and "5".
@@ -1333,7 +1343,7 @@ are no prekey ensembles's values on storage:
   </message>
 ```
 
-## Detailed example of the prekey server over XMPP
+## Detailed example of the Prekey Server over XMPP
 
 `bob@xmpp.org` wants to know how many Prekeys Messages remain unused on the
 Prekey Server:
