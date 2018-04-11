@@ -92,13 +92,14 @@ profiles, prekey profiles and prekey messages. They are needed for starting a
 non-interactive DAKE. Prekey profiles are needed as if only prekey messages are
 used for starting non-interactive conversations, an active adversary can modify
 the first flow from the publisher to use an adversarially controlled ephemeral
-key, capture and drop the response from the retriever, and then compromise the
-publisher's long-term secret key. The publisher will never see the messages, and
-the adversary will be able to decrypt them. Moreover, since long-term keys are
-usually meant to last for years, a long time may pass between the retriever
-sending the messages and the adversary compromising the publisher's long-term
-key. This attack is mitigated with the use of Prekey Profiles that contain
-shared prekeys signed by the long-term secret key, and that are reusable.
+key, capture and drop the response from the retriever, and then compromise (by
+for example, getting access to the publisher's device) the publisher's long-term
+secret key. The publisher will never see the messages, and the adversary will
+be able to decrypt them. Moreover, since long-term keys are usually meant to
+last for years, a long time may pass between the retriever sending the messages
+and the adversary compromising the publisher's long-term key. This attack is
+mitigated with the use of Prekey Profiles that contain shared prekeys signed by
+the long-term secret key, and that are reusable.
 
 A Prekey Server can also be used to publish the Client Profile, even if OTRv4 is
 implemented in the OTRv4-interactive-only mode. This should be done in order to
