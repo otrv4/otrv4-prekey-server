@@ -199,7 +199,7 @@ Message type (BYTE)
   The message type, e.g., 0x0F for OTRv4.
 
 Prekey Message Identifier (INT)
-  A prekey message id used for local retrieval.
+  A prekey message id used for local storage and retrieval.
 
 Prekey owner's instance tag (INT)
   The instance tag of the client that created the prekey message.
