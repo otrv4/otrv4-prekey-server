@@ -678,7 +678,8 @@ A valid DAKE-3 message is generated as follows:
 
 To verify a DAKE-3 message:
 
-1. Check that the receiver's instance tag matches your sender's instance tag.
+1. Check that the receiver's instance tag of the message matches your sender's
+   instance tag.
 1. Compute
    `t = 0x01 || KDF(usageClientProfile-3, Alices_Client_Profile, 64) ||
     KDF(usagePrekeyCompositeIdentity-3, Prekey_Server_Composite_Identity, 64) ||
