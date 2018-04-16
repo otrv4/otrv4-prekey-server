@@ -254,9 +254,10 @@ The following `usageID` variables are defined:
   * usagePrekeyCompositePHI-3 = 0x07
   * usagePreMACKey = 0x08
   * usagePreMAC = 0x09
-  * usageStatusMAC = 0x10
-  * usageSuccessMAC = 0x11
-  * usageFailureMAC = 0x12
+  * usageStorageInfoMAC = 0x10
+  * usageStatusMAC = 0x11
+  * usageSuccessMAC = 0x12
+  * usageFailureMAC = 0x13
 ```
 
 ## Data Types
@@ -487,8 +488,9 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             [Failure Message](#failure-message) section.
         * If and prekey messages are present on the message:
           * Checks that `N` corresponds to the number of concatenated prekey
-            messages. If it is not, aborts the DAKE and sends a "Failure Message",
-            as defined in [Failure Message](#failure-message).
+            messages. If it is not, aborts the DAKE and sends a
+            "Failure Message", as defined in the
+            [Failure Message](#failure-message) section.
       * Stores each client profile, prekey profile and prekey message if is
         possible in the Prekey Server's storage. If not, aborts the DAKE and
         sends a "Failure Message" as defined in the
@@ -496,6 +498,15 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Sends a "Success Message", as defined in the
         [Success Message](#success-message) section.
    1. If this is a "Storage Information Request message":
+      * Uses the sender's instance tag from the DAKE-3 message as the receiver's
+        instance tag and checks that is equal to the previously seen.
+      * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
+      * Computes the `Prekey MAC`:
+        `KDF(usageStorageInfoMAC, prekey_mac_k || message type, 64)`
+      * Checks that this `Prekey MAC` is equal to the one received in the
+        "Storage Information request message". If it is not, the Prekey Server
+        aborts the DAKE and sends a "Failure Message", as defined in
+        the [Failure Message](#failure-message) section.
       * Responds with a "Storage Status Message", as defined in
         the [Storage Status Message](#storage-status-message) section.
 
@@ -781,11 +792,19 @@ This is the message sent when you want to know how many Prekey Messages there
 are in storage. Only the publisher of those Prekey Messages will receive a
 response to this message. This message must be attached to a DAKE-3 message.
 
+A valid "Storage Information Request" message is generated as follows:
+
+1. Calculate the `Storage Information MAC`:
+   `KDF(usageStorageInfoMAC, prekey_mac_k || message type, 64)`
+
 The encoding looks like this:
 
 ```
 Message type (BYTE)
   This message has type 0x05.
+
+Storage Information MAC (MAC)
+  The MAC with the appropriate MAC key of the message type.
 ```
 
 ### Storage Status Message
