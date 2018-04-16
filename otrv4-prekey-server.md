@@ -465,7 +465,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Uses the sender's instance tag from the DAKE-3 message as the receiver's
         instance tag and checks that is equal to the previously seen.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
-      * Computes the `Prekey MAC`:
+      * Computes the `Prekey MAC` (notice that most of these values are from the
+        received "Prekey Publication message"):
         * If client profiles and prekey profiles are present on the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
            prekey messages || K || client profiles || J || prekey profiles || , 64)`.
@@ -727,9 +728,9 @@ been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
 different long-term public key, and when the stored Client or Prekey Profile
 will soon expire. A client must always upload new Client and Prekey Profiles
-when one of these scenarios happen. A client does not delete the old values but
-rather replace them on these scenarios. The maximum number of client profiles
-and prekey profiles that can be published in one message is 255 respectively.
+when one of these scenarios happen, and replace the old stored values. The
+maximum number of client profiles and prekey profiles that can be published in
+one message is 255 respectively.
 
 Prekey Messages are included in this message when there are few or none messages
 left on the Prekey Server. This can be checked by sending a "Storage Status
@@ -855,7 +856,7 @@ It must be encoded as:
 
 ```
 Message type (BYTE)
-  The message has type 0x08.
+  The message has type 0x07.
 
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
@@ -884,7 +885,7 @@ It must be encoded as:
 
 ```
 Message type (BYTE)
-  The message has type 0x09.
+  The message has type 0x08.
 
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
@@ -1023,8 +1024,11 @@ By client we mean each device a user has.
 ```
 Bob                                                  Prekey Server
 ----------------------------------------------------------------------------------------
-Asks for Alice's identity             ------------->
-(for example, alice@xmpp.org)
+Sends a Prekey Ensemble
+Retrieval message (specifies
+there Alice's identity
+-for example, alice@xmpp.org-
+and versions -"45"-)                 ------------->
 
                                      <-------------  Sends Prekey Ensembles for
                                                      alice@xmpp.org
@@ -1036,12 +1040,14 @@ verifies them.
 In order to send an encrypted offline message, a client must obtain a Prekey
 Ensemble from the party they want to start a conversation with:
 
-1. Client sends which identity and protocol versions it wants Prekey Ensembles
-   for. It also adds from which device it's talking by specifying the its
-   instance tag, so the Prekey Server knows to which device to respond.
+1. Client sends a [Prekey Ensemble Query Retrieval message](#prekey-ensemble-query-retrieval-message),
+   which specifies which identity and protocol versions it wants Prekey Ensembles
+   for. It also specifies from which device it's talking, by defining the
+   receiver's instance tag, so the Prekey Server knows to which device to
+   respond to.
 1. The Prekey Server checks if there are any Prekey Ensembles available for this
-   identity. If there are none (or any of its values are missing), it sends a
-   "No Prekey Ensembles available" message.
+   identity and for this versions. If there are none (or any of its values are
+   missing), it sends a "No Prekey Ensembles available" message.
 1. The Prekey Server selects Prekey Ensembles for the requested version
    consisting of:
    * A valid Client Profile for every instance tag and long-term public key for
@@ -1072,8 +1078,8 @@ Ensemble from the party they want to start a conversation with:
      ```
 
 1. The Prekey Server delivers all selected Prekey Ensembles to the Client in the
-   form of a "Prekey Ensemble Retrieval" message. Uses the instance tag of the
-   retriever as the "receiver's instance tag".
+   form of a [Prekey Ensemble Retrieval](#prekey-ensemble-retrieval) message.
+   Uses the instance tag of the retriever as the "receiver's instance tag".
 1. The Prekey Server removes the selected Prekey Messages from its storage. It
    doesn't delete neither the Client nor the Prekey Profiles.
 1. For each requested version, the Client receives the Prekey Ensembles and:
@@ -1109,13 +1115,36 @@ Ensemble from the party they want to start a conversation with:
    1. If there are multiple Prekey Ensembles per instance tag, decides whether
       to send multiple messages to the same instance tag.
 
-### Prekey Ensemble Retrieval message
+### Prekey Ensemble Query Retrieval message
 
-The encoding looks like this:
+The encoding of this message looks like this:
 
 ```
 Message type (BYTE)
-  The message has type 0x07.
+  The message has type 0x09.
+
+Receiver's instance tag (INT)
+  The instance tag of the intended recipient.
+
+Party's Identity (DATA)
+  The identity of the party you are asking prekey ensembles for. In the case of
+  XMPP, for example, this is the bare jid.
+
+Versions (DATA)
+  The OTR versions you are asking prekey ensembles for. A valid versions string
+  can be created by concatenating the version numbers together in any order.
+  For example, a user who wants prekey ensembles for versions 4 and 5 will have
+  the 2-byte version string "45" or "54". Any version string that is "3", "2",
+  or "1" should be ignored.
+```
+
+### Prekey Ensemble Retrieval message
+
+The encoding of this message looks like this:
+
+```
+Message type (BYTE)
+  The message has type 0x10.
 
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
@@ -1142,7 +1171,7 @@ The encoding looks like this:
 
 ```
 Message type (BYTE)
-  The message has type 0x08.
+  The message has type 0x11.
 
 Receiver's instance tag (INT)
   The instance tag of the intended recipient.
