@@ -309,7 +309,7 @@ As an example, for a Prekey Server running over XMPP, this should be:
 For example:
 
 ```
-  phi = "alice@jabber.net/mobile" || "prekeys.xmpp.org"
+  phi = DATA("alice@jabber.net/mobile") || DATA("prekeys.xmpp.org")
 ```
 
 ### Prekey Server Composite Identity
