@@ -467,11 +467,11 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC`:
         * If client profiles and prekey profiles are present on the message:
-          `KDF(usagePreMAC, prekey_mac_k || message type || K ||
-           client profiles || J || prekey profiles || N || prekey messages, 64)`.
-        * If only prekey messages are present on the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-           prekey messages, 64)`.
+           prekey messages || K || client profiles || J || prekey profiles || , 64)`.
+        * If only prekey messages are present on the message:
+          * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
+            prekey messages || K || J, 64)`. `K` and `J` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
           the DAKE and sends a "Failure Message", as defined in
@@ -491,6 +491,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             messages. If it is not, aborts the DAKE and sends a
             "Failure Message", as defined in the
             [Failure Message](#failure-message) section.
+          * Checks that `J` and `K` are set to zero.
       * Stores each client profile, prekey profile and prekey message if is
         possible in the Prekey Server's storage. If not, aborts the DAKE and
         sends a "Failure Message" as defined in the
@@ -742,18 +743,19 @@ This message must be attached to a DAKE-3 message.
 
 A valid Prekey Publication Message is generated as follows:
 
-1. Concatenate all Client Profiles, if they need to be published. Assign `K`
-   as the number of Client Profiles.
-1. Concatenate all Prekey Profiles, if they need to be published. Assign
-   `J` as the number of Prekey Profiles.
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
+1. Concatenate all Client Profiles, if they need to be published. Assign `K`
+   as the number of Client Profiles. If they are none, assign '0' to `K`.
+1. Concatenate all Prekey Profiles, if they need to be published. Assign
+   `J` as the number of Prekey Profiles. If they are none, assign '0' to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
-     `KDF(usagePreMAC, prekey_mac_k || message type || K || client profile ||
-      J || prekey profiles || N || prekey messages, 64)`
+     `KDF(usagePreMAC, prekey_mac_k || message type || N || prekey messages ||
+      K || client profiles || J || prekey profiles || , 64)`.
    * If only Prekey Messages are present:
-     `KDF(usagePreMAC, prekey_mac_k || message type || N || prekey messages, 64)`
+     `KDF(usagePreMAC, prekey_mac_k || message type || N || prekey messages ||
+      K || J, 64)`.
 
 The encoding looks like this:
 
@@ -761,30 +763,31 @@ The encoding looks like this:
 Message type (BYTE)
   This message has type 0x04.
 
-K (BYTE)
-   The number of Client Profiles present in this message. This value is optional.
-
-Client Profile (CLIENT-PROF)
-  All 'K' Client Profiles created as described in the section "Creating a Client
-  Profile" of the OTRv4 specification. This value is optional.
-
-J (BYTE)
-   The number of Prekey Profiles present in this message. This value is
-   optional.
-
-Prekey Profile (PREKEY-PROF)
-  All 'J' Prekey Profiles created as described in the section "Creating a Prekey
-  Profile" of the OTRv4 specification. This value is optional.
-
 N (BYTE)
    The number of Prekey Messages present in this message.
 
 Prekey Messages (DATA)
    All 'N' Prekey Messages serialized according to OTRv4 specification.
 
+K (BYTE)
+   The number of Client Profiles present in this message. If there are none,
+   the value is zero.
+
+Client Profiles (CLIENT-PROF)
+  All 'K' Client Profiles created as described in the section "Creating a Client
+  Profile" of the OTRv4 specification. This value is optional.
+
+J (BYTE)
+   The number of Prekey Profiles present in this message. If there are none,
+   the value is zero.
+
+Prekey Profiles (PREKEY-PROF)
+  All 'J' Prekey Profiles created as described in the section "Creating a Prekey
+  Profile" of the OTRv4 specification. This value is optional.
+
 Prekey MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
-  the Prekey Messages.
+  the Prekey Profiles, if present.
 ```
 
 ### Storage Information Request Message
