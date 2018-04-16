@@ -1034,8 +1034,8 @@ In order to send an encrypted offline message, a client must obtain a Prekey
 Ensemble from the party they want to start a conversation with:
 
 1. Client sends which identity and protocol versions it wants Prekey Ensembles
-   for. It also adds from which device it's talking by specifying the instance
-   tag.
+   for. It also adds from which device it's talking by specifying the its
+   instance tag, so the Prekey Server knows to which device to respond.
 1. The Prekey Server checks if there are any Prekey Ensembles available for this
    identity. If there are none (or any of its values are missing), it sends a
    "No Prekey Ensembles available" message.
