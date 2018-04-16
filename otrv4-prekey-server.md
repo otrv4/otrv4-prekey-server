@@ -257,7 +257,7 @@ The following `usageID` variables are defined:
   * usageStatusMAC = 0x10
   * usageSuccessMAC = 0x11
   * usageFailureMAC = 0x12
-``
+```
 
 ## Data Types
 
