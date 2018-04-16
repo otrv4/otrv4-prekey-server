@@ -241,6 +241,24 @@ The `size` first bytes of the SHAKE-256 output for the input
 
 Unlike in the SHAKE standard, the output size (`size`) here is in bytes.
 
+The following `usageID` variables are defined:
+
+```
+  * usageFingerprint = 0x00
+  * usageSK = 0x01
+  * usageClientProfile-2 = 0x02
+  * usagePrekeyCompositeIdentity-2 = 0x03
+  * usagePrekeyCompositePHI-2 = 0x04
+  * usageClientProfile-3 = 0x05
+  * usagePrekeyCompositeIdentity-3 = 0x06
+  * usagePrekeyCompositePHI-3 = 0x07
+  * usagePreMACKey = 0x08
+  * usagePreMAC = 0x09
+  * usageStatusMAC = 0x10
+  * usageSuccessMAC = 0x11
+  * usageFailureMAC = 0x12
+``
+
 ## Data Types
 
 The OTRv4 Prekey Server Specification uses many of the data types already
@@ -448,10 +466,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(0x08, SK, 64)`.
       * Computes the `Prekey MAC`:
         * If client profiles and prekey profiles are present on the message:
-          `KDF(0x07, prekey_mac_k || message type || K || client profiles || J
+          `KDF(0x09, prekey_mac_k || message type || K || client profiles || J
            || prekey profiles || N || prekey messages, 64)`.
         * If only prekey messages are present on the message:
-          `KDF(0x07, prekey_mac_k || message type || N || prekey messages, 64)`.
+          `KDF(0x09, prekey_mac_k || message type || N || prekey messages, 64)`.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
           the DAKE and sends a "Failure Message", as defined in
@@ -491,14 +509,14 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         * If it is, the number of stored prekey messages is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Success message":
-      * Computes the `Success_MAC: KDF(0x12, prekey_mac_k || message type ||
+      * Computes the `Success_MAC: KDF(0x11, prekey_mac_k || message type ||
         receiver's instance tag || "Success", 64)`. Checks that it
         is equal to the one received in the Sucess message.
         * If it is not, Alice ignores the message.
         * If it is, the human readable part of the message is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
-      * Computes the `Failure_MAC: KDF(0x13, prekey_mac_k || message type ||
+      * Computes the `Failure_MAC: KDF(0x12, prekey_mac_k || message type ||
         receiver's instance tag || "An error occurred", 64)`. Checks that it
         is equal to the one received in the Failure message.
         * If it is not, Alice ignores the message.
@@ -718,10 +736,10 @@ A valid Prekey Publication Message is generated as follows:
    Messages.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
-     `KDF(0x07, prekey_mac_k || message type || K || client profile || J ||
+     `KDF(0x09, prekey_mac_k || message type || K || client profile || J ||
       prekey profiles || N || prekey messages, 64)`
    * If only Prekey Messages are present:
-     `KDF(0x07, prekey_mac_k || message type || N || prekey messages, 64)`
+     `KDF(0x09, prekey_mac_k || message type || N || prekey messages, 64)`
 
 The encoding looks like this:
 
@@ -805,7 +823,7 @@ Messages, for example) has been successful.
 A valid Success message is generated as follows:
 
 1. Calculate the `Success MAC`:
-   `KDF(0x12, prekey_mac_k || message type || receiver's instance tag ||
+   `KDF(0x11, prekey_mac_k || message type || receiver's instance tag ||
     "Success", 64)`
 
 It must be encoded as:
@@ -834,7 +852,7 @@ Prekey Server storage is full.
 A valid Failure message is generated as follows:
 
 1. Calculate the `Failure MAC`:
-   `KDF(0x13, prekey_mac_k || message type || receiver's instance tag ||
+   `KDF(0x12, prekey_mac_k || message type || receiver's instance tag ||
     "An error occurred", 64)`
 
 It must be encoded as:
