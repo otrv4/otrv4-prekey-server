@@ -318,8 +318,8 @@ For the DAKE performed by a publisher and the Prekey
 Server, an identifier is needed. This value will be denoted the "Prekey Server
 Identifier".
 
-It is the hash of the Prekey Server identity concatenated with
-the Prekey Server long-term public key's fingerprint.
+It is the Prekey Server identity concatenated with the Prekey Server long-term
+public key's fingerprint.
 
 ```
 Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID):
@@ -430,6 +430,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives the DAKE-2 message from the Prekey Server.
+1. Checks that the receiver's instance tag matches your instance tag.
 1. Retrieves the ephemeral public keys for the Prekey Server (encoded in the
    DAKE-2 message):
     * Validates that the received ECDH ephemeral public key `S` is on curve
@@ -618,7 +619,6 @@ A valid DAKE-2 message is generated as follows:
 
 To verify a DAKE-2 message:
 
-1. Check that the receiver's instance tag matches your instance tag.
 1. Validate the Prekey Server Composite Identity by:
    * Calculating the fingerprint of the Prekey Server's long-term public key
      (`H_s`).
@@ -1115,7 +1115,7 @@ Ensemble from the party they want to start a conversation with:
    1. If there are multiple Prekey Ensembles per instance tag, decides whether
       to send multiple messages to the same instance tag.
 
-### Prekey Ensemble Query Retrieval message
+### Prekey Ensemble Query Retrieval Message
 
 The encoding of this message looks like this:
 
@@ -1138,7 +1138,7 @@ Versions (DATA)
   or "1" should be ignored.
 ```
 
-### Prekey Ensemble Retrieval message
+### Prekey Ensemble Retrieval Message
 
 The encoding of this message looks like this:
 
@@ -1375,17 +1375,17 @@ And the Prekey Server responds with a "Storage Status" message:
 
 ### Retrieving published Prekeys Values from a Prekey Service
 
-An entity asks the service for prekey ensembles from a particular party, for
-example, `bob@xmpp.net`. Use the resourcePart of a JID to say which versions
-you are interested on, for example "45" if you are interested on versions "4"
-and "5".
+An entity asks the service for prekey ensembles from a particular party by
+sending a "Prekey Ensemble Query Retrieval message" for an specific identity,
+for example, `bob@xmpp.net`, and specific versions, for example, "45".
 
 ```
   <message
       from='alice@xmpp.org/notebook'
       id='nzd143v8'
       to='prekey.xmpp.org'>
-    <subject>bob@xmpp.net/45</subject>
+    <subject>bob@xmpp.net</subject>
+    <body>?OTRPL...</body>
   </message>
 ```
 
@@ -1397,7 +1397,7 @@ prekey ensembles's values on storage:
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <subject>bob@xmpp.net/45</subject>
+    <subject>bob@xmpp.net</subject>
     <body>?OTRPL...</body>
   </message>
 ```
