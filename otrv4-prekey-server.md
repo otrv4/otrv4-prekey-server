@@ -1053,8 +1053,10 @@ By client we mean each device a user has.
       1. Validate the Prekey Messages as defined in the
          [Prekey Message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
          section of the OTRv4 specification.
-   1. Discard any invalid or duplicated Prekey Messages.
-1. The Prekey Server stores the Prekey Messages associated with the identity.
+   1. Discard any invalid or duplicated values.
+1. The Prekey Server stores the Client Profiles, Prekey Profiles and Prekey
+   Messages by associating them with the identity. This identity is the one used
+   by the network, for example, 'alice@xmpp.org' for XMPP.
 1. The Prekey Server sends an acknowledgment that the operation succeeded in the
    form of a "Success message". See [Success Message](#success-message) for
    details.
