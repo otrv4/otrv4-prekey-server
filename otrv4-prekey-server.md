@@ -278,6 +278,9 @@ The following `usageID` variables are defined:
   * usageStatusMAC = 0x11
   * usageSuccessMAC = 0x12
   * usageFailureMAC = 0x13
+  * usagePrekeyMessage = 0x14
+  * usageClientProfile = 0x15
+  * usagePrekeyProfile = 0x16
 ```
 
 ## Data Types
@@ -490,10 +493,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         received "Prekey Publication message"):
         * If client profiles and prekey profiles are present on the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-           prekey messages || K || client profiles || J || prekey profiles || , 64)`.
-        * If only prekey messages are present on the message:
+           KDF(usagePrekeyMessage, Prekey Messages, 64) || K ||
+           KDF(usageClientProfile, Client Profiles, 64) || J ||
+           KDF(usagePrekeyProfile, Prekey Profiles, 64))`.
+        * If only Prekey Messages are present on the message:
           * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-            prekey messages || K || J, 64)`. `K` and `J` should be set to zero.
+            KDF(usagePrekeyMessage, Prekey Messages, 64) || K || J, 64)`. `K`
+            and `J` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
           the DAKE and sends a "Failure Message", as defined in
@@ -767,15 +773,18 @@ A valid Prekey Publication Message is generated as follows:
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
 1. Concatenate all Client Profiles, if they need to be published. Assign `K`
-   as the number of Client Profiles. If they are none, assign '0' to `K`.
+   as the number of Client Profiles. If they are none, assign '00' to `K`.
 1. Concatenate all Prekey Profiles, if they need to be published. Assign
-   `J` as the number of Prekey Profiles. If they are none, assign '0' to `J`.
+   `J` as the number of Prekey Profiles. If they are none, assign '00' to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
-     `KDF(usagePreMAC, prekey_mac_k || message type || N || prekey messages ||
-      K || client profiles || J || prekey profiles || , 64)`.
+     `KDF(usagePreMAC, prekey_mac_k || message type || N ||
+      KDF(usagePrekeyMessages, Prekey Messages, 64) || K ||
+      KDF(usageClientProfile, Client Profiles, 64) || J ||
+      KDF(usagePrekeyProfile, Prekey Profiles, 64), 64)`.
    * If only Prekey Messages are present:
-     `KDF(usagePreMAC, prekey_mac_k || message type || N || prekey messages ||
+     `KDF(usagePreMAC, prekey_mac_k || message type || N ||
+      KDF(usagePrekeyMessage, Prekey Messages, 64) ||
       K || J, 64)`.
 
 The encoding looks like this:
