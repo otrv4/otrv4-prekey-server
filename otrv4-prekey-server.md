@@ -13,6 +13,7 @@ messages.
 ## Table of Contents
 
 1. [High Level Overview](#high-level-overview)
+1. [Conventions](#conventions)
 1. [Assumptions](#assumptions)
 1. [Security Properties](#security-properties)
 1. [Prekey Server Requirements](#prekey-server-specifications)
@@ -41,6 +42,7 @@ messages.
 1. [State machine](#state-machine)
 1. [Publishing Prekey Values](#publishing-prekey-values)
 1. [Retrieving Prekey Ensembles](#retrieving-prekey-ensembles)
+   1. [Prekey Ensemble Query Retrieval Message](#prekey-ensemble-query-retrieval-message)
    1. [Prekey Ensemble Retrieval Message](#prekey-ensemble-retrieval-message)
    1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
 1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
@@ -72,10 +74,28 @@ the Prekey Server by a request from Bob.
 This document aims to describe how the untrusted Prekey Server can be used to
 securely publish, store and retrieve prekey ensembles and its values.
 
+## Conventions
+
+Unless otherwise noted, these conventions and definitions are used for this
+document:
+
+* "Party" refers to a participant in a conversation.
+* "Prekey Server" refers to the untrusted server used to store prekey
+  ensemble's values.
+* "Publisher" refers to the party publishing prekey ensemble's values to the
+  Prekey Server.
+* "Retriever" refers to the party retrieving prekey ensemble's values from the
+  Prekey Server that correspond to the publishing party.
+* "Sender" refers to the party sending an encoded message.
+* "Receiver" refers to the party receiving an encoded message.
+
 ## Assumptions
 
 The OTRv4 Prekey Server specification can not protect against an active
-attacker performing Denial of Service attacks (DoS).
+attacker performing Denial of Service attacks (DoS). This means that this
+specification does prevent any attack which will make the Prekey Server or its
+functionalities unavailable (by temporarily or indefinitely disrupting the
+service).
 
 This specification aims to support future OTR versions. Because of that, the
 Prekey Server should support multiple prekey messages from different/future
