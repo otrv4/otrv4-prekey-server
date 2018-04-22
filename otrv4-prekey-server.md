@@ -79,7 +79,7 @@ securely publish, store and retrieve Prekey Ensembles and its values.
 Unless otherwise noted, these conventions and definitions are used for this
 document:
 
-* "Participant" refers to a participant in a conversation.
+* "Participant" refers to the one that takes part in a conversation.
 * "Prekey Server" refers to the untrusted server used to store Prekey
   Ensemble's values.
 * "Publisher" refers to the participant publishing Prekey Ensemble's values to
