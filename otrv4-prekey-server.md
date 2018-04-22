@@ -1182,8 +1182,8 @@ Versions (DATA)
   The OTR versions you are asking Prekey Ensembles for. A valid versions string
   can be created by concatenating the version numbers together in any order.
   For example, a user who wants Prekey Ensembles for versions 4 and 5 will have
-  the 2-byte version string "45" or "54". Any version string that is "3", "2",
-  or "1" should be ignored.
+  the 2-byte version string "45" or "54". Unrecognized versions should be
+  ignored.
 ```
 
 ### Prekey Ensemble Retrieval Message
