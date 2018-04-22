@@ -79,22 +79,22 @@ securely publish, store and retrieve Prekey Ensembles and its values.
 Unless otherwise noted, these conventions and definitions are used for this
 document:
 
-* "Party" refers to a participant in a conversation.
+* "Participant" refers to a participant in a conversation.
 * "Prekey Server" refers to the untrusted server used to store Prekey
   Ensemble's values.
-* "Publisher" refers to the party publishing Prekey Ensemble's values to the
-  Prekey Server.
-* "Retriever" refers to the party retrieving Prekey Ensemble's values from the
-  Prekey Server that correspond to the publishing party.
-* "Sender" refers to the party sending an encoded message.
-* "Receiver" refers to the party receiving an encoded message.
+* "Publisher" refers to the participant publishing Prekey Ensemble's values to
+  the Prekey Server.
+* "Retriever" refers to the participant retrieving Prekey Ensemble's values from
+  the Prekey Server that correspond to the publishing participant.
+* "Sender" refers to the participant sending an encoded message.
+* "Receiver" refers to the participant receiving an encoded message.
 
 ## Assumptions
 
 The OTRv4 Prekey Server specification can not protect against an active
 attacker performing Denial of Service attacks (DoS). This means that this
-specification does prevent any attack which will make the Prekey Server or its
-functionalities unavailable (by temporarily or indefinitely disrupting the
+specification does not prevent any attack which will make the Prekey Server or
+its functionalities unavailable (by temporarily or indefinitely disrupting the
 service).
 
 // TODO: add here versions
@@ -172,7 +172,7 @@ The Prekey Server must have these capabilities:
 - Deliver Prekey Ensembles previously stored.
 - Inform the publisher about how many Prekey Messages are stored for them.
 - Inform the retriever when there are no Prekey Ensembles (or any of its values)
-  from an specific party.
+  from an specific participant.
 
 The Prekey Server expects to only receive messages on the same network
 authenticated clients use to exchange messages. This means that a message
@@ -371,7 +371,7 @@ secret derived during the DAKE should be discarded. Nevertheless, this shared
 secret can be used with the Double Ratchet Algorithm, for example, to either
 encrypt the channel or by Prekey Server to encrypt the stored prekey messages
 (note that the Prekey Server, nevertheless, must handle them out decrypted to
-the retrieving party).
+the retrieving participant).
 
 ### Shared secrets
 
@@ -402,7 +402,7 @@ Check, without leaking extra information about the value of `SK_ecdh`, whether
 contributory behavior. Contributory behaviour means that both parties' private
 keys contribute to the resulting shared key. Since Ed448 have a cofactor of 4,
 an input point of small order will eliminate any contribution from the other
-party's private key. This situation can be detected by checking for the
+participant's private key. This situation can be detected by checking for the
 all-zero output.
 
 ## Key Exchange
@@ -1080,7 +1080,7 @@ verifies them.
 ```
 
 In order to send an encrypted offline message, a client must obtain a Prekey
-Ensemble from the party they want to start a conversation with:
+Ensemble from the participant they want to start a conversation with:
 
 1. Client sends a [Prekey Ensemble Query Retrieval message](#prekey-ensemble-query-retrieval-message),
    which specifies which identity and protocol versions it wants Prekey Ensembles
@@ -1174,9 +1174,9 @@ Message type (BYTE)
 Sender's instance tag (INT)
   The instance tag of the sender.
 
-Party's Identity (DATA)
-  The identity of the party you are asking Prekey Ensembles for. In the case of
-  XMPP, for example, this is the bare jid.
+Participant's Identity (DATA)
+  The identity of the participant you are asking Prekey Ensembles for. In the
+  case of XMPP, for example, this is the bare jid.
 
 Versions (DATA)
   The OTR versions you are asking Prekey Ensembles for. A valid versions string
@@ -1403,7 +1403,7 @@ And the Prekey Server responds with a "Storage Status" message:
 
 ### Retrieving published Prekeys Values from a Prekey Service
 
-An entity asks the service for prekey ensembles from a particular party by
+An entity asks the service for prekey ensembles from a particular partipant by
 sending a "Prekey Ensemble Query Retrieval message" for an specific identity,
 for example, `bob@xmpp.net`, and specific versions, for example, "45".
 
