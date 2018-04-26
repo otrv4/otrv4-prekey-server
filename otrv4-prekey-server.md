@@ -935,6 +935,31 @@ Success message (DATA)
   occurred".
 ```
 
+### Network Fragmentation of the Prekey Publication Message
+
+As "Prekey Publication" messages can be very long to transmit, network
+fragmentation can be used. This means that a publisher can send a "Prekey
+Publication" message and the network can fragment it in this way:
+
+1. The concatenated prekey messages can be fragmented up to however the client
+   sees fit (fragmented only by prekey messages), and send each fragment in
+   each own network message. For example:
+
+```
+   A prekey message will look like this:
+
+   Message type || 5 || Prekey Messages || 1 || Client Profiles || 1 ||
+   Prekey Profiles || Prekey MAC
+
+   It can be fragmented as:
+
+   Message type || 2 || Prekey Messages || 1 || Client Profiles || 1 ||
+   Prekey Profiles || Prekey MAC
+
+   Message type || 3 || Prekey Messages || 1 || Client Profiles || 1 ||
+   Prekey Profiles || Prekey MAC
+```
+
 ## State machine
 
 This is the state machine for when a client wants to publish Client Profiles,
