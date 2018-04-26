@@ -39,6 +39,7 @@ to store Prekey Ensembles' values.
    1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
    1. [Success Message](#success-message)
    1. [Failure Message](#failure-message)
+   1. [Network Fragmentation of the Prekey Publication Message](#network-fragmentation-of-the-prekey-publication-message)
 1. [State machine](#state-machine)
 1. [Publishing Prekey Values](#publishing-prekey-values)
 1. [Retrieving Prekey Ensembles](#retrieving-prekey-ensembles)
@@ -941,9 +942,9 @@ As "Prekey Publication" messages can be very long to transmit, network
 fragmentation can be used. This means that a publisher can send a "Prekey
 Publication" message and the network can fragment it in this way:
 
-1. The concatenated prekey messages can be fragmented up to however the client
-   sees fit (fragmented only by prekey messages), and send each fragment in
-   each own network message. For example:
+* The concatenated prekey messages can be fragmented up to however the client
+  sees fit (fragmented only by prekey messages), and send each fragment in
+  each own network message. For example:
 
 ```
    A prekey message will look like this:
