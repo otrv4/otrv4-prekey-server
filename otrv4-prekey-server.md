@@ -98,25 +98,24 @@ specification does not prevent any attack which will make the Prekey Server or
 its functionalities unavailable (by temporarily or indefinitely disrupting the
 service).
 
-// TODO: add here versions
-
 This specification aims to support future OTR versions. Because of that, the
 Prekey Server should support multiple Prekey Messages from different/future
-OTR versions, starting with the current version, 4.
+OTR versions, starting with the current version, 4. Each message defined in this
+document, will, therefore, advertise which version is using.
 
 ## Security Properties
 
 OTRv4 states the need for a service provider that stores key material used in
 a deniable trust establishment for offline conversations. This service provider
-is the Prekey Server, as establish in this specification.
+is the Prekey Server, as established in this specification.
 
 There are three things that should be uploaded to the Prekey Server: Client
-Profiles, Prekey profiles and Prekey Messages. They are needed for starting a
+Profiles, Prekey Profiles and Prekey Messages. They are needed for starting a
 non-interactive DAKE. Prekey Profiles are needed as if only Prekey Messages are
 used for starting non-interactive conversations, an active adversary can modify
 the first flow from the publisher to use an adversarially controlled ephemeral
 key, capture and drop the response from the retriever, compromise (by for
-example, getting access to the Publisher's device) the publisher's long-term
+example, getting access to the publisher's device) the publisher's long-term
 secret key, and be able to decrypt messages. The publisher will never see the
 messages, and the adversary will be able to decrypt them. Moreover, since
 long-term keys are usually meant to last for years, a long time may pass
@@ -130,7 +129,9 @@ implemented in the OTRv4-interactive-only mode. This should be done in order to
 achieve deniability properties, as it allows two parties to send and verify each
 other's Client Profile during the DAKEs without damaging participation
 deniability for the conversation, since the Client Profile becomes public
-information.
+information. Nevertheless, if the network model does not support any kind of
+central infrastructure, another place can be used to publish, like a server pool
+(similar to a keyserver pool, where PGP public keys can be published).
 
 The submissions of these values to the untrusted Prekey Server are deniably
 authenticated by using DAKEZ. If they were not authenticated, malicious
@@ -600,6 +601,9 @@ A valid DAKE-1 message is generated as follows:
 
 To verify a DAKE-1 message:
 
+1. Verify if the message type is `0x01`.
+1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+   not.
 1. Validate the Client Profile, as defined in
    [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
    section of the OTRv4 specification.
@@ -610,6 +614,9 @@ To verify a DAKE-1 message:
 A DAKE-1 message is an OTRv4 Prekey Server message encoded as:
 
 ```
+Protocol version (SHORT)
+  The version number of this OTR protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x01.
 
@@ -656,6 +663,9 @@ A valid DAKE-2 message is generated as follows:
 
 To verify a DAKE-2 message:
 
+1. Verify if the message type is `0x02`.
+1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+   not.
 1. Validate the Prekey Server Composite Identity by:
    * Calculating the fingerprint of the Prekey Server's long-term public key
      (`H_s`).
@@ -677,6 +687,9 @@ To verify a DAKE-2 message:
 A DAKE-2 message is an OTRv4 Prekey Server message encoded as:
 
 ```
+Protocol version (SHORT)
+  The version number of this OTR protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x02.
 
@@ -717,6 +730,9 @@ A valid DAKE-3 message is generated as follows:
 
 To verify a DAKE-3 message:
 
+1. Verify if the message type is `0x03`.
+1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+   not.
 1. Check that the receiver's instance tag of the message matches your sender's
    instance tag.
 1. Compute
@@ -735,6 +751,9 @@ To verify a DAKE-3 message:
 A DAKE-3 is an OTRv4 Prekey Server message encoded as:
 
 ```
+Protocol version (SHORT)
+  The version number of this OTR protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x03.
 
@@ -802,6 +821,9 @@ A valid Prekey Publication Message is generated as follows:
 The encoding looks like this:
 
 ```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0004.
+
 Message type (BYTE)
   This message has type 0x04.
 
@@ -846,6 +868,9 @@ A valid "Storage Information Request message" is generated as follows:
 The encoding looks like this:
 
 ```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0004.
+
 Message type (BYTE)
   This message has type 0x05.
 
@@ -867,6 +892,9 @@ A valid "Storage Status message" is generated as follows:
 It must be encoded as:
 
 ```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x06.
 
@@ -896,6 +924,9 @@ A valid "Success message" is generated as follows:
 It must be encoded as:
 
 ```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x07.
 
@@ -925,6 +956,9 @@ A valid "Failure message" is generated as follows:
 It must be encoded as:
 
 ```
+Protocol version (SHORT)
+  The version number of this protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x08.
 
