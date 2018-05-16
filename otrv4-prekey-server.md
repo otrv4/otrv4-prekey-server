@@ -109,18 +109,18 @@ OTRv4 states the need for a service provider that stores key material used in
 a deniable trust establishment for offline conversations. This service provider
 is the Prekey Server, as established in this specification.
 
-There are three things that should be uploaded to the Prekey Server: Client
-Profiles, Prekey Profiles and Prekey Messages. They are needed for starting a
-non-interactive DAKE. Prekey Profiles are needed as if only Prekey Messages are
-used for starting non-interactive conversations, an active adversary can modify
-the first flow from the publisher to use an adversarially controlled ephemeral
-key, capture and drop the response from the retriever, compromise (by for
-example, getting access to the publisher's device) the publisher's long-term
-secret key, and be able to decrypt messages. The publisher will never see the
-messages, and the adversary will be able to decrypt them. Moreover, since
-long-term keys are usually meant to last for years, a long time may pass
-between the retriever sending messages and the adversary compromising the
-publisher's long-term key. This attack is mitigated with the use of Prekey
+There are three things that should be uploaded to the Prekey Server by each
+device: Client Profile, Prekey Profiles and Prekey Messages. They are needed for
+starting a non-interactive DAKE. Prekey Profiles are needed as if only Prekey
+Messages are used for starting non-interactive conversations, an active
+adversary can modify the first flow from the publisher to use an adversarially
+controlled ephemeral key, capture and drop the response from the retriever,
+compromise (by for example, getting access to the publisher's device) the
+publisher's long-term secret key, and be able to decrypt messages. The publisher
+will never see the messages, and the adversary will be able to decrypt them.
+Moreover, since long-term keys are usually meant to last for years, a long time
+may pass between the retriever sending messages and the adversary compromising
+the publisher's long-term key. This attack is mitigated with the use of Prekey
 Profiles that contain shared prekeys signed by the long-term secret key, and
 that are reusable.
 
@@ -168,7 +168,7 @@ fail, as stated above.
 
 The Prekey Server must have these capabilities:
 
-- Receive Client Profiles, Prekey Profiles and a set of Prekey Messages, and
+- Receive a Client Profile, Prekey Profiles and a set of Prekey Messages, and
   store them by the corresponding identity. Inform that this operation have
   failed or has been successful.
 - Deliver Prekey Ensembles previously stored.
@@ -182,13 +182,13 @@ received should be from the same network the publisher is believed to have
 been authenticated to.
 
 Although this specification defines expected behavior from the Prekey Server
-(e.g., by specifying that Client Profiles, Prekey Profiles and Prekey Messages
-submissions should be validated by the Prekey Server), clients should not rely
-on this prescribed behavior, as the Prekey Server is untrusted. Verifications
-must also be performed by clients as well, even though the Prekey Server should
-be expected to perform them. Furthermore, clients working with a Prekey Server
-are expected to upload new Client Profiles and Prekey Profiles before they
-expire or when a new long-term public key has been created.
+(e.g., by specifying that the Client Profile, Prekey Profiles and Prekey
+Messages submissions should be validated by the Prekey Server), clients should
+not rely on this prescribed behavior, as the Prekey Server is untrusted.
+Verifications must also be performed by clients as well, even though the Prekey
+Server should be expected to perform them. Furthermore, clients working with a
+Prekey Server are expected to upload a new Client Profile and Prekey Profiles
+before they expire or when a new long-term public key has been created.
 
 Note that Client Profiles, Prekey Profiles and Prekey Messages submissions to
 the untrusted Prekey Server have to be authenticated. If they are not
@@ -409,7 +409,7 @@ all-zero output.
 
 ## Key Exchange
 
-As previously stated, Client Profiles, Prekey Profiles and Prekey Messages
+As previously stated, Client Profiles Prekey Profiles and Prekey Messages
 submissions to the Prekey Server have to be authenticated. If they are not
 authenticated, malicious users can perform denial-of-service attacks. To
 preserve the deniability of the overall OTRv4 protocol, the submissions are
@@ -478,7 +478,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    * Securely erases `i`.
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
 1. Creates a message (`msg`):
-   1. If she wants to publish Client Profiles and Prekey Profiles, and/or Prekey
+   1. If she wants to publish a Client Profile, Prekey Profiles, and/or Prekey
       Messages, she creates a "Prekey Publication message", as defined in
       [Prekey Publication Message](#prekey-publication-message) section.
    1. If she wants to ask for storage information, she creates a "Storage
@@ -507,23 +507,19 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         received "Prekey Publication message"):
         * If Client Profiles and Prekey Profiles are present on the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-           KDF(usagePrekeyMessage, Prekey Messages, 64) || K ||
+           KDF(usagePrekeyMessage, Prekey Messages, 64) ||
            KDF(usageClientProfile, Client Profiles, 64) || J ||
            KDF(usagePrekeyProfile, Prekey Profiles, 64))`.
         * If only Prekey Messages are present on the message:
           * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-            KDF(usagePrekeyMessage, Prekey Messages, 64) || K || J, 64)`. `K`
-            and `J` should be set to zero.
+            KDF(usagePrekeyMessage, Prekey Messages, 64) || J, 64)`. `J` should
+            be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
           the DAKE and sends a "Failure message", as defined in
           [Failure Message](#failure-message) section.
       * Check the counters for the values on the message:
-        * If Client profiles and Prekey profiles are present on the message:
-          * Checks that `K` corresponds to the number of concatenated Client
-            Profiles. If it is not, aborts the DAKE and sends a
-            "Failure message", as defined in the
-            [Failure Message](#failure-message) section.
+        * If Prekey profiles are present on the message:
           * Checks that `J` corresponds to the number of concatenated Prekey
             Profiles. If it is not, aborts the DAKE and sends a
             "Failure message", as defined in the
@@ -535,7 +531,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             [Failure Message](#failure-message) section.
           * Checks that `J` and `K` are set to zero, if Prekey Messages are only
             present.
-      * Stores each Client Profile, Prekey Profile and Prekey Message if is
+      * Stores the Client Profile, each Prekey Profile and Prekey Message if is
         possible in the Prekey Server's storage. If not, aborts the DAKE and
         sends a "Failure message" as defined in the
         [Failure Message](#failure-message) section.
@@ -688,7 +684,7 @@ To verify a DAKE-2 message:
    from the
    [Prekey Server Composite Identity](#prekey-server-composite-identity)
    section.
-1. Verify the `sigma` with `sigma == RVrf({H_a, H_s, I}, t)`. See the
+1. Verify the `sigma`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
 
@@ -752,7 +748,7 @@ To verify a DAKE-3 message:
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
    from the
    [Prekey Server Composite Identity](#prekey-server-identifier) section.
-1. Verify the `sigma` with `sig == RVrf({H_s, H_a, S}, t)`. See the
+1. Verify the `sigma`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
 
@@ -783,18 +779,18 @@ Message (DATA)
 This is the message sent when you want to store/publish Prekey Ensembles to the
 Prekey Server. This message can contain these three entities:
 
-- Client Profiles
+- Client Profile
 - Prekey Profiles
 - Prekey Messages
 
-Client Profiles and Prekey Profiles are included in this message when none have
+Client Profile and Prekey Profiles are included in this message when none have
 been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
 different long-term public key, and when the stored Client or Prekey Profile
 will soon expire. A client must always upload new Client and Prekey Profiles
 when one of these scenarios happen by replacing the old stored ones. The
-maximum number of Client Profiles and Prekey Profiles that can be published in
-one message is 255 respectively.
+maximum number of Client Profile is 1. The maximum number of Prekey Profiles
+that can be published in one message is 255.
 
 Prekey Messages are included in this message when there are few or none of
 these messages left on the Prekey Server. This can be checked by sending a
@@ -811,15 +807,14 @@ A valid Prekey Publication Message is generated as follows:
 
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
-1. Concatenate all Client Profiles, if they need to be published. Assign `K`
-   as the number of Client Profiles. If they are none, assign '00' to `K`.
+1. Concatenate the Client Profile, if they need to be published.
 1. Concatenate all Prekey Profiles, if they need to be published. Assign
    `J` as the number of Prekey Profiles. If they are none, assign '00' to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-      KDF(usagePrekeyMessages, Prekey Messages, 64) || K ||
-      KDF(usageClientProfile, Client Profiles, 64) || J ||
+      KDF(usagePrekeyMessages, Prekey Messages, 64) ||
+      KDF(usageClientProfile, Client Profile, 64) || J ||
       KDF(usagePrekeyProfile, Prekey Profiles, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
@@ -841,12 +836,8 @@ N (BYTE)
 Prekey Messages (DATA)
    All 'N' Prekey Messages serialized according to OTRv4 specification.
 
-K (BYTE)
-   The number of Client Profiles present in this message. If there are none,
-   the value is zero.
-
-Client Profiles (CLIENT-PROF)
-  All 'K' Client Profiles created as described in the section "Creating a Client
+Client Profile (CLIENT-PROF)
+  The Client Profiles created as described in the section "Creating a Client
   Profile" of the OTRv4 specification. This value is optional.
 
 J (BYTE)
@@ -1073,7 +1064,7 @@ sends a DAKE-3 message with a
 Prekey Publication message           ------------->
 
                                      <-------------  Receives a DAKE-3 message and
-                                                     stores the Client Profiles and
+                                                     stores the Client Profile and
                                                      Prekey Profiles (if present),
                                                      and the Prekey Messages.
                                                      Sends a Success message.
@@ -1085,10 +1076,10 @@ the verifications noted here.
 
 By client we mean each device a user has.
 
-1. Client creates Client Profiles, as defined in the OTRv4 specification. See
+1. Client creates the Client Profile, as defined in the OTRv4 specification. See
    the [Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
-   section of the OTRv4 specification for details. It must create a Client Profile
-   for each local long-term public key it locally has.
+   section of the OTRv4 specification for details. It include every Ed448
+   long-term public key it locally has.
 1. Client creates Prekey Profiles, as defined in OTRv4 specification. See
    the [Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
    section of the OTRv4 specification for details. It must create a Prekey
@@ -1103,7 +1094,7 @@ By client we mean each device a user has.
 1. Client authenticates (in a deniable way) with the Prekey Server through the
    DAKE and, with that, it generates a shared secret.
    See section [Key Exchange](#key-exchange) for details.
-1. Client sends Client Profiles and Prekey Profiles (if needed) for every
+1. Client sends the Client Profile, and Prekey Profiles (if needed) for every
    long-term public key, and Prekey Messages to the Prekey Server, in the final
    message of the DAKE (DAKE-3 with a 'Prekey Publication message" attached).
    See the [Prekey Publication message](#prekey-publication-message) section for
@@ -1111,7 +1102,7 @@ By client we mean each device a user has.
 1. The Prekey Server verifies the received values:
    1. For every value, check the integrity of it.
    1. If Client and Prekey Profiles are present:
-      1. Validate the Client Profiles as defined in the
+      1. Validate the Client Profile as defined in the
          [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
          section of the OTRv4 specification.
       1. Validate the Prekey Profiles as defined in the
@@ -1122,7 +1113,7 @@ By client we mean each device a user has.
          [Prekey Message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
          section of the OTRv4 specification.
    1. Discard any invalid or duplicated values.
-1. The Prekey Server stores the Client Profiles, Prekey Profiles and Prekey
+1. The Prekey Server stores the Client Profile, Prekey Profiles and Prekey
    Messages by associating them with the identity. This identity is the one used
    by the network, for example, 'alice@xmpp.org' for XMPP.
 1. The Prekey Server sends an acknowledgment that the operation succeeded in the
@@ -1156,15 +1147,12 @@ Ensemble from the participant they want to start a conversation with:
    sender's instance tag, so the Prekey Server knows to which device to
    respond to.
 1. The Prekey Server checks if there are any Prekey Ensembles available for the
-   identity and for the versions advertized on the "Prekey Ensemble Query
+   identity and for the versions advertised on the "Prekey Ensemble Query
    Retrieval message". If there are none (or any of its values are
    missing), it sends a "No Prekey Ensembles available" message.
 1. The Prekey Server selects Prekey Ensembles for each requested versions
    consisting of:
-   * A valid Client Profile for every instance tag and long-term public key for
-     the identity. That is, it selects different Client Profiles if they have the
-     same instance tag but different long-term public keys. It always selects
-     the Client Profiles with the latest expiry date.
+   * A valid Client Profile for every instance tag for the identity.
    * A valid Prekey Profile for every instance tag and long-term public key for
      the identity. That is, different Prekey Profiles if they have the same
      instance tag but different long-term public keys. It always selects
@@ -1175,15 +1163,15 @@ Ensemble from the participant they want to start a conversation with:
    * Builds Prekey Ensembles with the selected values, for example:
 
      ```
-     Identity || Client Profile (with instance tag 0x01, and long-term public key 1) ||
+     Identity || Client Profile (with instance tag 0x01, and (long-term public key 1 && 2)) ||
      Prekey Profile (with instance tag 0x01 and long-term public key 1) ||
      Prekey Message (with instance tag 0x01).
 
-     Identity || Client Profile (with instance tag 0x01, and long-term public key 2) ||
+     Identity || Client Profile (with instance tag 0x01, and (long-term public key 1 && 2)) ||
      Prekey Profile (with instance tag 0x01 and long-term public key 2) ||
      Prekey Message (with instance tag 0x01).
 
-     Identity || Client Profile (with instance tag 0x02, and long-term public key 3) ||
+     Identity || Client Profile (with instance tag 0x02, and (long-term public key 3)) ||
      Prekey Profile (with instance tag 0x02 and long-term public key 3) ||
      Prekey Message (with instance tag 0x02).
      ```
@@ -1199,19 +1187,19 @@ Ensemble from the participant they want to start a conversation with:
    1. Verifies that the receiver's instance tag of it is equal to its sender's
       instance tag.
 1. For each requested version, the Client receives the Prekey Ensembles and:
-   1. Checks that there are `L` number of Prekey Emsembles as stated in the
+   1. Checks that there are `L` number of Prekey Ensembles as stated in the
       "Prekey Ensemble Retrieval message".
    1. Checks that there is at least one Client Profile, one Prekey Profile and
       one Prekey Message.
-   1. Groups all Prekey Messages by instance tag. Subgroups the Client Profiles
-      and Prekey Profiles from this group by the long-term public key.
+   1. Groups all Prekey Messages by instance tag. Subgroups the Prekey Profiles
+      from this group by the long-term public key.
    1. Validates all Prekey Ensembles:
       1. Checks that all the instance tags on the Prekey Ensemble's values are
          the same.
       1. [Validates the Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile).
       1. [Validates the Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile).
-      1. Checks that the Prekey Profile is signed by the same long-term public
-         key stated in it and in the Client Profile.
+      1. Checks that the Prekey Profile is signed by one of the long-term public
+         keys stated in it and in the Client Profile.
       1. Verifies the Prekey Message as stated in the
          [Prekey Message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
          section.
