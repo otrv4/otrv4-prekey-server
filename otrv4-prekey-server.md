@@ -6,9 +6,9 @@ Disclaimer
 This protocol specification is a draft.
 ```
 
-OTRv4 Prekey Server provides an additional specification to the OTRv4
-[\[1\]](#references) protocol when it needs an untrusted central Prekey Server
-to store Prekey Ensembles' values.
+OTRv4 Prekey Server is an additional specification to the OTRv4
+[\[1\]](#references) protocol for when it needs an untrusted central Prekey Server
+to store Prekey Ensembles.
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ to store Prekey Ensembles' values.
    1. [Prekey Publication Message](#prekey-publication-message)
    1. [Storage Information Request Message](#storage-information-request-message)
    1. [Storage Status Message](#storage-status-message)
-   1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
+   1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
    1. [Success Message](#success-message)
    1. [Failure Message](#failure-message)
    1. [Network Fragmentation of the Prekey Publication Message](#network-fragmentation-of-the-prekey-publication-message)
@@ -45,7 +45,7 @@ to store Prekey Ensembles' values.
 1. [Retrieving Prekey Ensembles](#retrieving-prekey-ensembles)
    1. [Prekey Ensemble Query Retrieval Message](#prekey-ensemble-query-retrieval-message)
    1. [Prekey Ensemble Retrieval Message](#prekey-ensemble-retrieval-message)
-   1. [No Prekey Ensembles on Storage Message](#no-prekey-ensembles-on-storage-message)
+   1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
 1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
    1. [Discovering a Prekey Service](#discovering-a-prekey-service)
@@ -80,15 +80,15 @@ securely publish, store and retrieve Prekey Ensembles and its values.
 Unless otherwise noted, these conventions and definitions are used for this
 document:
 
-* "Participant" refers to the one that takes part in a conversation.
+* "Participant" refers to any of the end-points that take part in a conversation.
 * "Prekey Server" refers to the untrusted server used to store Prekey
-  Ensemble's values.
-* "Publisher" refers to the participant publishing Prekey Ensemble's values to
+  Ensembles.
+* "Publisher" refers to the participant publishing Prekey Ensembles to
   the Prekey Server.
-* "Retriever" refers to the participant retrieving Prekey Ensemble's values from
+* "Retriever" refers to the participant retrieving Prekey Ensembles from
   the Prekey Server that correspond to the publishing participant.
-* "Sender" refers to the participant sending an encoded message.
-* "Receiver" refers to the participant receiving an encoded message.
+* "Sender" refers to the participant sending a message.
+* "Receiver" refers to the participant receiving a message.
 
 ## Assumptions
 
@@ -101,7 +101,7 @@ service).
 This specification aims to support future OTR versions. Because of that, the
 Prekey Server should support multiple Prekey Messages from different/future
 OTR versions, starting with the current version, 4. Each message defined in this
-document, will, therefore, advertise which version is using.
+document, will, therefore, advertise which version it is using.
 
 ## Security Properties
 
@@ -110,28 +110,28 @@ a deniable trust establishment for offline conversations. This service provider
 is the Prekey Server, as established in this specification.
 
 There are three things that should be uploaded to the Prekey Server by each
-device: Client Profile, Prekey Profiles and Prekey Messages. They are needed for
-starting a non-interactive DAKE. Prekey Profiles are needed as if only Prekey
-Messages are used for starting non-interactive conversations, an active
+device: a Client Profile, Prekey Profiles and Prekey Messages. These are needed
+for starting a non-interactive DAKE. Prekey Profiles are needed, because if only
+Prekey Messages are used for starting non-interactive conversations, an active
 adversary can modify the first flow from the publisher to use an adversarially
 controlled ephemeral key, capture and drop the response from the retriever,
 compromise (by for example, getting access to the publisher's device) the
-publisher's long-term secret key, and be able to decrypt messages. The publisher
-will never see the messages, and the adversary will be able to decrypt them.
-Moreover, since long-term keys are usually meant to last for years, a long time
-may pass between the retriever sending messages and the adversary compromising
-the publisher's long-term key. This attack is mitigated with the use of Prekey
-Profiles that contain shared prekeys signed by the long-term secret key, and
-that are reusable.
+publisher's long-term secret key, and then be able to decrypt messages. The
+publisher will never see the messages, and the adversary will be able to decrypt
+them.  Moreover, since long-term keys are usually meant to last for years, a
+long time may pass between the retriever sending messages and the adversary
+compromising the publisher's long-term key. This attack is mitigated with the
+use of Prekey Profiles that contain shared prekeys signed by the long-term
+secret key, and that are reusable.
 
 A Prekey Server can also be used to publish the Client Profile, even if OTRv4 is
 implemented in the OTRv4-interactive-only mode. This should be done in order to
 achieve deniability properties, as it allows two parties to send and verify each
 other's Client Profile during the DAKEs without damaging participation
 deniability for the conversation, since the Client Profile becomes public
-information. Nevertheless, if the network model does not support any kind of
-central infrastructure, another place can be used to publish, like a server pool
-(similar to a keyserver pool, where PGP public keys can be published).
+information. However, if the network model does not support any kind of central
+infrastructure another place can be used to publish, like a server pool (similar
+to a keyserver pool, where PGP public keys can be published).
 
 The submissions of these values to the untrusted Prekey Server are deniably
 authenticated by using DAKEZ. If they were not authenticated, malicious
@@ -140,7 +140,7 @@ deniability properties of the whole OTRv4 protocol, they should be deniably
 authenticated.
 
 Furthermore, in order to safeguard the integrity of the submitted values to the
-Prekey Server, a MAC of the uploading values is used. The Prekey Server should
+Prekey Server, a MAC of the sent values is used. The Prekey Server should
 validate this MAC after receiving the values.
 
 Note that the Prekey Server is untrusted and therefore can cause the
@@ -153,12 +153,12 @@ communication between two parties to fail. This can happen in several ways:
 - The Prekey Server hands out Prekey Messages that have been already used.
 - The Prekey Server reports incorrect number of stored Prekey Messages.
 
-Notice that the security of the non-Interactive DAKE (XZDH) in the OTRv4
-specification does not require trusting the Prekey Server. However, if we allow
-a scenario in which the user’s keys have been compromised but the Prekey Server
-has not, then we can achieve better plausible deniability. The user may ask the
-Prekey Server in advance to assist with a forged conversation, casting doubt on
-all conversations conducted by an online adversary using the compromised device.
+The security of the non-Interactive DAKE (XZDH) in the OTRv4 specification does
+not require trusting the Prekey Server. However, if we allow a scenario in which
+the user’s keys have been compromised but the Prekey Server has not, then we can
+achieve better plausible deniability. The user may ask the Prekey Server in
+advance to assist with a forged conversation, casting doubt on all conversations
+conducted by an online adversary using the compromised device.
 
 ## Prekey Server Requirements
 
@@ -173,49 +173,49 @@ The Prekey Server must have these capabilities:
   failed or has been successful.
 - Deliver Prekey Ensembles previously stored.
 - Inform the publisher about how many Prekey Messages are stored for them.
-- Inform the retriever when there are no Prekey Ensembles (or any of its values)
-  from an specific participant.
+- Inform the retriever when there are no complete Prekey Ensembles available
+  for a specific participant.
 
 The Prekey Server expects to only receive messages on the same network
 authenticated clients use to exchange messages. This means that a message
 received should be from the same network the publisher is believed to have
-been authenticated to.
+been authenticated with.
 
 Although this specification defines expected behavior from the Prekey Server
 (e.g., by specifying that the Client Profile, Prekey Profiles and Prekey
 Messages submissions should be validated by the Prekey Server), clients should
 not rely on this prescribed behavior, as the Prekey Server is untrusted.
 Verifications must also be performed by clients as well, even though the Prekey
-Server should be expected to perform them. Furthermore, clients working with a
-Prekey Server are expected to upload a new Client Profile and Prekey Profiles
-before they expire or when a new long-term public key has been created.
+Server should be expected to perform them. Clients working with a Prekey Server
+are expected to upload a new Client Profile and Prekey Profiles before they
+expire or when a new long-term public key has been created.
 
 Note that Client Profiles, Prekey Profiles and Prekey Messages submissions to
 the untrusted Prekey Server have to be authenticated. If they are not
 authenticated, then malicious users can perform denial-of-service attacks. To
-preserve the deniability of the overall OTRv4 protocol, Prekey Ensemble's values
-should never be digitally signed. This specification uses a DAKEZ exchange
-between the publisher and the Prekey Server to fulfill this need, and preserve
-deniability.
+preserve the deniability of the overall OTRv4 protocol, Prekey Ensembles should
+never be signed in a non-repudiable way. This specification uses a DAKEZ
+exchange between the publisher and the Prekey Server to fulfill this need, and
+preserve deniability.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
 Server should be able to correctly generate ephemeral ECDH keys and long-term
 Ed488-EdDSA keys.
 
-When the Prekey Server runs out of Prekey Messages, or when it has no
-Client or Prekey Profiles, a "No Prekey Ensembles on Storage" message should be
-returned, as defined in this [section](#no-prekey-ensembles-on-storage-message).
-In theory, it would be possible to return a "multi use" default Prekey Ensemble.
+When the Prekey Server runs out of Prekey Messages, or when it has no Client or
+Prekey Profiles, a "No Prekey Ensembles in Storage" message should be returned,
+as defined in this [section](#no-prekey-ensembles-in-storage-message).  In
+theory, it would be possible to return a "multi use" default Prekey Ensemble.
 However, the consequences to participation deniability with this technique are
-currently undefined and, thus, risky. Thus, this specification does not use
-this kind of fallback behavior. As a consequence, the OTRv4 protocol can be
-subject to DoS attacks by an attacker draining the Prekey Messages for another
-user. This can be partially mitigated using rate fetch limiting.
+currently undefined and thus risky. For this reason, this specification does not
+use that kind of fallback behavior. As a consequence, the OTRv4 protocol can be
+subject to DoS attacks by an attacker draining the Prekey Ensembles for another
+user. This can be partially mitigated using fetch rate limiting.
 
 Notice that the Prekey Server should be able to support future versions,
 starting from version 4. This means that the Prekey Server will accept Prekey
-Ensembles with different versions. For this, the header of a Prekey Message
-must remain the same in future versions:
+Ensembles with different versions. For this reason, the header of a Prekey
+Message must remain the same in future versions:
 
 ```
 Protocol version (SHORT)
@@ -227,7 +227,7 @@ Message type (BYTE)
 Prekey Message Identifier (INT)
   A prekey message id used for local storage and retrieval.
 
-Prekey owner's instance tag (INT)
+Prekey owner instance tag (INT)
   The instance tag of the client that created the Prekey Message.
 ```
 
@@ -235,7 +235,7 @@ Prekey owner's instance tag (INT)
 
 ### Notation
 
-OTRv4 Prekey Server specification uses the same notation as the OTRv4
+The OTRv4 Prekey Server specification uses the same notation as the OTRv4
 specification, defined in the section
 [Notation](https://github.com/otrv4/otrv4/blob/master/otrv4.md#notation).
 
@@ -366,14 +366,13 @@ public key:
 
 ## Key Management
 
-In the DAKE between the publisher and the Prekey Server, long-term
-Ed448 keys and ephemeral Elliptic Curve Diffie-Hellman (ECDH) keys are used.
-Notice that if this DAKE is only used for deniable authentication, the shared
-secret derived during the DAKE should be discarded. Nevertheless, this shared
-secret can be used with the Double Ratchet Algorithm, for example, to either
-encrypt the channel or by Prekey Server to encrypt the stored prekey messages
-(note that the Prekey Server, nevertheless, must handle them out decrypted to
-the retrieving participant).
+In the DAKE between the publisher and the Prekey Server, long-term Ed448 keys
+and ephemeral Elliptic Curve Diffie-Hellman (ECDH) keys are used.  Notice that
+if this DAKE is only used for deniable authentication, the shared secret derived
+during the DAKE should be discarded. This shared secret can be used with the
+Double Ratchet Algorithm, for example, to either encrypt the channel or by the
+Prekey Server to encrypt the stored prekey messages (note that the Prekey Server
+must hand them out decrypted to the retrieving participant).
 
 ### Shared secrets
 
@@ -459,7 +458,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives the DAKE-2 message from the Prekey Server.
-1. Checks that the receiver's instance tag from the message matches your
+1. Checks that the receiver instance tag from the message matches your
    instance tag. If it is not, rejects the message and does not send anything
    further.
 1. Retrieves the ephemeral public keys for the Prekey Server (encoded in the
@@ -494,23 +493,23 @@ Alice will be initiating the DAKEZ with the Prekey Server:
      [DAKE-3 message](#dake-3-message) section. If something fails, the Prekey
      Server rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
-   1. Verify if that the message type is either `0x04` or `0x05`. Abort if it is
+   1. Verifies that the message type is either `0x04` or `0x05`. Abort if it is
       not.
-   1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+   1. Verifies that the protocol version of the message is `0x0004`. Abort if it is
       not.
    1. If this is a "Prekey Publication message":
-      * Uses the sender's instance tag from the DAKE-3 message as the receiver's
+      * Uses the sender instance tag from the DAKE-3 message as the receiver
         instance tag and checks that is equal to the previously seen. If it is
         not, rejects the message and does not send anything further.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC` (notice that most of these values are from the
         received "Prekey Publication message"):
-        * If Client Profiles and Prekey Profiles are present on the message:
+        * If Client Profiles and Prekey Profiles are present in the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
            KDF(usagePrekeyMessage, Prekey Messages, 64) ||
            KDF(usageClientProfile, Client Profiles, 64) || J ||
            KDF(usagePrekeyProfile, Prekey Profiles, 64))`.
-        * If only Prekey Messages are present on the message:
+        * If only Prekey Messages are present in the message:
           * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
             KDF(usagePrekeyMessage, Prekey Messages, 64) || J, 64)`. `J` should
             be set to zero.
@@ -519,12 +518,12 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           the DAKE and sends a "Failure message", as defined in
           [Failure Message](#failure-message) section.
       * Check the counters for the values on the message:
-        * If Prekey profiles are present on the message:
+        * If Prekey profiles are present in the message:
           * Checks that `J` corresponds to the number of concatenated Prekey
             Profiles. If it is not, aborts the DAKE and sends a
             "Failure message", as defined in the
             [Failure Message](#failure-message) section.
-        * If Prekey Messages are present on the message:
+        * If Prekey Messages are present in the message:
           * Checks that `N` corresponds to the number of concatenated Prekey
             Messages. If it is not, aborts the DAKE and sends a
             "Failure message", as defined in the
@@ -538,7 +537,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Sends a "Success message", as defined in the
         [Success Message](#success-message) section.
    1. If this is a "Storage Information Request message":
-      * Uses the sender's instance tag from the DAKE-3 message as the receiver's
+      * Uses the sender instance tag from the DAKE-3 message as the receiver
         instance tag and checks that is equal to the previously seen. If it is
         not, rejects the message and does not send anything further.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
@@ -554,13 +553,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives a message from the Prekey Server:
-   1. Verify if that the message type is either `0x06`, `0x07` or `0x08`. Abort
+   1. Verifies that the message type is either `0x06`, `0x07` or `0x08`. Abort
       if it is not.
-   1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+   1. Verifies that the protocol version of the message is `0x0004`. Abort if it is
       not.
    1. If this is a "Storage Status message":
       * Computes the `Status_MAC: KDF(usageStatusMAC, prekey_mac_k ||
-        message type || receiver's instance tag ||
+        message type || receiver instance tag ||
         stored prekey messages number, 64)`. Checks
         that it is equal to the one received in the "Storage Status message".
         * If it is not, Alice ignores the message.
@@ -568,14 +567,14 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Success message":
       * Computes the `Success_MAC: KDF(usageSuccessMAC, prekey_mac_k ||
-        message type || receiver's instance tag || "Success", 64)`. Checks that
+        message type || receiver instance tag || "Success", 64)`. Checks that
         it is equal to the one received in the "Sucess message".
         * If it is not, Alice ignores the message.
         * If it is, the human readable part of the message is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
       * Computes the `Failure_MAC: KDF(usageFailureMAC, prekey_mac_k ||
-        message type || receiver's instance tag || "An error occurred", 64)`.
+        message type || receiver instance tag || "An error occurred", 64)`.
         Checks that it is equal to the one received in the "Failure message".
         * If it is not, Alice ignores the message.
         * If it is, the human readable part of the message is displayed.
@@ -594,19 +593,20 @@ A valid DAKE-1 message is generated as follows:
    this section):
    * secret key `i` (57 bytes).
    * public key `I`.
-1. Generate a 4-byte instance tag to use as the sender's instance tag. Only
-   generate it, if it hasn't been generated for the OTRv4 specification. If it
-   has, use that one instead. If it hasn't, generate it, and use it for the OTRv4
-   specification as well. Additional messages in this conversation will continue
-   to use this tag as the sender's instance tag. Also, this tag is used to
-   filter future received messages. Messages intended for this instance of the
-   client will have this number as the receiver's instance tag.
+1. Generate a 4-byte instance tag to use as the sender instance tag. Only
+   generate it if it hasn't been generated for the OTR part of the
+   implementation. If it has, use that one instead. If it hasn't, generate it,
+   and use it for the OTR implementation as well. Additional messages in this
+   conversation will continue to use this tag as the sender instance
+   tag. Also, this tag is used to filter future received messages. Messages
+   intended for this instance of the client will have this number as the
+   receiver instance tag.
 1. Add the Client Profile previously generated.
 
 To verify a DAKE-1 message:
 
-1. Verify if the message type is `0x01`.
-1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+1. Verify that the message type is `0x01`.
+1. Verify that the protocol version of the message is `0x0004`. Abort if it is
    not.
 1. Validate the Client Profile, as defined in
    [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
@@ -624,10 +624,10 @@ Protocol version (SHORT)
 Message type (BYTE)
   The message has type 0x01.
 
-Sender's instance tag (INT)
+Sender instance tag (INT)
   The instance tag of the client sending this message.
 
-Sender's Client Profile (CLIENT-PROF)
+Sender Client Profile (CLIENT-PROF)
   As described in the section "Creating a Client Profile" of the OTRv4
   specification.
 
@@ -662,13 +662,13 @@ A valid DAKE-2 message is generated as follows:
 1. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
-1. Use the sender's instance tag from the DAKE-1 message as the receiver's
+1. Use the sender instance tag from the DAKE-1 message as the receiver
    instance tag.
 
 To verify a DAKE-2 message:
 
-1. Verify if the message type is `0x02`.
-1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+1. Verify that the message type is `0x02`.
+1. Verify that the protocol version of the message is `0x0004`. Abort if it is
    not.
 1. Validate the Prekey Server Composite Identity by:
    * Calculating the fingerprint of the Prekey Server's long-term public key
@@ -697,7 +697,7 @@ Protocol version (SHORT)
 Message type (BYTE)
   The message has type 0x02.
 
-Receiver's instance tag (INT)
+Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID)
@@ -730,14 +730,14 @@ A valid DAKE-3 message is generated as follows:
 1. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification.
-1. Continue to use the sender's instance tag.
+1. Continue to use the sender instance tag.
 
 To verify a DAKE-3 message:
 
-1. Verify if the message type is `0x03`.
-1. Verify that protocol's version of the message is `0x0004`. Abort if it is
+1. Verify that the message type is `0x03`.
+1. Verify that the protocol version of the message is `0x0004`. Abort if it is
    not.
-1. Check that the receiver's instance tag of the message matches your sender's
+1. Check that the receiver instance tag of the message matches your sender
    instance tag.
 1. Compute
    `t = 0x01 || KDF(usageClientProfile-3, Alices_Client_Profile, 64) ||
@@ -761,7 +761,7 @@ Protocol version (SHORT)
 Message type (BYTE)
   The message has type 0x03.
 
-Sender's instance tag (INT)
+Sender instance tag (INT)
   The instance tag of the person sending this message.
 
 sigma (RING-SIG)
@@ -788,9 +788,9 @@ been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
 different long-term public key, and when the stored Client or Prekey Profile
 will soon expire. A client must always upload new Client and Prekey Profiles
-when one of these scenarios happen by replacing the old stored ones. The
-maximum number of Client Profile is 1. The maximum number of Prekey Profiles
-that can be published in one message is 255.
+when one of these scenarios happen by replacing the old stored ones. Only one
+Client Profile can be published in one message. The maximum number of Prekey
+Profiles that can be published in one message is 255.
 
 Prekey Messages are included in this message when there are few or none of
 these messages left on the Prekey Server. This can be checked by sending a
@@ -807,7 +807,7 @@ A valid Prekey Publication Message is generated as follows:
 
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
-1. Concatenate the Client Profile, if they need to be published.
+1. Concatenate the Client Profile, if it needs to be published.
 1. Concatenate all Prekey Profiles, if they need to be published. Assign
    `J` as the number of Prekey Profiles. If they are none, assign '00' to `J`.
 1. Calculate the `Prekey MAC`:
@@ -846,7 +846,7 @@ J (BYTE)
 
 Prekey Profiles (PREKEY-PROF)
   All 'J' Prekey Profiles created as described in the section "Creating a Prekey
-  Profile" of the OTRv4 specification. This value is optional.
+  Profile" of the OTRv4 specification.
 
 Prekey MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
@@ -886,7 +886,7 @@ A valid "Storage Status message" is generated as follows:
 
 1. Calculate the `Status MAC`:
    `KDF(usageStatusMAC, prekey_mac_k || message type ||
-    receiver's instance tag || Stored Prekey Messages Number, 64)`
+    receiver instance tag || Stored Prekey Messages Number, 64)`
 
 It must be encoded as:
 
@@ -897,7 +897,7 @@ Protocol version (SHORT)
 Message type (BYTE)
   The message has type 0x06.
 
-Receiver's instance tag (INT)
+Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 Stored prekey messages number (INT)
@@ -918,7 +918,7 @@ A valid "Success message" is generated as follows:
 
 1. Calculate the `Success MAC`:
    `KDF(usageSuccessMAC, prekey_mac_k || message type ||
-    receiver's instance tag || "Success", 64)`
+    receiver instance tag || "Success", 64)`
 
 It must be encoded as:
 
@@ -929,7 +929,7 @@ Protocol version (SHORT)
 Message type (BYTE)
   The message has type 0x07.
 
-Receiver's instance tag (INT)
+Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 Success message (DATA)
@@ -950,7 +950,7 @@ A valid "Failure message" is generated as follows:
 
 1. Calculate the `Failure MAC`:
    `KDF(usageFailureMAC, prekey_mac_k || message type ||
-    receiver's instance tag || "An error occurred", 64)`
+    receiver instance tag || "An error occurred", 64)`
 
 It must be encoded as:
 
@@ -961,7 +961,7 @@ Protocol version (SHORT)
 Message type (BYTE)
   The message has type 0x08.
 
-Receiver's instance tag (INT)
+Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 Success message (DATA)
@@ -1084,7 +1084,7 @@ By client we mean each device a user has.
    the [Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
    section of the OTRv4 specification for details. It must create a Prekey
    Profile for each local long-term public key it has, and sign the Prekey
-   Profile with the respective one.
+   Profile with the respective key.
 1. Client creates Prekey Messages, as defined in OTRv4 specification. See
    the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
    section of the OTRv4 specification for details.
@@ -1144,12 +1144,12 @@ Ensemble from the participant they want to start a conversation with:
 1. Client sends a [Prekey Ensemble Query Retrieval message](#prekey-ensemble-query-retrieval-message),
    which specifies which identity and protocol versions it wants Prekey Ensembles
    for. It also specifies from which device it's talking, by defining the
-   sender's instance tag, so the Prekey Server knows to which device to
+   sender instance tag, so the Prekey Server knows to which device to
    respond to.
 1. The Prekey Server checks if there are any Prekey Ensembles available for the
    identity and for the versions advertised on the "Prekey Ensemble Query
    Retrieval message". If there are none (or any of its values are
-   missing), it sends a "No Prekey Ensembles available" message.
+   missing), it sends a "No Prekey Ensembles in Storage" message.
 1. The Prekey Server selects Prekey Ensembles for each requested versions
    consisting of:
    * A valid Client Profile for every instance tag for the identity.
@@ -1178,13 +1178,13 @@ Ensemble from the participant they want to start a conversation with:
 
 1. The Prekey Server delivers all selected Prekey Ensembles to the Client in the
    form of a [Prekey Ensemble Retrieval](#prekey-ensemble-retrieval) message.
-   Uses the instance tag of the retriever as the "receiver's instance tag".
+   Uses the instance tag of the retriever as the "receiver instance tag".
 1. The Prekey Server removes the selected Prekey Messages from its storage. It
    doesn't delete neither the Client nor the Prekey Profiles.
-1. Client receives a "No Prekey Ensembles available" message. It displays its
+1. Client receives a "No Prekey Ensembles in Storage" message. It displays its
    human-readable part.
 1. Client receives a "Prekey Ensemble Retrieval message":
-   1. Verifies that the receiver's instance tag of it is equal to its sender's
+   1. Verifies that the receiver instance tag of it is equal to its sender
       instance tag.
 1. For each requested version, the Client receives the Prekey Ensembles and:
    1. Checks that there are `L` number of Prekey Ensembles as stated in the
@@ -1227,10 +1227,10 @@ The encoding of this message looks like this:
 Message type (BYTE)
   The message has type 0x09.
 
-Sender's instance tag (INT)
+Sender instance tag (INT)
   The instance tag of the sender.
 
-Participant's Identity (DATA)
+Participant Identity (DATA)
   The identity of the participant you are asking Prekey Ensembles for. In the
   case of XMPP, for example, this is the bare jid.
 
@@ -1250,7 +1250,7 @@ The encoding of this message looks like this:
 Message type (BYTE)
   The message has type 0x10.
 
-Receiver's instance tag (INT)
+Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 L (INT)
@@ -1266,7 +1266,7 @@ Ensembles (DATA)
       'Prekey Message'.
 ```
 
-### No Prekey Ensembles on Storage Message
+### No Prekey Ensembles in Storage Message
 
 This message is sent by the Prekey Server when it runs out of Prekey Messages,
 or when it does not have a Client or Prekey Profile.
@@ -1277,7 +1277,7 @@ The encoding looks like this:
 Message type (BYTE)
   The message has type 0x11.
 
-Receiver's instance tag (INT)
+Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 No Prekey-Messages message (DATA)
