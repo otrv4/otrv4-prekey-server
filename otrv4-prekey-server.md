@@ -321,8 +321,8 @@ SHAKE-256 hash of the byte-level representation of the public key. The long-term
 public keys for the Prekey Server have fingerprints as well. The fingerprint is
 generated as:
 
-* The first 56 bytes from the `KDF(usageFingerprint, byte(H), 56)` (224-bit
-  security level), where `H` is the Prekey Server's long-term public key.
+* `KDF(usageFingerprint, byte(H), 56)` (224-bit security level), where `H` is
+  the Prekey Server's long-term public key.
 
 ### Shared Session State
 
