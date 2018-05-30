@@ -392,7 +392,7 @@ must hand them out decrypted to the retrieving participant).
 
 ```
   ECDH(a, B)
-    B * cofactor
+    B = B * cofactor
     SK_ecdh = a * B
     if SK_ecdh == 0 (check that it is an all-zero value)
        return error
