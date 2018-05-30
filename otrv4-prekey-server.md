@@ -257,7 +257,8 @@ section of the OTRv4 specification.
 
 ### Key Derivation Functions
 
-The following key derivation function is used in this specification:
+The following key derivation function is used in this specification. The usageID
+is of type BYTE:
 
 ```
   KDF(usageID, values, size) = SHAKE-256("OTRv4-Prekey-Server" || usageID || values, size)
