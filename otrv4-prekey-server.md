@@ -122,7 +122,8 @@ them.  Moreover, since long-term keys are usually meant to last for years, a
 long time may pass between the retriever sending messages and the adversary
 compromising the publisher's long-term key. This attack is mitigated with the
 use of Prekey Profiles that contain shared prekeys signed by the long-term
-secret key, and that are reusable.
+secret key, and that are reusable, as defined by Unger et al
+[\[2\]](#references).
 
 A Prekey Server can also be used to publish the Client Profile, even if OTRv4 is
 implemented in the OTRv4-interactive-only mode. This should be done in order to
