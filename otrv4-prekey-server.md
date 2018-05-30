@@ -969,6 +969,10 @@ Receiver instance tag (INT)
 Success message (DATA)
   The human-readable details of this message. It contains the string "An error
   occurred".
+
+Failure MAC (MAC)
+  The MAC with the appropriate MAC key of everything: from the message type to
+  the Failure message.
 ```
 
 ### Network Fragmentation of the Prekey Publication Message
