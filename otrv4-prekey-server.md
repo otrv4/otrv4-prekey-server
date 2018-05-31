@@ -477,7 +477,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives the DAKE-2 message from the Prekey Server.
-1. Checks that the receiver instance tag from the message matches your
+1. Checks that the receiver instance tag from the message matches their
    instance tag. If it is not, rejects the message and does not send anything
    further.
 1. Retrieves the ephemeral public keys for the Prekey Server (encoded in the
