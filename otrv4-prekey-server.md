@@ -80,7 +80,8 @@ securely publish, store and retrieve Prekey Ensembles and its values.
 Unless otherwise noted, these conventions and definitions are used for this
 document:
 
-* "Participant" refers to any of the end-points that take part in a conversation.
+* "Participant" refers to any of the end-points that take part in a
+  conversation.
 * "Prekey Server" refers to the untrusted server used to store Prekey
   Ensembles.
 * "Publisher" refers to the participant publishing Prekey Ensembles to
@@ -89,6 +90,8 @@ document:
   the Prekey Server that correspond to the publishing participant.
 * "Sender" refers to the participant sending a message.
 * "Receiver" refers to the participant receiving a message.
+* "Network" refers to the system which computing devices use to exchange data
+  with each other using connections between nodes.
 
 ## Assumptions
 
