@@ -1110,7 +1110,7 @@ By client we mean each device a user has.
 1. Client creates Prekey Messages, as defined in OTRv4 specification. See
    the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
    section of the OTRv4 specification for details.
-1. Client receives a Prekey Server Identity (e.g. prekey.autonomia.digital) and
+1. Client receives a Prekey Server Identity (e.g. prekey.example.org) and
    the Prekey Server long-term public key from a source. In XMPP, for example,
    this source is the Prekey Server' service discovery functionality.
 1. Client authenticates (in a deniable way) with the Prekey Server through the
@@ -1411,7 +1411,7 @@ of a message:
       from='alice@xmpp.org/notebook'
       id='nzd143v8'
       to='prekey.xmpp.org'>
-    <body>?OTRPEB...</body>
+    <body>EB...</body>
   </message>
 ```
 
@@ -1422,7 +1422,7 @@ The service responds with another message:
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <body>?OTRPEC...</body>
+    <body>EC...</body>
   </message>
 ```
 
@@ -1434,7 +1434,7 @@ last DAKE message:
       from='alice@xmpp.org/notebook'
       id='kud87ghduy'
       to='prekey.xmpp.org'>
-    <body>?OTRPED...</body>
+    <body>ED...</body>
   </message>
 ```
 
@@ -1445,7 +1445,7 @@ And the Prekey Server responds with a "Success" message:
       from='prekey.xmpp.org'
       id='0kdytsmslkd'
       to='alice@xmpp.org/notebook'>
-    <body>?OTRPEF...</body> // TODO: check the type
+    <body>EF...</body> // TODO: check the type
   </message>
 ```
 
@@ -1464,7 +1464,7 @@ And the entity terminates the DAKE and asks for storage information:
       from='alice@xmpp.org/notebook'
       id='kud87ghduy'
       to='prekey.xmpp.org'>
-    <body>?OTRPED...</body>
+    <body>ED...</body>
   </message>
 ```
 
@@ -1475,7 +1475,7 @@ And the Prekey Server responds with a "Storage Status" message:
       from='prekey.xmpp.org'
       id='0kdytsmslkd'
       to='alice@xmpp.org/notebook'>
-    <body>?OTRPEE...</body>
+    <body>EE...</body>
   </message>
 ```
 
@@ -1491,7 +1491,7 @@ for example, `bob@xmpp.net`, and specific versions, for example, "45".
       id='nzd143v8'
       to='prekey.xmpp.org'>
     <subject>bob@xmpp.net</subject>
-    <body>?OTRPL...</body>
+    <body>L...</body>
   </message>
 ```
 
@@ -1504,7 +1504,7 @@ Prekey Ensembles's values on storage:
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
     <subject>bob@xmpp.net</subject>
-    <body>?OTRPL...</body>
+    <body>L...</body>
   </message>
 ```
 
@@ -1517,7 +1517,7 @@ are no Prekey Ensembles's values on storage:
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
     <subject>bob@xmpp.net/45</subject>
-    <body>?OTRPK...</body>
+    <body>K...</body>
   </message>
 ```
 
