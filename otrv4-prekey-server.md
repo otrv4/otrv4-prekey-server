@@ -157,6 +157,15 @@ communication between two parties to fail. This can happen in several ways:
 - The Prekey Server hands out Prekey Messages that have been already used.
 - The Prekey Server reports incorrect number of stored Prekey Messages.
 
+Additionally, a malicious party can cause DoS attacks to the Prekey Server by:
+
+- Asking for Prekey Ensembles or its contents until the Prekey Server runs out
+  of them.
+- Send too many requests for Prekey Ensembles or its contents at the same time
+  causing the Preker Server to be overwhelmed.
+- Create a extremely big Client Profile and submit it, causing the Prekey
+  Server to run out of storage or to crash.
+
 The security of the non-Interactive DAKE (XZDH) in the OTRv4 specification does
 not require trusting the Prekey Server. However, if we allow a scenario in which
 the user’s keys have been compromised but the Prekey Server has not, then we can
