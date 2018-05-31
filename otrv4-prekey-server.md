@@ -313,6 +313,9 @@ The OTRv4 Prekey Server Specification also uses the Prekey Server Composite
 Identity data type, which is detailed in the
 [Prekey Server Composite Identity](#prekey-server-composite-identity) section.
 
+Note that varible length fields are encoded as DATA. Every string will be
+encoded in UTF-8.
+
 ### Encoded Messages
 
 OTRv4 Prekey Server messages must be base-64 encoded. To transmit one of these
