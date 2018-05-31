@@ -464,13 +464,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       [DAKE-1 message](#dake-1-message) section. If the verification fails
       (for example, if Alice's public key -`I`- is not valid), rejects
       the message and does not send anything further.
+1. Stores the `sender instance tag` as the `receiver instance tag`.
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
 1. Calculates the Shared secret (`SK`):
    * `SK = KDF(usageSK, ECDH(s, I))`.
    * Securely erases `s`.
-1. Sends Alice the DAKE-2 message (see [DAKE-2 Message](#dake-2-message)
-   section).
+1. Sends Alice the DAKE-2 message.
 
 **Alice**
 
@@ -498,7 +498,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       Messages, she creates a "Prekey Publication message", as defined in
       [Prekey Publication Message](#prekey-publication-message) section.
    1. If she wants to ask for storage information, she creates a "Storage
-      Information Request message", as defined in
+      Information Request message", as defined in the
       [Storage Information Request Message](#storage-information-request-message)
       section.
 1. Attaches the corresponding `msg` to the DAKE-3 message, and sends it.
@@ -506,18 +506,18 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Prekey Server**
 
 1. Receives the DAKE-3 message from Alice:
+   * Checks that the sender instance tag from the message matches the already
+     stored `receiver instance tag`. If it is not, the Prekey
+     Server rejects the message and does not send anything further.
    * Verifies the DAKE-3 message as defined in the
      [DAKE-3 message](#dake-3-message) section. If something fails, the Prekey
      Server rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
    1. Verifies that the message type is either `0x04` or `0x05`. Abort if it is
       not.
-   1. Verifies that the protocol version of the message is `0x0004`. Abort if it is
-      not.
+   1. Verifies that the protocol version of the message is `0x0004`. Abort if it
+      is not.
    1. If this is a "Prekey Publication message":
-      * Uses the sender instance tag from the DAKE-3 message as the receiver
-        instance tag and checks that is equal to the previously seen. If it is
-        not, rejects the message and does not send anything further.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC` (notice that most of these values are from the
         received "Prekey Publication message"):
@@ -554,9 +554,6 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Sends a "Success message", as defined in the
         [Success Message](#success-message) section.
    1. If this is a "Storage Information Request message":
-      * Uses the sender instance tag from the DAKE-3 message as the receiver
-        instance tag and checks that is equal to the previously seen. If it is
-        not, rejects the message and does not send anything further.
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC`:
         `KDF(usageStorageInfoMAC, prekey_mac_k || message type, 64)`
@@ -572,8 +569,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Receives a message from the Prekey Server:
    1. Verifies that the message type is either `0x06`, `0x07` or `0x08`. Abort
       if it is not.
-   1. Verifies that the protocol version of the message is `0x0004`. Abort if it is
-      not.
+   1. Verifies that the protocol version of the message is `0x0004`. Abort if it
+      is not.
    1. If this is a "Storage Status message":
       * Computes the `Status_MAC: KDF(usageStatusMAC, prekey_mac_k ||
         message type || receiver instance tag ||
