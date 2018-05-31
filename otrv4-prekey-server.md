@@ -286,12 +286,12 @@ The following `usageID` variables are defined:
 ```
   * usageFingerprint = 0x00
   * usageSK = 0x01
-  * usageClientProfile-2 = 0x02
-  * usagePrekeyCompositeIdentity-2 = 0x03
-  * usagePrekeyCompositePHI-2 = 0x04
-  * usageClientProfile-3 = 0x05
-  * usagePrekeyCompositeIdentity-3 = 0x06
-  * usagePrekeyCompositePHI-3 = 0x07
+  * usageInitiatorClientProfile = 0x02
+  * usageInitiatorPrekeyCompositeIdentity = 0x03
+  * usageInitiatorPrekeyCompositePHI = 0x04
+  * usageReceiverClientProfile = 0x05
+  * usageReceiverPrekeyCompositeIdentity = 0x06
+  * usageReceiverPrekeyCompositePHI = 0x07
   * usagePreMACKey = 0x08
   * usagePreMAC = 0x09
   * usageStorageInfoMAC = 0x10
@@ -665,9 +665,10 @@ A valid DAKE-2 message is generated as follows:
    * secret key `s` (57 bytes).
    * public key `S`.
 1. Compute
-   `t = 0x00 || KDF(usageClientProfile-2, Alices_Client_Profile, 64) ||
-    KDF(usagePrekeyCompositeIdentity-2, Prekey_Server_Composite_Indentity, 64) ||
-    I || S || KDF(usagePrekeyCompositePHI-2, phi, 64)`.
+   `t = 0x00 || KDF(usageInitiatorClientProfile, Alices_Client_Profile, 64) ||
+    KDF(usageInitiatorPrekeyCompositeIdentity,
+    Prekey_Server_Composite_Indentity, 64) || I || S ||
+    KDF(usageInitiatorPrekeyCompositePHI, phi, 64)`.
    `phi` is the shared session state as mentioned in the
    [Shared Session State](#shared-session-state) section.
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -689,9 +690,11 @@ To verify a DAKE-2 message:
      (`H_s`).
    * Calculating the Prekey Server Composite Identity and comparing it with the
      one received.
-1. Compute `t = 0x00 || KDF(usageClientProfile-2, Alices_Client_Profile, 64) ||
-   KDF(usagePrekeyCompositeIdentity-2, Prekey_Server_Composite_Identity, 64) ||
-   I || S || KDF(usagePrekeyCompositePHI-2, phi, 64)`.
+1. Compute
+   `t = 0x00 || KDF(usageInitiatorClientProfile, Alices_Client_Profile, 64) ||
+   KDF(usageInitiatorPrekeyCompositeIdentity,
+   Prekey_Server_Composite_Identity, 64) || I || S ||
+   KDF(usageInitiatorPrekeyCompositePHI, phi, 64)`.
    `phi` is the shared session state from the
    [Shared Session State](#shared-session-state) section.
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -732,9 +735,10 @@ of `sigma`.
 A valid DAKE-3 message is generated as follows:
 
 1. Compute
-   `t = 0x01 || KDF(usageClientProfile-3, Alices_Client_Profile, 64) ||
-    KDF(usagePrekeyCompositeIdentity-3, Prekey_Server_Composite_Identity, 64) ||
-    I || S || KDF(usagePrekeyCompositePHI-3, phi, 64)`.
+   `t = 0x01 || KDF(usageReceiverClientProfile, Alices_Client_Profile, 64) ||
+    KDF(usageReceiverPrekeyCompositeIdentity,
+    Prekey_Server_Composite_Identity, 64) || I || S ||
+    KDF(usageReceiverPrekeyCompositePHI, phi, 64)`.
    `phi` is the shared session state from
    [Shared Session State](#shared-session-state).
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -754,9 +758,10 @@ To verify a DAKE-3 message:
 1. Check that the receiver instance tag of the message matches your sender
    instance tag.
 1. Compute
-   `t = 0x01 || KDF(usageClientProfile-3, Alices_Client_Profile, 64) ||
-    KDF(usagePrekeyCompositeIdentity-3, Prekey_Server_Composite_Identity, 64) ||
-    I || S || KDF(usagePrekeyCompositePHI-3, phi, 64)`.
+   `t = 0x01 || KDF(usageReceiverClientProfile, Alices_Client_Profile, 64) ||
+    KDF(usageReceiverPrekeyCompositeIdentity,
+    Prekey_Server_Composite_Identity, 64) || I || S ||
+    KDF(usageReceiverPrekeyCompositePHI, phi, 64)`.
    `phi` is the shared session state from
    [Shared Session State](#shared-session-state).
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
