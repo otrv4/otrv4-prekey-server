@@ -521,10 +521,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC` (notice that most of these values are from the
         received "Prekey Publication message"):
-        * If Client Profiles and Prekey Profiles are present in the message:
+        * If a Client Profile and Prekey Profiles are present in the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
            KDF(usagePrekeyMessage, Prekey Messages, 64) ||
-           KDF(usageClientProfile, Client Profiles, 64) || J ||
+           KDF(usageClientProfile, Client Profile, 64) || J ||
            KDF(usagePrekeyProfile, Prekey Profiles, 64))`.
         * If only Prekey Messages are present in the message:
           * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
@@ -532,7 +532,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
-          the DAKE and sends a "Failure message", as defined in
+          the DAKE and sends a "Failure message", as defined in the
           [Failure Message](#failure-message) section.
       * Check the counters for the values on the message:
         * If Prekey profiles are present in the message:
@@ -576,21 +576,21 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         message type || receiver instance tag ||
         stored prekey messages number, 64)`. Checks
         that it is equal to the one received in the "Storage Status message".
-        * If it is not, Alice ignores the message.
+        * If it is not, ignores the message.
         * If it is, the number of stored prekey messages is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Success message":
       * Computes the `Success_MAC: KDF(usageSuccessMAC, prekey_mac_k ||
         message type || receiver instance tag || "Success", 64)`. Checks that
         it is equal to the one received in the "Sucess message".
-        * If it is not, Alice ignores the message.
+        * If it is not, ignores the message.
         * If it is, the human readable part of the message is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
       * Computes the `Failure_MAC: KDF(usageFailureMAC, prekey_mac_k ||
         message type || receiver instance tag || "An error occurred", 64)`.
         Checks that it is equal to the one received in the "Failure message".
-        * If it is not, Alice ignores the message.
+        * If it is not, ignores the message.
         * If it is, the human readable part of the message is displayed.
       * Securely deletes `prekey_mac_k`.
 
@@ -816,7 +816,7 @@ these messages left on the Prekey Server. This can be checked by sending a
 "Storage Status message" to the Prekey Server. If the result of the "Storage
 Status message" indicates that the number of stored Prekey Messages is getting
 low, the client should upload more Prekey Messages - otherwise it will be
-impossible for other clients to start the non-interactive DAKE's with the
+impossible for other clients to start the non-interactive DAKE with the
 client. The maximum number of Prekey Messages that can be published in one
 message is 255.
 
@@ -996,7 +996,7 @@ Failure MAC (MAC)
 
 As "Prekey Publication" messages can be very long to transmit, network
 fragmentation can be used. This means that a publisher can send a "Prekey
-Publication" message and the network can fragment it in this way:
+Publication" message and the client can fragment it in this way:
 
 * The concatenated prekey messages can be fragmented up to however the client
   sees fit (fragmented only by prekey messages), and send each fragment in
@@ -1013,8 +1013,7 @@ Publication" message and the network can fragment it in this way:
    Message type || 2 || Prekey Messages || 1 || Client Profiles || 1 ||
    Prekey Profiles || Prekey MAC
 
-   Message type || 3 || Prekey Messages || 1 || Client Profiles || 1 ||
-   Prekey Profiles || Prekey MAC
+   Message type || 3 || Prekey Messages || Prekey MAC
 ```
 
 ## State machine
