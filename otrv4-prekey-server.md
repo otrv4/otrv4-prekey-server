@@ -275,7 +275,7 @@ The following key derivation function is used in this specification. The usageID
 is of type BYTE:
 
 ```
-  KDF(usageID, values, size) = SHAKE-256("OTRv4-Prekey-Server" || usageID || values, size)
+  KDF(usageID, values, size) = SHAKE-256("OTR-Prekey-Server" || usageID || values, size)
 ```
 
 The `size` first bytes of the SHAKE-256 output for the input
