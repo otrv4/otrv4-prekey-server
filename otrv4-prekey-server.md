@@ -39,7 +39,6 @@ to store Prekey Ensembles.
    1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
    1. [Success Message](#success-message)
    1. [Failure Message](#failure-message)
-   1. [Network Fragmentation of the Prekey Publication Message](#network-fragmentation-of-the-prekey-publication-message)
 1. [State machine](#state-machine)
 1. [Publishing Prekey Values](#publishing-prekey-values)
 1. [Retrieving Prekey Ensembles](#retrieving-prekey-ensembles)
@@ -47,6 +46,9 @@ to store Prekey Ensembles.
    1. [Prekey Ensemble Retrieval Message](#prekey-ensemble-retrieval-message)
    1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
 1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
+1. [Fragmentation of Some Messages](#fragmentation-of-some-messages)
+   1. [Fragmentation of the Prekey Publication Message](#fragmentation-of-the-prekey-publication-message)
+   1. [Fragmentation of the Prekey Ensemble Retrieval Message](#fragmentation-of-the-prekey-ensemble-retrieval-message)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
    1. [Discovering a Prekey Service](#discovering-a-prekey-service)
    1. [Discovering the Features supported by a Prekey Service](#discovering-the-features-supported-by-a-prekey-service)
@@ -992,30 +994,6 @@ Failure MAC (MAC)
   the Failure message.
 ```
 
-### Network Fragmentation of the Prekey Publication Message
-
-As "Prekey Publication" messages can be very long to transmit, network
-fragmentation can be used. This means that a publisher can send a "Prekey
-Publication" message and the client can fragment it in this way:
-
-* The concatenated prekey messages can be fragmented up to however the client
-  sees fit (fragmented only by prekey messages), and send each fragment in
-  each own network message. For example:
-
-```
-   A prekey message will look like this:
-
-   Message type || 5 || Prekey Messages || 1 || Client Profiles || 1 ||
-   Prekey Profiles || Prekey MAC
-
-   It can be fragmented as:
-
-   Message type || 2 || Prekey Messages || 1 || Client Profiles || 1 ||
-   Prekey Profiles || Prekey MAC
-
-   Message type || 3 || Prekey Messages || Prekey MAC
-```
-
 ## State machine
 
 This is the state machine for when a client wants to publish Client Profiles,
@@ -1330,6 +1308,54 @@ Storage Information Request message  ------------->
 2. The Prekey Server responds with a "Storage Status message" containing the
    number of Prekey Messages stored for the long-term public key, identity and
    instance tag used during the DAKEZ.
+
+## Fragmentation of Some Messages
+
+### Fragmentation of the Prekey Publication Message
+
+As "Prekey Publication" messages can be very long to transmit, network
+fragmentation can be used. This means that a publisher can send a "Prekey
+Publication" message and the client can fragment it in this way:
+
+* The concatenated prekey messages can be fragmented up to however the client
+  sees fit (fragmented only by prekey messages), and send each fragment in
+  each own network message. For example:
+
+```
+   A prekey message will look like this:
+
+   Message type || 5 || Prekey Messages || 1 || Client Profiles || 1 ||
+   Prekey Profiles || Prekey MAC
+
+   It can be fragmented as:
+
+   Message type || 2 || Prekey Messages || 1 || Client Profiles || 1 ||
+   Prekey Profiles || Prekey MAC
+
+   Message type || 3 || Prekey Messages || Prekey MAC
+```
+
+### Fragmentation of the Prekey Ensemble Retrieval Message
+
+As "Prekey Ensemble Retrieval" messages can be very long to transmit, network
+fragmentation can be used. This means that the Prekey Server can send a "Prekey
+Ensemble Retrieval" message and the client can fragment it in this way:
+
+* The concatenated prekey ensembles can be fragmented up to however the client
+  sees fit (fragmented only by prekey ensembles), and send each fragment in
+  each own network message. For example:
+
+```
+   A prekey message will look like this:
+
+   Message type || 0x01 || 5 || Ensembles
+
+   It can be fragmented as:
+
+   Message type || 0x01 || 2 || Ensembles
+
+   Message type || 0x01 || 3 || Ensembles
+```
 
 ## A Prekey Server for OTRv4 over XMPP
 
