@@ -1445,7 +1445,7 @@ And the Prekey Server responds with a "Success" message:
       from='prekey.xmpp.org'
       id='0kdytsmslkd'
       to='alice@xmpp.org/notebook'>
-    <body>EF...</body> // TODO: check the type
+    <body>EF...</body>
   </message>
 ```
 
@@ -1523,42 +1523,44 @@ are no Prekey Ensembles's values on storage:
 
 ## Detailed example of the Prekey Server over XMPP
 
-`bob@xmpp.org` wants to know how many Prekeys Messages remain unused on the
-Prekey Server:
+`bob@xmpp.org/notebook` wants to know how many Prekeys Messages remain unused on
+the Prekey Server:
 
-1. `bob@xmpp.org` logs in to his server (`talk.xmpp.org`).
-1. `bob@xmpp.org` uses service discovery to find a Prekey Server on his server
-   (`prekey.xmpp.org`).
+1. `bob@xmpp.org/notebook` logs in to his server (`talk.xmpp.org`).
+1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server on his
+   server (`prekey.xmpp.org`).
    1. The service discovery informs the Prekey Server's long-term public key.
-1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
+1. `bob@xmpp.org/notebook` discovers the capabilities of `prekey.xmpp.org`.
    1. `prekey.xmpp.org` is capable of all features of the Prekey Server
        specification.
-1. `bob@xmpp.org` asks `prekey.xmpp.org` about the number of prekeys messages
-   it has stored for him:
-   1. `bob@xmpp.org` deniable authenticates by using DAKEZ with
+1. `bob@xmpp.org/notebook` asks `prekey.xmpp.org` about the number of prekeys
+   messages it has stored for him:
+   1. `bob@xmpp.org/notebook` deniable authenticates by using DAKEZ with
       `prekey.xmpp.org`.
-   1. `bob@xmpp.org` sends a "Storage Status Message" attached to the last
-       DAKEZ message to `prekey.xmpp.org`.
-   1. `bob@xmpp.org` receives a "Storage Status Message" message depending from
-      `prekey.xmpp.org`.
+   1. `bob@xmpp.org/notebook` sends a "Storage Status Message" attached to the
+       last DAKEZ message to `prekey.xmpp.org`.
+   1. `bob@xmpp.org/notebook` receives a "Storage Status Message" message
+      from `prekey.xmpp.org`.
 
-`bob@xmpp.org` wants to publish/store prekey messages in the Prekey Server:
+`bob@xmpp.org/notebook` wants to publish/store prekey messages in the Prekey
+Server:
 
-1. `bob@xmpp.org` logs to his server (`talk.xmpp.org`).
-1. `bob@xmpp.org` uses service discovery to find a Prekey Server on his server
-   (`prekey.xmpp.org`).
+1. `bob@xmpp.org/notebook` logs to his server (`talk.xmpp.org`).
+1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server on his
+   server (`prekey.xmpp.org`).
    1. The service discovery also informs the Prekey Server's long-term public
       key.
-1. `bob@xmpp.org` discovers the capabilities of `prekey.xmpp.org`.
+1. `bob@xmpp.org/notebook` discovers the capabilities of `prekey.xmpp.org`.
    1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
-1. `bob@xmpp.org` wants to publish `prekey.xmpp.org` a client profile, a prekey
-   profile and 5 prekey messages:
-   1. `bob@xmpp.org` deniable authenticates by using DAKEZ with
+1. `bob@xmpp.org/notebook` wants to publish `prekey.xmpp.org` a client profile,
+   a prekey profile and 5 prekey messages:
+   1. `bob@xmpp.org/notebook` deniable authenticates by using DAKEZ with
       `prekey.xmpp.org`.
-   1. `bob@xmpp.org` sends a "Prekey Publication Message" attached to the last
-       DAKEZ message to `prekey.xmpp.org`.
-   1. `bob@xmpp.org` receives a "Success" or "Failure" message depending if the
-       above operation was successful or not from `prekey.xmpp.org`.
+   1. `bob@xmpp.org/notebook` sends a "Prekey Publication Message" attached to
+      the last DAKEZ message to `prekey.xmpp.org` (with the values of the Prekey
+      Ensemble).
+   1. `bob@xmpp.org/notebook` receives a "Success" or "Failure" message from
+      `prekey.xmpp.org` if the above operation was successful or not.
 
 ## References
 
