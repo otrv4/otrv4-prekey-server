@@ -1100,7 +1100,7 @@ By client we mean each device a user has.
 
 1. Client creates the Client Profile, as defined in the OTRv4 specification. See
    the [Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
-   section of the OTRv4 specification for details. It include every Ed448
+   section of the OTRv4 specification for details. It includes every Ed448
    long-term public key it locally has.
 1. Client creates Prekey Profiles, as defined in OTRv4 specification. See
    the [Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
@@ -1203,9 +1203,9 @@ Ensemble from the participant they want to start a conversation with:
    Uses the instance tag of the retriever as the "receiver instance tag".
 1. The Prekey Server removes the selected Prekey Messages from its storage. It
    doesn't delete neither the Client nor the Prekey Profiles.
-1. Client receives a "No Prekey Ensembles in Storage" message. It displays its
-   human-readable part.
-1. Client receives a "Prekey Ensemble Retrieval message":
+1. If there were no Prekey Ensembles on storage, the Client receives a "No
+   Prekey Ensembles in Storage" message. It displays its human-readable part.
+1. If there were, the Client receives a "Prekey Ensemble Retrieval message":
    1. Verifies that the receiver instance tag of it is equal to its sender
       instance tag.
 1. For each requested version, the Client receives the Prekey Ensembles and:
