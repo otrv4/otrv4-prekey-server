@@ -319,8 +319,8 @@ encoded in UTF-8.
 ### Encoded Messages
 
 OTRv4 Prekey Server messages must be base-64 encoded. To transmit one of these
-messages, construct an ASCII string: the six bytes "?OTRP:", the base-64
-encoding of the binary form of the message and the byte ".".
+messages, construct an ASCII string: the base-64 encoding of the binary form of
+the message and the byte ".".
 
 ### Public keys and Fingerprints
 
