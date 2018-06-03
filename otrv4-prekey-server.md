@@ -509,8 +509,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 
 1. Receives the DAKE-3 message from Alice:
    * Checks that the sender instance tag from the message matches the already
-     stored `receiver instance tag`. If it is not, the Prekey
-     Server rejects the message and does not send anything further.
+     stored `receiver instance tag`. If it is not, rejects the message and does
+     not send anything further.
    * Verifies the DAKE-3 message as defined in the
      [DAKE-3 message](#dake-3-message) section. If something fails, the Prekey
      Server rejects the message and does not send anything further.
@@ -757,7 +757,7 @@ To verify a DAKE-3 message:
 1. Verify that the message type is `0x03`.
 1. Verify that the protocol version of the message is `0x0004`. Abort if it is
    not.
-1. Check that the receiver instance tag of the message matches your sender
+1. Check that the receiver instance tag of the message matches their sender
    instance tag.
 1. Compute
    `t = 0x01 || KDF(usageReceiverClientProfile, Alices_Client_Profile, 64) ||
@@ -1147,7 +1147,7 @@ Ensemble from the participant they want to start a conversation with:
    sender instance tag, so the Prekey Server knows to which device to
    respond to.
 1. The Prekey Server checks if there are any Prekey Ensembles available for the
-   identity and for the versions advertised on the "Prekey Ensemble Query
+   identity and for the versions advertised in the "Prekey Ensemble Query
    Retrieval message". If there are none (or any of its values are
    missing), it sends a "No Prekey Ensembles in Storage" message.
 1. The Prekey Server selects Prekey Ensembles for each requested versions
@@ -1549,11 +1549,11 @@ are no Prekey Ensembles's values in storage:
 
 ## Detailed example of the Prekey Server over XMPP
 
-`bob@xmpp.org/notebook` wants to know how many Prekeys Messages remain unused on
+`bob@xmpp.org/notebook` wants to know how many Prekeys Messages remain unused in
 the Prekey Server:
 
 1. `bob@xmpp.org/notebook` logs in to his server (`talk.xmpp.org`).
-1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server on his
+1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
    server (`prekey.xmpp.org`).
    1. The service discovery informs the Prekey Server's long-term public key.
 1. `bob@xmpp.org/notebook` discovers the capabilities of `prekey.xmpp.org`.
@@ -1572,7 +1572,7 @@ the Prekey Server:
 Server:
 
 1. `bob@xmpp.org/notebook` logs to his server (`talk.xmpp.org`).
-1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server on his
+1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
    server (`prekey.xmpp.org`).
    1. The service discovery also informs the Prekey Server's long-term public
       key.
