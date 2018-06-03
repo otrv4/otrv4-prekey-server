@@ -1181,7 +1181,7 @@ Ensemble from the participant they want to start a conversation with:
    Uses the instance tag of the retriever as the "receiver instance tag".
 1. The Prekey Server removes the selected Prekey Messages from its storage. It
    doesn't delete neither the Client nor the Prekey Profiles.
-1. If there were no Prekey Ensembles on storage, the Client receives a "No
+1. If there were no Prekey Ensembles in storage, the Client receives a "No
    Prekey Ensembles in Storage" message. It displays its human-readable part.
 1. If there were, the Client receives a "Prekey Ensemble Retrieval message":
    1. Verifies that the receiver instance tag of it is equal to its sender
@@ -1522,7 +1522,7 @@ for example, `bob@xmpp.net`, and specific versions, for example, "45".
 ```
 
 The service responds with a "Prekey Ensemble Retrieval message" if there are
-Prekey Ensembles's values on storage:
+Prekey Ensembles's values in storage:
 
 ```
   <message
@@ -1534,8 +1534,8 @@ Prekey Ensembles's values on storage:
   </message>
 ```
 
-The service responds with a "No Prekey-Ensembles on Storage Message" if there
-are no Prekey Ensembles's values on storage:
+The service responds with a "No Prekey-Ensembles in Storage Message" if there
+are no Prekey Ensembles's values in storage:
 
 ```
   <message
