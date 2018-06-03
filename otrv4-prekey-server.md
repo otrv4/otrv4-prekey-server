@@ -27,7 +27,7 @@ to store Prekey Ensembles.
    1. [Shared Session State](#shared-session-state)
    1. [Prekey Server Composite Identity](#prekey-server-composite-identity)
 1. [Key Management](#key-management)
-   1. [Shared secrets](#shared-secrets)
+   1. [Shared Secrets](#shared-secrets)
    1. [Generating Shared Secrets](#generating-shared-secrets)
 1. [Key Exchange](#key-exchange)
    1. [DAKE-1 Message](#dake-1-message)
@@ -45,8 +45,8 @@ to store Prekey Ensembles.
    1. [Prekey Ensemble Query Retrieval Message](#prekey-ensemble-query-retrieval-message)
    1. [Prekey Ensemble Retrieval Message](#prekey-ensemble-retrieval-message)
    1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
-1. [Query the Prekey Server for its storage status](#query-the-prekey-server-for-its-storage-status)
-1. [Fragmentation of Some Messages](#fragmentation-of-some-messages)
+1. [Query the Prekey Server for its Storage Status](#query-the-prekey-server-for-its-storage-status)
+1. [Fragmentation of some Messages](#fragmentation-of-some-messages)
    1. [Fragmentation of the Prekey Publication Message](#fragmentation-of-the-prekey-publication-message)
    1. [Fragmentation of the Prekey Ensemble Retrieval Message](#fragmentation-of-the-prekey-ensemble-retrieval-message)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
@@ -55,7 +55,7 @@ to store Prekey Ensembles.
    1. [Publishing Prekey Values to the Service](#publishing-prekey-values-to-the-service)
    1. [Obtaining Information about Prekey Values from the Service](#obtaining-information-about-prekey-values-from-the-service)
    1. [Retrieving published Prekeys from a Prekey Service](#retrieving-published-prekeys-from-a-prekey-service)
-1. [Detailed example of the Prekey Server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
+1. [Detailed Example of the Prekey Server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
 1. [References](#references)
 
 ## High Level Overview
@@ -393,7 +393,7 @@ Double Ratchet Algorithm, for example, to either encrypt the channel or by the
 Prekey Server to encrypt the stored prekey messages (note that the Prekey Server
 must hand them out decrypted to the retrieving participant).
 
-### Shared secrets
+### Shared Secrets
 
 ```
   SK_ecdh:
@@ -994,7 +994,7 @@ Failure MAC (MAC)
   the Failure message.
 ```
 
-## State machine
+## State Machine
 
 This is the state machine for when a client wants to publish Client Profiles,
 Prekey Profiles or Prekey Messages to the Prekey Server, or when it queries for
@@ -1309,7 +1309,7 @@ Storage Information Request message  ------------->
    number of Prekey Messages stored for the long-term public key, identity and
    instance tag used during the DAKEZ.
 
-## Fragmentation of Some Messages
+## Fragmentation of some Messages
 
 ### Fragmentation of the Prekey Publication Message
 
@@ -1392,7 +1392,7 @@ The server then returns the services that are associated with it:
   </iq>
 ```
 
-### Discovering the features supported by a prekey service
+### Discovering the Features supported by a Prekey Service
 
 An entity may wish to discover if a service implements the OTRv4 Prekey Server
 protocol. In order to do so, it sends a service discovery information
@@ -1547,7 +1547,7 @@ are no Prekey Ensembles's values in storage:
   </message>
 ```
 
-## Detailed example of the Prekey Server over XMPP
+## Detailed Example of the Prekey Server over XMPP
 
 `bob@xmpp.org/notebook` wants to know how many Prekeys Messages remain unused in
 the Prekey Server:
