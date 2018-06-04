@@ -7,8 +7,8 @@ This protocol specification is a draft.
 ```
 
 OTRv4 Prekey Server is an additional specification to the OTRv4
-[\[1\]](#references) protocol for when it needs an untrusted central Prekey Server
-to store Prekey Ensembles.
+[\[1\]](#references) protocol for when it needs an untrusted central Prekey
+Server to store Prekey Ensembles.
 
 ## Table of Contents
 
@@ -520,7 +520,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    1. Verifies that the protocol version of the message is `0x0004`. Abort if it
       is not.
    1. If this is a "Prekey Publication message":
-      * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
+      * Calculates the Prekey MAC key:
+        `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC` (notice that most of these values are from the
         received "Prekey Publication message"):
         * If a Client Profile and Prekey Profiles are present in the message:
@@ -556,7 +557,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Sends a "Success message", as defined in the
         [Success Message](#success-message) section.
    1. If this is a "Storage Information Request message":
-      * Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
+      * Calculates the Prekey MAC key:
+        `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
       * Computes the `Prekey MAC`:
         `KDF(usageStorageInfoMAC, prekey_mac_k || message type, 64)`
       * Checks that this `Prekey MAC` is equal to the one received in the
@@ -1507,7 +1509,7 @@ And the Prekey Server responds with a "Storage Status" message:
 
 ### Retrieving published Prekeys Values from a Prekey Service
 
-An entity asks the service for prekey ensembles from a particular partipant by
+An entity asks the service for prekey ensembles from a particular participant by
 sending a "Prekey Ensemble Query Retrieval message" for an specific identity,
 for example, `bob@xmpp.net`, and specific versions, for example, "45".
 
@@ -1522,7 +1524,7 @@ for example, `bob@xmpp.net`, and specific versions, for example, "45".
 ```
 
 The service responds with a "Prekey Ensemble Retrieval message" if there are
-Prekey Ensembles's values in storage:
+no values in storage:
 
 ```
   <message
@@ -1535,7 +1537,7 @@ Prekey Ensembles's values in storage:
 ```
 
 The service responds with a "No Prekey-Ensembles in Storage Message" if there
-are no Prekey Ensembles's values in storage:
+are no values in storage:
 
 ```
   <message
@@ -1549,8 +1551,7 @@ are no Prekey Ensembles's values in storage:
 
 ## Detailed Example of the Prekey Server over XMPP
 
-`bob@xmpp.org/notebook` wants to know how many Prekeys Messages remain unused in
-the Prekey Server:
+`bob@xmpp.org/notebook` wants to know how many Prekeys Messages remain unused:
 
 1. `bob@xmpp.org/notebook` logs in to his server (`talk.xmpp.org`).
 1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
@@ -1568,8 +1569,7 @@ the Prekey Server:
    1. `bob@xmpp.org/notebook` receives a "Storage Status Message" message
       from `prekey.xmpp.org`.
 
-`bob@xmpp.org/notebook` wants to publish/store prekey messages in the Prekey
-Server:
+`bob@xmpp.org/notebook` wants to publish prekey messages to the Prekey Server:
 
 1. `bob@xmpp.org/notebook` logs to his server (`talk.xmpp.org`).
 1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
