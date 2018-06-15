@@ -526,7 +526,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         received "Prekey Publication message"):
         * If a Client Profile and Prekey Profiles are present in the message:
           `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-           KDF(usagePrekeyMessage, Prekey Messages, 64) ||
+           KDF(usagePrekeyMessage, Prekey Messages, 64) || K ||
            KDF(usageClientProfile, Client Profile, 64) || J ||
            KDF(usagePrekeyProfile, Prekey Profiles, 64))`.
         * If only Prekey Messages are present in the message:
@@ -538,6 +538,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           the DAKE and sends a "Failure message", as defined in the
           [Failure Message](#failure-message) section.
       * Check the counters for the values on the message:
+        * If a Client Profile is present in the message:
+          * Checks that `K` is set to 1. If it is not, aborts the DAKE and sends
+            a "Failure message", as defined in the [Failure Message](#failure-message)
+            section.
         * If Prekey profiles are present in the message:
           * Checks that `J` corresponds to the number of concatenated Prekey
             Profiles. If it is not, aborts the DAKE and sends a
@@ -588,14 +592,12 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         message type || receiver instance tag || "Success", 64)`. Checks that
         it is equal to the one received in the "Sucess message".
         * If it is not, ignores the message.
-        * If it is, the human readable part of the message is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
       * Computes the `Failure_MAC: KDF(usageFailureMAC, prekey_mac_k ||
         message type || receiver instance tag || "An error occurred", 64)`.
         Checks that it is equal to the one received in the "Failure message".
         * If it is not, ignores the message.
-        * If it is, the human readable part of the message is displayed.
       * Securely deletes `prekey_mac_k`.
 
 ### DAKE-1 Message
@@ -830,13 +832,14 @@ A valid Prekey Publication Message is generated as follows:
 
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
-1. Concatenate the Client Profile, if it needs to be published.
+1. Concatenate the Client Profile, if it needs to be published. Assign `K`
+   to `01`. If there is no Client Profile, assign '00' to `K`.
 1. Concatenate all Prekey Profiles, if they need to be published. Assign
    `J` as the number of Prekey Profiles. If they are none, assign '00' to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-      KDF(usagePrekeyMessages, Prekey Messages, 64) ||
+      KDF(usagePrekeyMessages, Prekey Messages, 64) || K ||
       KDF(usageClientProfile, Client Profile, 64) || J ||
       KDF(usagePrekeyProfile, Prekey Profiles, 64), 64)`.
    * If only Prekey Messages are present:
@@ -858,6 +861,10 @@ N (BYTE)
 
 Prekey Messages (DATA)
    All 'N' Prekey Messages serialized according to OTRv4 specification.
+
+J (BYTE)
+   A number that shows if a Client Profile is present or not. If present, set it
+   to one; otherwise, to zero.
 
 Client Profile (CLIENT-PROF)
   The Client Profiles created as described in the section "Creating a Client
@@ -941,7 +948,7 @@ A valid "Success message" is generated as follows:
 
 1. Calculate the `Success MAC`:
    `KDF(usageSuccessMAC, prekey_mac_k || message type ||
-    receiver instance tag || "Success", 64)`
+    receiver instance tag, 64)`
 
 It must be encoded as:
 
@@ -954,9 +961,6 @@ Message type (BYTE)
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
-
-Success message (DATA)
-  The human-readable details of this message. It contains the string "Success".
 
 Success MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
@@ -973,7 +977,7 @@ A valid "Failure message" is generated as follows:
 
 1. Calculate the `Failure MAC`:
    `KDF(usageFailureMAC, prekey_mac_k || message type ||
-    receiver instance tag || "An error occurred", 64)`
+    receiver instance tag, 64)`
 
 It must be encoded as:
 
@@ -986,10 +990,6 @@ Message type (BYTE)
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
-
-Success message (DATA)
-  The human-readable details of this message. It contains the string "An error
-  occurred".
 
 Failure MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
@@ -1080,8 +1080,7 @@ By client we mean each device a user has.
 
 1. Client creates the Client Profile, as defined in the OTRv4 specification. See
    the [Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
-   section of the OTRv4 specification for details. It includes every Ed448
-   long-term public key it locally has.
+   section of the OTRv4 specification for details.
 1. Client creates Prekey Profiles, as defined in OTRv4 specification. See
    the [Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
    section of the OTRv4 specification for details. It must create a Prekey
@@ -1101,6 +1100,7 @@ By client we mean each device a user has.
    message of the DAKE (DAKE-3 with a 'Prekey Publication message" attached).
    See the [Prekey Publication message](#prekey-publication-message) section for
    details.
+// TODO: it also checks the numbers (J, K and L)
 1. The Prekey Server verifies the received values:
    1. For every value, check the integrity of it.
    1. If Client and Prekey Profiles are present:
