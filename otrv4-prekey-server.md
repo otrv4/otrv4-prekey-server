@@ -517,8 +517,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Retrieves the `msg` attached to the DAKE-3 message:
    1. Verifies that the message type is either `0x04` or `0x05`. Abort if it is
       not.
-   1. Verifies that the protocol version of the message is `0x0004`. Abort if it
-      is not.
+   1. Verifies that the protocol version of the message is `0x0004` or a higher
+      version of the protocol. Abort if it is not.
    1. If this is a "Prekey Publication message":
       * Calculates the Prekey MAC key:
         `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
@@ -577,8 +577,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Receives a message from the Prekey Server:
    1. Verifies that the message type is either `0x06`, `0x07` or `0x08`. Abort
       if it is not.
-   1. Verifies that the protocol version of the message is `0x0004`. Abort if it
-      is not.
+   1. Verifies that the protocol version of the message is `0x0004` or a higher
+      version of the protocol. Abort if it is not.
    1. If this is a "Storage Status message":
       * Computes the `Status_MAC: KDF(usageStatusMAC, prekey_mac_k ||
         message type || receiver instance tag ||
@@ -626,8 +626,8 @@ A valid DAKE-1 message is generated as follows:
 To verify a DAKE-1 message:
 
 1. Verify that the message type is `0x01`.
-1. Verify that the protocol version of the message is `0x0004`. Abort if it is
-   not.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
 1. Validate the Client Profile, as defined in
    [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
    section of the OTRv4 specification.
@@ -689,8 +689,8 @@ A valid DAKE-2 message is generated as follows:
 To verify a DAKE-2 message:
 
 1. Verify that the message type is `0x02`.
-1. Verify that the protocol version of the message is `0x0004`. Abort if it is
-   not.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
 1. Validate the Prekey Server Composite Identity by:
    * Calculating the fingerprint of the Prekey Server's long-term public key
      (`H_s`).
@@ -759,8 +759,8 @@ A valid DAKE-3 message is generated as follows:
 To verify a DAKE-3 message:
 
 1. Verify that the message type is `0x03`.
-1. Verify that the protocol version of the message is `0x0004`. Abort if it is
-   not.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
 1. Check that the receiver instance tag of the message matches their sender
    instance tag.
 1. Compute
