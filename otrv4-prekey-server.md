@@ -47,8 +47,8 @@ Server to store Prekey Ensembles.
    1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
 1. [Query the Prekey Server for its Storage Status](#query-the-prekey-server-for-its-storage-status)
 1. [Fragmentation of some Messages](#fragmentation-of-some-messages)
-   1. [Fragmentation of the Prekey Publication Message](#fragmentation-of-the-prekey-publication-message)
-   1. [Fragmentation of the Prekey Ensemble Retrieval Message](#fragmentation-of-the-prekey-ensemble-retrieval-message)
+   1. [Transmitting Fragments](#transmitting-fragments)
+   1. [Receiving Fragments](#receiving-fragments)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
    1. [Discovering a Prekey Service](#discovering-a-prekey-service)
    1. [Discovering the Features supported by a Prekey Service](#discovering-the-features-supported-by-a-prekey-service)
@@ -1317,51 +1317,113 @@ Storage Information Request message  ------------->
 
 ## Fragmentation of some Messages
 
-### Fragmentation of the Prekey Publication Message
+There are two messages in this specification that can be fragmented: the
+"prekey publication" message and the "prekey ensemble retrieval" message.
 
-As "Prekey Publication" messages can be very long to transmit, network
-fragmentation can be used. This means that a publisher can send a "Prekey
-Publication" message and the client can fragment it in this way:
+Some networks may have a maximum message size that is too small to contain an
+encoded OTR-prekey-server message. In that event, the sender may choose to split
+the message into a number of fragments. This section describes the format for
+the fragments.
 
-* The concatenated prekey messages can be fragmented up to however the client
-  sees fit (fragmented only by prekey messages), and send each fragment in
-  each own network message. For example:
+OTRv4-prekey-server fragmentation and reassembly procedure needs to be able to
+break data messages into an almost arbitrary number of pieces that can be later
+reassembled. The receiver of the fragments uses the identifier field to ensure
+that fragments of different data messages are not mixed. The fragment index
+field tells the receiver the position of a fragment in the original data
+message. These fields provide sufficient information to reassemble data
+messages.
 
-```
-   A prekey message will look like this:
+All OTRv4-prekey-server clients must be able to reassemble received fragments,
+but performing fragmentation the defined outgoing messages is optional.
 
-   Message type || 5 || Prekey Messages || 1 || Client Profiles || 1 ||
-   Prekey Profiles || Prekey MAC
+### Transmitting Fragments
 
-   It can be fragmented as:
+If you have information about the maximum message size you are able to send
+(different IM networks have different limits), you can fragment an encoded
+OTR-prekey-server message as follows:
 
-   Message type || 2 || Prekey Messages || 1 || Client Profiles || 1 ||
-   Prekey Profiles || Prekey MAC
+  * Start with the OTR message as you would normally transmit it. For example,
+    a Prekey Publication Message would start with
+    `AAQD` and end with `.`.
+  * Assign an identifier, which will be used specifically for this fragmented
+    data message. This is done in order to not confuse these fragments with
+    other message's fragments. The identifier is a unique randomly generated
+    4-byte value that must be unique for the time the message is fragmented.
+  * Break it up into sufficiently small pieces. Let this number of pieces be
+    `total`, and the pieces be `piece[1],piece[2],...,piece[total]`.
+  * Transmit `total` OTRv4-prekey-server fragmented messages with the following
+    (printf-like) structure (as `index` runs from 1 to `total` inclusive:
 
-   Message type || 3 || Prekey Messages || Prekey MAC
-```
+  ```
+  "?OTR-prekey|%hu|%x|%x,%hu,%hu,%s,", identifier, sender_instance, receiver_instance, index, total, piece[index]
+  ```
 
-### Fragmentation of the Prekey Ensemble Retrieval Message
+The message should begin with `?OTR-prekey|` and end with `,`.
 
-As "Prekey Ensemble Retrieval" messages can be very long to transmit, network
-fragmentation can be used. This means that the Prekey Server can send a "Prekey
-Ensemble Retrieval" message and the client can fragment it in this way:
+Note that `index` and `total` are unsigned short int (2 bytes), and each has a
+maximum value of 65535. Each `piece[index]` must be non-empty. The `identifier`,
+instance tags, `index` and `total` values may have leading zeros.
 
-* The concatenated prekey ensembles can be fragmented up to however the client
-  sees fit (fragmented only by prekey ensembles), and send each fragment in
-  each own network message. For example:
+Note that fragments are not messages that can be fragmented: you can't fragment
+a fragment.
 
-```
-   A prekey message will look like this:
+### Receiving Fragments
 
-   Message type || 0x01 || 5 || Ensembles
+If you receive a message containing `?OTR-prekey|`:
 
-   It can be fragmented as:
+  * Parse it (as the previous printf structure) extracting the `identifier`,
+    the instance tags, `index`, `total`, and `piece[index]`.
 
-   Message type || 0x01 || 2 || Ensembles
+  * If the message is a "Prekey Ensemble Retrieval" one, discard the message and
+    optionally pass a warning to the participant if:
+    * The recipient's own instance tag does not match the listed receiver
+      instance tag.
+    * The listed receiver's instance tag is not zero.
 
-   Message type || 0x01 || 3 || Ensembles
-```
+  * Discard the (illegal) fragment if:
+    * `index` is 0
+    * `total` is 0
+    * `index` is bigger than `total`
+
+  * For the first fragment that arrives (there is not a current buffer with the
+    same `identifier`):
+    * Create a buffer which will keep track of the portions of the fragmented
+      message that have arrived (by filling up it with fragments).
+    * Optionally, initialize a timer for the reassembly of the fragments as it
+      is possible that some fragments of the message might never show up.
+      This timer ensures that a client will not be "forever" waiting for a
+      fragment. If the timer runs out, all stored fragments in this buffer
+      should be discarded.
+    * Let `B` be the buffer, `I` be the currently stored identifier, `T` the
+      currently stored `total` and `C` a counter that keeps track of the
+      received number of fragments for this buffer. If you have no currently
+      stored fragments, there are no buffers, and `I`, `T` and `C` equal 0.
+    * Set the length of the buffer as `total`: `len(B) = total`.
+    * Store `piece` at the `index` given position: `insert(piece, index)`.
+    * Let `total` be `T` and `identifier` be `I` for the buffer.
+    * Increment the buffer counter: `C = C + 1`.
+
+  * If `identifier == I`:
+    * If `total == T`, and `C < T`:
+      * Check that the given position of the buffer is empty:
+        `B[index] == NULL`. If it is not, reject the fragment.
+      * Store the `piece` at the given position in the buffer:
+        `insert(piece, index)`.
+      * Increment the buffer counter: `C = C + 1`.
+    * Otherwise:
+      * Forget any stored fragments of this buffer you may have.
+      * Reset `C` and `I` to 0, and discard this buffer.
+
+  * Otherwise:
+    * Consider this fragment as part of another buffer: either create a new
+      buffer or insert the fragment into one that has already been created.
+
+After this, if the current buffer's `C == T`, treat the buffer as the received
+message.
+
+If you receive an unfragmented message:
+
+* Keep track of the buffers you may already have. Do not discard them.
 
 ## A Prekey Server for OTRv4 over XMPP
 
