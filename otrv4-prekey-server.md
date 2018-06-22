@@ -589,13 +589,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Success message":
       * Computes the `Success_MAC: KDF(usageSuccessMAC, prekey_mac_k ||
-        message type || receiver instance tag || "Success", 64)`. Checks that
+        message type || receiver instance tag, 64)`. Checks that
         it is equal to the one received in the "Sucess message".
         * If it is not, ignores the message.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
       * Computes the `Failure_MAC: KDF(usageFailureMAC, prekey_mac_k ||
-        message type || receiver instance tag || "An error occurred", 64)`.
+        message type || receiver instance tag, 64)`.
         Checks that it is equal to the one received in the "Failure message".
         * If it is not, ignores the message.
       * Securely deletes `prekey_mac_k`.
