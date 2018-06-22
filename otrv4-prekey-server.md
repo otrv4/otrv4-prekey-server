@@ -108,6 +108,10 @@ Prekey Server should support multiple Prekey Messages from different/future
 OTR versions, starting with the current version, 4. Each message defined in this
 document, will, therefore, advertise which version it is using.
 
+The communication with a party and the prekey server is synchronous, which means
+that there can only be one request in flight at the same time from the same
+party while using an specific device.
+
 ## Security Properties
 
 OTRv4 states the need for a service provider that stores key material used in
