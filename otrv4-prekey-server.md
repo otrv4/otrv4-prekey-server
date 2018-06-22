@@ -531,8 +531,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
            KDF(usagePrekeyProfile, Prekey Profiles, 64))`.
         * If only Prekey Messages are present in the message:
           * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-            KDF(usagePrekeyMessage, Prekey Messages, 64) || J, 64)`. `J` should
-            be set to zero.
+            KDF(usagePrekeyMessage, Prekey Messages, 64) || K || J, 64)`. `J`
+            and `K` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
           the DAKE and sends a "Failure message", as defined in the
@@ -845,7 +845,7 @@ A valid Prekey Publication Message is generated as follows:
    * If only Prekey Messages are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
       KDF(usagePrekeyMessage, Prekey Messages, 64) ||
-      K || J, 64)`.
+      K || J, 64)`. `K` and `J` should be set to zero.
 
 The encoding looks like this:
 
