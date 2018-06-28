@@ -195,16 +195,16 @@ The Prekey Server must have these capabilities:
 - Inform the retriever when there are no complete Prekey Ensembles available
   for a specific participant.
 
-The Prekey Server expects to only receive messages on the same network
+The Prekey Server expects to only receive messages on the same network that
 authenticated clients use to exchange messages. This means that a message
-received should be from the same network the publisher is believed to have
-been authenticated with.
+received should be from the same network the publisher is believed to have been
+authenticated with.
 
 Although this specification defines expected behavior from the Prekey Server
 (e.g., by specifying that the Client Profile, Prekey Profiles and Prekey
 Messages submissions should be validated by the Prekey Server), clients should
 not rely on this prescribed behavior, as the Prekey Server is untrusted.
-Verifications must also be performed by clients as well, even though the Prekey
+Verifications must be performed by clients as well, even though the Prekey
 Server should be expected to perform them. Clients working with a Prekey Server
 are expected to upload a new Client Profile and Prekey Profiles before they
 expire or when a new long-term public key has been created.
@@ -325,8 +325,8 @@ encoded in UTF-8.
 ### Encoded Messages
 
 OTRv4 Prekey Server messages must be base-64 encoded. To transmit one of these
-messages, construct an ASCII string: the base-64 encoding of the binary form of
-the message and the byte ".".
+messages, construct an ASCII string of the base-64 encoding of the binary form
+of the message and the byte ".".
 
 ### Public keys and Fingerprints
 
@@ -370,8 +370,8 @@ For example:
 For the DAKE performed by a publisher and the Prekey Server, an identifier is
 needed. This value will be denoted the "Prekey Server Identifier".
 
-This values is the Prekey Server identity concatenated with the Prekey Server
-long-term public key's fingerprint.
+This value is the Prekey Server identity concatenated with the Prekey Server
+long-term public key's fingerprint, encoded as DATA elements.
 
 ```
 Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID):
@@ -817,7 +817,7 @@ been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
 different long-term public key, and when the stored Client or Prekey Profile
 will soon expire. A client must always upload new Client and Prekey Profiles
-when one of these scenarios happen by replacing the old stored ones. Only one
+when one of these scenarios happen to replace the old stored ones. Only one
 Client Profile can be published in one message. The maximum number of Prekey
 Profiles that can be published in one message is 255.
 
@@ -837,9 +837,9 @@ A valid Prekey Publication Message is generated as follows:
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
 1. Concatenate the Client Profile, if it needs to be published. Assign `K`
-   to `01`. If there is no Client Profile, assign '00' to `K`.
+   to `01`. If there is no Client Profile, assign 0x00 to `K`.
 1. Concatenate all Prekey Profiles, if they need to be published. Assign
-   `J` as the number of Prekey Profiles. If they are none, assign '00' to `J`.
+   `J` as the number of Prekey Profiles. If there are none, assign 0x00 to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
@@ -1325,16 +1325,16 @@ encoded OTR-prekey-server message. In that event, the sender may choose to split
 the message into a number of fragments. This section describes the format for
 the fragments.
 
-OTRv4-prekey-server fragmentation and reassembly procedure needs to be able to
-break data messages into an almost arbitrary number of pieces that can be later
-reassembled. The receiver of the fragments uses the identifier field to ensure
-that fragments of different data messages are not mixed. The fragment index
-field tells the receiver the position of a fragment in the original data
+The OTRv4-prekey-server fragmentation and reassembly procedure needs to be able
+to break data messages into an almost arbitrary number of pieces that can be
+later reassembled. The receiver of the fragments uses the identifier field to
+ensure that fragments of different data messages are not mixed. The fragment
+index field tells the receiver the position of a fragment in the original data
 message. These fields provide sufficient information to reassemble data
 messages.
 
 All OTRv4-prekey-server clients must be able to reassemble received fragments,
-but performing fragmentation the defined outgoing messages is optional.
+but performing fragmentation on outgoing messages is optional.
 
 ### Transmitting Fragments
 
@@ -1369,12 +1369,12 @@ a fragment.
 
 ### Receiving Fragments
 
-If you receive a message containing `?OTR-prekey|`:
+If you receive a message starting with `?OTR-prekey|`:
 
   * Parse it (as the previous printf structure) extracting the `identifier`,
     the instance tags, `index`, `total`, and `piece[index]`.
 
-  * If the message is a "Prekey Ensemble Retrieval" one, discard the message and
+  * If the message is a "Prekey Ensemble Retrieval" message, discard the message and
     optionally pass a warning to the participant if:
     * The recipient's own instance tag does not match the listed receiver
       instance tag.
@@ -1391,7 +1391,7 @@ If you receive a message containing `?OTR-prekey|`:
       message that have arrived (by filling up it with fragments).
     * Optionally, initialize a timer for the reassembly of the fragments as it
       is possible that some fragments of the message might never show up.
-      This timer ensures that a client will not be "forever" waiting for a
+      This timer ensures that a client will not be waiting "forever" for a
       fragment. If the timer runs out, all stored fragments in this buffer
       should be discarded.
     * Let `B` be the buffer, `I` be the currently stored identifier, `T` the
