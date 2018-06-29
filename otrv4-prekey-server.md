@@ -1230,6 +1230,9 @@ Ensemble from the participant they want to start a conversation with:
 The encoding of this message looks like this:
 
 ```
+Protocol version (SHORT)
+  The version number of this OTR protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x09.
 
@@ -1253,6 +1256,9 @@ Versions (DATA)
 The encoding of this message looks like this:
 
 ```
+Protocol version (SHORT)
+  The version number of this OTR protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x10.
 
@@ -1280,6 +1286,9 @@ or when it does not have a Client or Prekey Profile.
 The encoding looks like this:
 
 ```
+Protocol version (SHORT)
+  The version number of this OTR protocol is 0x0004.
+
 Message type (BYTE)
   The message has type 0x11.
 
