@@ -108,7 +108,7 @@ Prekey Server should support multiple Prekey Messages from different/future
 OTR versions, starting with the current version, 4. Each message defined in this
 document, will, therefore, advertise which version it is using.
 
-The communication with a party and the prekey server is synchronous, which means
+The communication with a party and the Prekey Server is synchronous, which means
 that there can only be one request in flight at the same time from the same
 party while using an specific device.
 
@@ -300,13 +300,13 @@ The following `usageID` variables are defined:
   * usageReceiverPrekeyCompositePHI = 0x07
   * usagePreMACKey = 0x08
   * usagePreMAC = 0x09
-  * usageStorageInfoMAC = 0x10
-  * usageStatusMAC = 0x11
-  * usageSuccessMAC = 0x12
-  * usageFailureMAC = 0x13
-  * usagePrekeyMessage = 0x14
-  * usageClientProfile = 0x15
-  * usagePrekeyProfile = 0x16
+  * usageStorageInfoMAC = 0x0A
+  * usageStatusMAC = 0x0B
+  * usageSuccessMAC = 0x0C
+  * usageFailureMAC = 0x0D
+  * usagePrekeyMessage = 0x0E
+  * usageClientProfile = 0x0F
+  * usagePrekeyProfile = 0x10
 ```
 
 ## Data Types
