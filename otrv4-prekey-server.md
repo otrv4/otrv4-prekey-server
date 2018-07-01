@@ -112,6 +112,9 @@ The communication with a party and the Prekey Server is synchronous, which means
 that there can only be one request in flight at the same time from the same
 party while using an specific device.
 
+The network model provides in-order and out-of-order delivery of messages. Some
+messages may not be delivered.
+
 ## Security Properties
 
 OTRv4 states the need for a service provider that stores key material used in
