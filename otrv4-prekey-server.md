@@ -356,7 +356,7 @@ prevent attacks that rebind the DAKE transcript into different contexts.
 As an example, for a Prekey Server running over XMPP, this should be:
 
 ```
-  phi = DATA(publisher's JID) || DATA(Prekey Servers's JID)
+  phi = DATA(publisher's bare JID) || DATA(Prekey Servers's bare JID)
 ```
 
 For example:
