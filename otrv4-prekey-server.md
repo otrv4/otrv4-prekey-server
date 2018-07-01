@@ -1104,12 +1104,13 @@ By client we mean each device a user has.
    message of the DAKE (DAKE-3 with a 'Prekey Publication message" attached).
    See the [Prekey Publication message](#prekey-publication-message) section for
    details.
-// TODO: it also checks the numbers (J, K and L)
 1. The Prekey Server verifies the received values:
+   1. Validate the Prekey Publication message, as defined in its section
+      [Prekey Publication Message](#prekey-publication-message).
    1. For every value, check the integrity of it.
    1. If Client and Prekey Profiles are present:
       1. Validate the Client Profile as defined in the
-         [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
+         [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-client-profile)
          section of the OTRv4 specification.
       1. Validate the Prekey Profiles as defined in the
          [Validating a Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile)
