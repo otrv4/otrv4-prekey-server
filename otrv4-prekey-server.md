@@ -1355,8 +1355,8 @@ If you have information about the maximum message size you are able to send
 (different IM networks have different limits), you can fragment an encoded
 OTR-prekey-server message as follows:
 
-  * Start with the OTR message as you would normally transmit it. For example,
-    a Prekey Publication Message would start with
+  * Start with the OTRv4-Prekey message as you would normally transmit it. For
+    example, a Prekey Publication Message would start with
     `AAQD` and end with `.`.
   * Assign an identifier, which will be used specifically for this fragmented
     data message. This is done in order to not confuse these fragments with
@@ -1368,10 +1368,10 @@ OTR-prekey-server message as follows:
     (printf-like) structure (as `index` runs from 1 to `total` inclusive:
 
   ```
-  "?OTR-prekey|%hu|%x|%x,%hu,%hu,%s,", identifier, sender_instance, receiver_instance, index, total, piece[index]
+  "?OTR-P|%x|%x|%x,%hu,%hu,%s,", identifier, sender_instance, receiver_instance, index, total, piece[index]
   ```
 
-The message should begin with `?OTR-prekey|` and end with `,`.
+The message should begin with `?OTR-P|` and end with `,`.
 
 Note that `index` and `total` are unsigned short int (2 bytes), and each has a
 maximum value of 65535. Each `piece[index]` must be non-empty. The `identifier`,
@@ -1382,7 +1382,7 @@ a fragment.
 
 ### Receiving Fragments
 
-If you receive a message starting with `?OTR-prekey|`:
+If you receive a message starting with `?OTR-P|`:
 
   * Parse it (as the previous printf structure) extracting the `identifier`,
     the instance tags, `index`, `total`, and `piece[index]`.
@@ -1412,7 +1412,8 @@ If you receive a message starting with `?OTR-prekey|`:
       received number of fragments for this buffer. If you have no currently
       stored fragments, there are no buffers, and `I`, `T` and `C` equal 0.
     * Set the length of the buffer as `total`: `len(B) = total`.
-    * Store `piece` at the `index` given position: `insert(piece, index)`.
+    * If the `index` is empty, store `piece` at the `index` given position:
+      `insert(piece, index)`.
     * Let `total` be `T` and `identifier` be `I` for the buffer.
     * Increment the buffer counter: `C = C + 1`.
 
