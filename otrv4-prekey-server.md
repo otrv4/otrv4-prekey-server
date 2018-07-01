@@ -342,10 +342,12 @@ section of the OTRv4 specification.
 Public keys have fingerprints, which are hex strings that serve as identifiers
 for the public key. The full OTRv4 fingerprint is calculated by taking the
 SHAKE-256 hash of the byte-level representation of the public key. The long-term
-public keys for the Prekey Server have fingerprints as well. The fingerprint is
-generated as:
+public keys for the Prekey Server have fingerprints as well. Note that for this
+the same KDF the OTRv4 specification defines will be used (`
+KDF_1(usageID || values, size) = SHAKE-256("OTRv4" || usageID || values, size)`.
+The fingerprint is generated as:
 
-* `KDF(usageFingerprint, byte(H), 56)` (224-bit security level), where `H` is
+* `KDF_1(usageFingerprint, byte(H), 56)` (224-bit security level), where `H` is
   the Prekey Server's long-term public key.
 
 ### Shared Session State
