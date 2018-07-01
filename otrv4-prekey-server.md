@@ -866,7 +866,7 @@ N (BYTE)
 Prekey Messages (DATA)
    All 'N' Prekey Messages serialized according to OTRv4 specification.
 
-J (BYTE)
+K (BYTE)
    A number that shows if a Client Profile is present or not. If present, set it
    to one; otherwise, to zero.
 
