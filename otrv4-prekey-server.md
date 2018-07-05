@@ -479,7 +479,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usageSK, ECDH(s, I), 57)`.
+   * `SK = KDF(usageSK, ECDH(s, I), 64)`.
    * Securely erases `s`.
 1. Sends Alice the DAKE-2 message.
 
@@ -501,7 +501,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    the message and does not send anything further.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usageSK, ECDH(i, S), 57)`.
+   * `SK = KDF(usageSK, ECDH(i, S), 64)`.
    * Securely erases `i`.
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
 1. Creates a message (`msg`):
