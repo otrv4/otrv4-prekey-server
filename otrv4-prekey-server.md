@@ -13,7 +13,7 @@ Server to store Prekey Ensembles.
 ## Table of Contents
 
 1. [High Level Overview](#high-level-overview)
-1. [Conventions](#conventions)
+1. [Definitions](#definitions)
 1. [Assumptions](#assumptions)
 1. [Security Properties](#security-properties)
 1. [Prekey Server Requirements](#prekey-server-specifications)
@@ -77,23 +77,23 @@ the Prekey Server by a request from Bob.
 This document aims to describe how the untrusted Prekey Server can be used to
 securely publish, store and retrieve Prekey Ensembles and its values.
 
-## Conventions
+## Definitions
 
 Unless otherwise noted, these conventions and definitions are used for this
 document:
 
+* "Network" refers to the system which computing devices use to exchange data
+  with each other using connections between nodes.
 * "Participant" refers to any of the end-points that take part in a
   conversation.
 * "Prekey Server" refers to the untrusted server used to store Prekey
   Ensembles.
 * "Publisher" refers to the participant publishing Prekey Ensembles to
   the Prekey Server.
+* "Receiver" refers to the participant receiving a message.
 * "Retriever" refers to the participant retrieving Prekey Ensembles from
   the Prekey Server that correspond to the publishing participant.
 * "Sender" refers to the participant sending a message.
-* "Receiver" refers to the participant receiving a message.
-* "Network" refers to the system which computing devices use to exchange data
-  with each other using connections between nodes.
 
 ## Assumptions
 
@@ -122,8 +122,8 @@ a deniable trust establishment for offline conversations. This service provider
 is the Prekey Server, as established in this specification.
 
 There are three things that should be uploaded to the Prekey Server by each
-device: a Client Profile, Prekey Profiles and Prekey Messages. These are needed
-for starting a non-interactive DAKE. Prekey Profiles are needed, because if only
+device: a Client Profile, a Prekey Profile and Prekey Messages. These are needed
+for starting a non-interactive DAKE. A Prekey Profile is needed, because if only
 Prekey Messages are used for starting non-interactive conversations, an active
 adversary can modify the first flow from the publisher to use an adversarially
 controlled ephemeral key, capture and drop the response from the retriever,
@@ -133,7 +133,7 @@ publisher will never see the messages, and the adversary will be able to decrypt
 them.  Moreover, since long-term keys are usually meant to last for years, a
 long time may pass between the retriever sending messages and the adversary
 compromising the publisher's long-term key. This attack is mitigated with the
-use of Prekey Profiles that contain shared prekeys signed by the long-term
+use of a Prekey Profile that contain shared prekeys signed by the long-term
 secret key, and that are reusable, as defined by Unger et al
 [\[2\]](#references).
 
@@ -190,7 +190,7 @@ fail, as stated above.
 
 The Prekey Server must have these capabilities:
 
-- Receive a Client Profile, Prekey Profiles and a set of Prekey Messages, and
+- Receive a Client Profile, a Prekey Profile and a set of Prekey Messages, and
   store them by the corresponding identity. Inform that this operation have
   failed or has been successful.
 - Deliver Prekey Ensembles previously stored.
@@ -204,16 +204,17 @@ received should be from the same network the publisher is believed to have been
 authenticated with.
 
 Although this specification defines expected behavior from the Prekey Server
-(e.g., by specifying that the Client Profile, Prekey Profiles and Prekey
+(e.g., by specifying that the Client Profile, the Prekey Profile and Prekey
 Messages submissions should be validated by the Prekey Server), clients should
 not rely on this prescribed behavior, as the Prekey Server is untrusted.
 Verifications must be performed by clients as well, even though the Prekey
 Server should be expected to perform them. Clients working with a Prekey Server
-are expected to upload a new Client Profile and Prekey Profiles before they
-expire or when a new long-term public key has been created.
+are expected to upload a new Client Profile and a new Prekey Profile before they
+expire, when a new long-term public key has been created or when a value in
+them has changed.
 
-Note that Client Profiles, Prekey Profiles and Prekey Messages submissions to
-the untrusted Prekey Server have to be authenticated. If they are not
+Note that the Client Profile, the Prekey Profile and Prekey Messages submissions
+to the untrusted Prekey Server have to be authenticated. If they are not
 authenticated, then malicious users can perform denial-of-service attacks. To
 preserve the deniability of the overall OTRv4 protocol, Prekey Ensembles should
 never be signed in a non-repudiable way. This specification uses a DAKEZ
@@ -225,7 +226,7 @@ Server should be able to correctly generate ephemeral ECDH keys and long-term
 Ed488-EdDSA keys.
 
 When the Prekey Server runs out of Prekey Messages, or when it has no Client or
-Prekey Profiles, a "No Prekey Ensembles in Storage" message should be returned,
+Prekey Profile, a "No Prekey Ensembles in Storage" message should be returned,
 as defined in this [section](#no-prekey-ensembles-in-storage-message).  In
 theory, it would be possible to return a "multi use" default Prekey Ensemble.
 However, the consequences to participation deniability with this technique are
@@ -310,6 +311,7 @@ The following `usageID` variables are defined:
   * usagePrekeyMessage = 0x0E
   * usageClientProfile = 0x0F
   * usagePrekeyProfile = 0x10
+  * usageAuth = 0x11
 ```
 
 ## Data Types
@@ -357,6 +359,12 @@ the same reasons as stated in the
 [Shared Session State](https://github.com/otrv4/otrv4/blob/master/otrv4.md#shared-session-state)
 section of the OTRv4 specification. It is used to authenticate contexts to
 prevent attacks that rebind the DAKE transcript into different contexts.
+
+Note that varible length fields are encoded as DATA. If `phi` is a string, it
+will be encoded in UTF-8.
+
+To make sure both participants has the same phi during DAKE, sort the instance
+tag by numerical order and any string passed to `phi` lexicographically.
 
 As an example, for a Prekey Server running over XMPP, this should be:
 
@@ -505,7 +513,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    * Securely erases `i`.
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
 1. Creates a message (`msg`):
-   1. If she wants to publish a Client Profile, Prekey Profiles, and/or Prekey
+   1. If she wants to publish a Client Profile, a Prekey Profile, and/or Prekey
       Messages, she creates a "Prekey Publication message", as defined in
       [Prekey Publication Message](#prekey-publication-message) section.
    1. If she wants to ask for storage information, she creates a "Storage
@@ -551,7 +559,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           * Checks that `K` is set to 1. If it is not, aborts the DAKE and sends
             a "Failure message", as defined in the [Failure Message](#failure-message)
             section.
-        * If a Prekey Profiles is present in the message:
+        * If a Prekey Profile is present in the message:
           * Checks that `J` is set to 1. If it is not, aborts the DAKE and sends
             a "Failure message", as defined in the [Failure Message](#failure-message)
             section.
@@ -562,8 +570,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             [Failure Message](#failure-message) section.
           * Checks that `J` and `K` are set to zero, if Prekey Messages are only
             present.
-      * Stores the Client Profile, the Prekey Profile and Prekey Message if is
-        possible in the Prekey Server's storage. If not, aborts the DAKE and
+      * Stores the Client Profile, the Prekey Profile and Prekey Message, if is
+        possible, in the Prekey Server's storage. If not, aborts the DAKE and
         sends a "Failure message" as defined in the
         [Failure Message](#failure-message) section.
       * Sends a "Success message", as defined in the
@@ -841,9 +849,9 @@ A valid Prekey Publication Message is generated as follows:
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
 1. Concatenate the Client Profile, if it needs to be published. Assign `K`
-   to `01`. If there is no Client Profile, assign 0x00 to `K`.
+   to 0x01. If there is no Client Profile, assign 0x00 to `K`.
 1. Concatenate the Prekey Profile, if it needs to be published. Assign `J`
-   to `01`. If there is no Prekey Profile, assign 0x00 to `J`.
+   to 0x01. If there is no Prekey Profile, assign 0x00 to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
@@ -888,7 +896,7 @@ Prekey Profile (PREKEY-PROF)
 
 Prekey MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
-  the Prekey Profiles, if present.
+  the Prekey Profile, if present.
 ```
 
 ### Storage Information Request Message
@@ -1075,7 +1083,7 @@ Prekey Publication message           ------------->
 
                                      <-------------  Receives a DAKE-3 message and
                                                      stores the Client Profile and
-                                                     Prekey Profiles (if present),
+                                                     the Prekey Profile (if present),
                                                      and the Prekey Messages.
                                                      Sends a Success message.
 ```
@@ -1101,9 +1109,9 @@ By client we mean each device a user has.
 1. Client authenticates (in a deniable way) with the Prekey Server through the
    DAKE and, with that, it generates a shared secret.
    See section [Key Exchange](#key-exchange) for details.
-1. Client sends the Client Profile, and Prekey Profiles (if needed) for every
-   long-term public key, and Prekey Messages to the Prekey Server, in the final
-   message of the DAKE (DAKE-3 with a 'Prekey Publication message" attached).
+1. Client sends the Client Profile, and the Prekey Profile (if needed), and
+   Prekey Messages to the Prekey Server in the final message of the DAKE (DAKE-3
+   with a 'Prekey Publication message" attached).
    See the [Prekey Publication message](#prekey-publication-message) section for
    details.
 1. The Prekey Server verifies the received values:
@@ -1165,7 +1173,7 @@ Ensemble from the participant they want to start a conversation with:
    * A valid Prekey Profile for every instance tag for the identity.
    * One Prekey Message for every Client Profile and Prekey Profile selected.
      This Prekey Messages must have the same instance tag as the Client and
-     Prekey Profiles.
+     Prekey Profile.
    * Builds Prekey Ensembles with the selected values, for example:
 
      ```
@@ -1182,7 +1190,7 @@ Ensemble from the participant they want to start a conversation with:
    form of a [Prekey Ensemble Retrieval](#prekey-ensemble-retrieval) message.
    Uses the instance tag of the retriever as the "receiver instance tag".
 1. The Prekey Server removes the selected Prekey Messages from its storage. It
-   doesn't delete neither the Client nor the Prekey Profiles.
+   doesn't delete neither the Client nor the Prekey Profile.
 1. If there were no Prekey Ensembles in storage, the Client receives a "No
    Prekey Ensembles in Storage" message. It displays its human-readable part.
 1. If there were, the Client receives a "Prekey Ensemble Retrieval message":
@@ -1193,8 +1201,7 @@ Ensemble from the participant they want to start a conversation with:
       "Prekey Ensemble Retrieval message".
    1. Checks that there is at least one Client Profile, one Prekey Profile and
       one Prekey Message.
-   1. Groups all Prekey Messages by instance tag. Subgroups the Prekey Profiles
-      from this group by the long-term public key.
+   1. Groups all Prekey Messages by instance tag.
    1. Validates all Prekey Ensembles:
       1. Checks that all the instance tags on the Prekey Ensemble's values are
          the same.
@@ -1264,7 +1271,7 @@ Receiver instance tag (INT)
 L (INT)
   The number of Prekey Ensembles
 
-Ensembles (DATA)
+Ensembles
   The concatenated Prekey Ensembles. Each Ensemble is encoded as:
 
    Client Profile (CLIENT-PROF)
