@@ -698,7 +698,10 @@ A valid DAKE-2 message is generated as follows:
    [Prekey Server Composite Identity](#prekey-server-composite-identity) section.
 1. Compute `sigma = RSig(H_s, sk_hs, {H_a, H_s, I}, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
-   section of the OTRv4 specification for details.
+   section of the OTRv4 specification for details. Notice that this
+   specification will use the KDF stated in the
+   [Key Derivation Functions](#key-derivation-functions) section and for the
+   computation of `c`, we use the `usageAuth` defined in this specification.
 1. Use the sender instance tag from the DAKE-1 message as the receiver
    instance tag.
 
@@ -769,7 +772,10 @@ A valid DAKE-3 message is generated as follows:
    section.
 1. Compute `sigma = RSig(H_a, sk_ha, {H_a, H_s, S}, t)`, as defined in the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
-   section of the OTRv4 specification.
+   section of the OTRv4 specification. Notice that this
+   specification will use the KDF stated in the
+   [Key Derivation Functions](#key-derivation-functions) section and for the
+   computation of `c`, we use the `usageAuth` defined in this specification.
 1. Continue to use the sender instance tag.
 
 To verify a DAKE-3 message:
