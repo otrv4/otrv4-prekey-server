@@ -479,7 +479,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usageSK, ECDH(s, I))`.
+   * `SK = KDF(usageSK, ECDH(s, I), 57)`.
    * Securely erases `s`.
 1. Sends Alice the DAKE-2 message.
 
@@ -501,7 +501,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    the message and does not send anything further.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usageSK, ECDH(i, S))`.
+   * `SK = KDF(usageSK, ECDH(i, S), 57)`.
    * Securely erases `i`.
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
 1. Creates a message (`msg`):
@@ -638,7 +638,7 @@ To verify a DAKE-1 message:
 1. Verify that the protocol version of the message is `0x0004` or a higher
    version of the protocol. Abort if it is not.
 1. Validate the Client Profile, as defined in
-   [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile)
+   [Validating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-client-profile)
    section of the OTRv4 specification.
 1. Verify that the point `I` received is on curve Ed448. See
    [Verifying that a point is on the curve](https://github.com/otrv4/otrv4/blob/master/otrv4.md#verifying-that-a-point-is-on-the-curve)
@@ -1088,7 +1088,7 @@ the verifications noted here.
 By client we mean each device a user has.
 
 1. Client creates the Client Profile, as defined in the OTRv4 specification. See
-   the [Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#user-profile)
+   the [Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#client-profile)
    section of the OTRv4 specification for details.
 1. Client creates Prekey Profiles, as defined in OTRv4 specification. See
    the [Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-profile)
@@ -1208,7 +1208,7 @@ Ensemble from the participant they want to start a conversation with:
    1. Validates all Prekey Ensembles:
       1. Checks that all the instance tags on the Prekey Ensemble's values are
          the same.
-      1. [Validates the Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-user-profile).
+      1. [Validates the Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-client-profile).
       1. [Validates the Prekey Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#validating-a-prekey-profile).
       1. Checks that the Prekey Profile is signed by one of the long-term public
          keys stated in it and in the Client Profile.
