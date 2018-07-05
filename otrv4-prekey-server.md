@@ -283,7 +283,7 @@ The following key derivation function is used in this specification. The usageID
 is of type BYTE:
 
 ```
-  KDF(usageID, values, size) = SHAKE-256("OTR-Prekey-Server" || usageID || values, size)
+  KDF(usage_ID, values, size) = SHAKE-256("OTR-Prekey-Server" || usageID || values, size)
 ```
 
 The `size` first bytes of the SHAKE-256 output for the input
@@ -294,24 +294,24 @@ Unlike in the SHAKE standard, the output size (`size`) here is in bytes.
 The following `usageID` variables are defined:
 
 ```
-  * usageFingerprint = 0x00
-  * usageSK = 0x01
-  * usageInitiatorClientProfile = 0x02
-  * usageInitiatorPrekeyCompositeIdentity = 0x03
-  * usageInitiatorPrekeyCompositePHI = 0x04
-  * usageReceiverClientProfile = 0x05
-  * usageReceiverPrekeyCompositeIdentity = 0x06
-  * usageReceiverPrekeyCompositePHI = 0x07
-  * usagePreMACKey = 0x08
-  * usagePreMAC = 0x09
-  * usageStorageInfoMAC = 0x0A
-  * usageStatusMAC = 0x0B
-  * usageSuccessMAC = 0x0C
-  * usageFailureMAC = 0x0D
-  * usagePrekeyMessage = 0x0E
-  * usageClientProfile = 0x0F
-  * usagePrekeyProfile = 0x10
-  * usageAuth = 0x11
+  * usage_Fingerprint = 0x00
+  * usage_SK = 0x01
+  * usage_initiator_client_profile = 0x02
+  * usage_initiator_prekey_composite_identity = 0x03
+  * usage_initiator_prekey_composite_PHI = 0x04
+  * usage_receiver_client_profile = 0x05
+  * usage_receiver_prekey_composite_identity = 0x06
+  * usage_receiver_prekey_composite_PHI = 0x07
+  * usage_preMAC_key = 0x08
+  * usage_preMAC = 0x09
+  * usage_storage_info_MAC = 0x0A
+  * usage_status_MAC = 0x0B
+  * usage_success_MAC = 0x0C
+  * usage_failure_MAC = 0x0D
+  * usage_prekey_message = 0x0E
+  * usage_client_profile = 0x0F
+  * usage_prekey_profile = 0x10
+  * usage_auth = 0x11
 ```
 
 ## Data Types
@@ -346,10 +346,10 @@ for the public key. The full OTRv4 fingerprint is calculated by taking the
 SHAKE-256 hash of the byte-level representation of the public key. The long-term
 public keys for the Prekey Server have fingerprints as well. Note that for this
 the same KDF the OTRv4 specification defines will be used (`
-KDF_1(usageID || values, size) = SHAKE-256("OTRv4" || usageID || values, size)`.
+KDF_1(usage_ID || values, size) = SHAKE-256("OTRv4" || usage_ID || values, size)`.
 The fingerprint is generated as:
 
-* `KDF_1(usageFingerprint, byte(H), 56)` (224-bit security level), where `H` is
+* `KDF_1(usage_fingerprint, byte(H), 56)` (224-bit security level), where `H` is
   the Prekey Server's long-term public key.
 
 ### Shared Session State
@@ -419,7 +419,7 @@ must hand them out decrypted to the retrieving participant).
     protocol.
   SK:
     The Shared secret is the shared secret derived from the ECDH shared secret:
-    'KDF(usageSK, SK_ecdh)'.
+    'KDF(usage_SK, SK_ecdh)'.
 ```
 
 ### Generating Shared Secrets
@@ -487,7 +487,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usageSK, ECDH(s, I), 64)`.
+   * `SK = KDF(usage_SK, ECDH(s, I), 64)`.
    * Securely erases `s`.
 1. Sends Alice the DAKE-2 message.
 
@@ -509,9 +509,9 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    the message and does not send anything further.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usageSK, ECDH(i, S), 64)`.
+   * `SK = KDF(usage_SK, ECDH(i, S), 64)`.
    * Securely erases `i`.
-1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
+1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usage_preMAC_key, SK, 64)`.
 1. Creates a message (`msg`):
    1. If she wants to publish a Client Profile, a Prekey Profile, and/or Prekey
       Messages, she creates a "Prekey Publication message", as defined in
@@ -538,17 +538,17 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       version of the protocol. Abort if it is not.
    1. If this is a "Prekey Publication message":
       * Calculates the Prekey MAC key:
-        `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
+        `prekey_mac_k = KDF(usage_preMAC_key, SK, 64)`.
       * Computes the `Prekey MAC` (notice that most of these values are from the
         received "Prekey Publication message"):
         * If a Client Profile and Prekey Profile are present in the message:
-          `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-           KDF(usagePrekeyMessage, Prekey Messages, 64) || K ||
-           KDF(usageClientProfile, Client Profile, 64) || J ||
-           KDF(usagePrekeyProfile, Prekey Profile, 64))`.
+          `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+           KDF(usage_prekey_message, Prekey Messages, 64) || K ||
+           KDF(usage_client_profile, Client Profile, 64) || J ||
+           KDF(usage_prekey_profile, Prekey Profile, 64))`.
         * If only Prekey Messages are present in the message:
-          * Calculate `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-            KDF(usagePrekeyMessage, Prekey Messages, 64) || K || J, 64)`. `J`
+          * Calculate `KDF(usage_PreMAC, prekey_mac_k || message type || N ||
+            KDF(usage_prekey_message, Prekey Messages, 64) || K || J, 64)`. `J`
             and `K` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
@@ -578,9 +578,9 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         [Success Message](#success-message) section.
    1. If this is a "Storage Information Request message":
       * Calculates the Prekey MAC key:
-        `prekey_mac_k = KDF(usagePreMACKey, SK, 64)`.
+        `prekey_mac_k = KDF(usage_preMAC_Key, SK, 64)`.
       * Computes the `Prekey MAC`:
-        `KDF(usageStorageInfoMAC, prekey_mac_k || message type, 64)`
+        `KDF(usage_storage_info_MAC, prekey_mac_k || message type, 64)`
       * Checks that this `Prekey MAC` is equal to the one received in the
         "Storage Information Request message". If it is not, the Prekey Server
         aborts the DAKE and sends a "Failure message", as defined in
@@ -596,7 +596,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    1. Verifies that the protocol version of the message is `0x0004` or a higher
       version of the protocol. Abort if it is not.
    1. If this is a "Storage Status message":
-      * Computes the `Status_MAC: KDF(usageStatusMAC, prekey_mac_k ||
+      * Computes the `Status_MAC: KDF(usage_status_MAC, prekey_mac_k ||
         message type || receiver instance tag ||
         stored prekey messages number, 64)`. Checks
         that it is equal to the one received in the "Storage Status message".
@@ -604,13 +604,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
         * If it is, the number of stored prekey messages is displayed.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Success message":
-      * Computes the `Success_MAC: KDF(usageSuccessMAC, prekey_mac_k ||
+      * Computes the `Success_MAC: KDF(usage_success_MAC, prekey_mac_k ||
         message type || receiver instance tag, 64)`. Checks that
         it is equal to the one received in the "Sucess message".
         * If it is not, ignores the message.
       * Securely deletes `prekey_mac_k`.
    1. If this is a "Failure message":
-      * Computes the `Failure_MAC: KDF(usageFailureMAC, prekey_mac_k ||
+      * Computes the `Failure_MAC: KDF(usage_failure_MAC, prekey_mac_k ||
         message type || receiver instance tag, 64)`.
         Checks that it is equal to the one received in the "Failure message".
         * If it is not, ignores the message.
@@ -687,10 +687,10 @@ A valid DAKE-2 message is generated as follows:
    * secret key `s` (57 bytes).
    * public key `S`.
 1. Compute
-   `t = 0x00 || KDF(usageInitiatorClientProfile, Alices_Client_Profile, 64) ||
-    KDF(usageInitiatorPrekeyCompositeIdentity,
+   `t = 0x00 || KDF(usage_initiator_client_profile, Alices_Client_Profile, 64) ||
+    KDF(usage_initiator_prekey_composite_identity,
     Prekey_Server_Composite_Indentity, 64) || I || S ||
-    KDF(usageInitiatorPrekeyCompositePHI, phi, 64)`.
+    KDF(usage_initiator_prekey_composite_PHI, phi, 64)`.
    `phi` is the shared session state as mentioned in the
    [Shared Session State](#shared-session-state) section.
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -701,7 +701,7 @@ A valid DAKE-2 message is generated as follows:
    section of the OTRv4 specification for details. Notice that this
    specification will use the KDF stated in the
    [Key Derivation Functions](#key-derivation-functions) section and for the
-   computation of `c`, we use the `usageAuth` defined in this specification.
+   computation of `c`, we use the `usage_auth` defined in this specification.
 1. Use the sender instance tag from the DAKE-1 message as the receiver
    instance tag.
 
@@ -716,10 +716,10 @@ To verify a DAKE-2 message:
    * Calculating the Prekey Server Composite Identity and comparing it with the
      one received.
 1. Compute
-   `t = 0x00 || KDF(usageInitiatorClientProfile, Alices_Client_Profile, 64) ||
-   KDF(usageInitiatorPrekeyCompositeIdentity,
+   `t = 0x00 || KDF(usage_Initiator_Client_Profile, Alices_Client_Profile, 64) ||
+   KDF(usage_initiator_prekey_composite_identity,
    Prekey_Server_Composite_Identity, 64) || I || S ||
-   KDF(usageInitiatorPrekeyCompositePHI, phi, 64)`.
+   KDF(usage_initiator_prekey_composite_PHI, phi, 64)`.
    `phi` is the shared session state from the
    [Shared Session State](#shared-session-state) section.
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -760,10 +760,10 @@ of `sigma`.
 A valid DAKE-3 message is generated as follows:
 
 1. Compute
-   `t = 0x01 || KDF(usageReceiverClientProfile, Alices_Client_Profile, 64) ||
-    KDF(usageReceiverPrekeyCompositeIdentity,
+   `t = 0x01 || KDF(usage_receiver_client_profile, Alices_Client_Profile, 64) ||
+    KDF(usage_receiver_prekey_composite_identity,
     Prekey_Server_Composite_Identity, 64) || I || S ||
-    KDF(usageReceiverPrekeyCompositePHI, phi, 64)`.
+    KDF(usage_receiver_prekey_composite_PHI, phi, 64)`.
    `phi` is the shared session state from
    [Shared Session State](#shared-session-state).
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -775,7 +775,7 @@ A valid DAKE-3 message is generated as follows:
    section of the OTRv4 specification. Notice that this
    specification will use the KDF stated in the
    [Key Derivation Functions](#key-derivation-functions) section and for the
-   computation of `c`, we use the `usageAuth` defined in this specification.
+   computation of `c`, we use the `usage_auth` defined in this specification.
 1. Continue to use the sender instance tag.
 
 To verify a DAKE-3 message:
@@ -786,10 +786,10 @@ To verify a DAKE-3 message:
 1. Check that the receiver instance tag of the message matches their sender
    instance tag.
 1. Compute
-   `t = 0x01 || KDF(usageReceiverClientProfile, Alices_Client_Profile, 64) ||
-    KDF(usageReceiverPrekeyCompositeIdentity,
+   `t = 0x01 || KDF(usage_receiver_client_profile, Alices_Client_Profile, 64) ||
+    KDF(usage_receiver_prekey_composite_identity,
     Prekey_Server_Composite_Identity, 64) || I || S ||
-    KDF(usageReceiverPrekeyCompositePHI, phi, 64)`.
+    KDF(usage_receiver_prekey_composite_PHI, phi, 64)`.
    `phi` is the shared session state from
    [Shared Session State](#shared-session-state).
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
@@ -860,13 +860,13 @@ A valid Prekey Publication Message is generated as follows:
    to 0x01. If there is no Prekey Profile, assign 0x00 to `J`.
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
-     `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-      KDF(usagePrekeyMessage, Prekey Messages, 64) || K ||
-      KDF(usageClientProfile, Client Profile, 64) || J ||
-      KDF(usagePrekeyProfile, Prekey Profile, 64), 64)`.
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) || K ||
+      KDF(usage_client_profile, Client Profile, 64) || J ||
+      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
    * If only Prekey Messages are present:
-     `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-      KDF(usagePrekeyMessage, Prekey Messages, 64) ||
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) ||
       K || J, 64)`. `K` and `J` should be set to zero.
 
 The encoding looks like this:
@@ -914,7 +914,7 @@ response to this message. This message must be attached to a DAKE-3 message.
 A valid "Storage Information Request message" is generated as follows:
 
 1. Calculate the `Storage Information MAC`:
-   `KDF(usageStorageInfoMAC, prekey_mac_k || message type, 64)`
+   `KDF(usage_storage_info_MAC, prekey_mac_k || message type, 64)`
 
 The encoding looks like this:
 
@@ -937,7 +937,7 @@ The "Storage Status message" is sent by the Prekey Server in response to a
 A valid "Storage Status message" is generated as follows:
 
 1. Calculate the `Status MAC`:
-   `KDF(usageStatusMAC, prekey_mac_k || message type ||
+   `KDF(usage_status_MAC, prekey_mac_k || message type ||
     receiver instance tag || Stored Prekey Messages Number, 64)`
 
 It must be encoded as:
@@ -969,7 +969,7 @@ Prekey Messages, for example) has been successful.
 A valid "Success message" is generated as follows:
 
 1. Calculate the `Success MAC`:
-   `KDF(usageSuccessMAC, prekey_mac_k || message type ||
+   `KDF(usage_success_MAC, prekey_mac_k || message type ||
     receiver instance tag, 64)`
 
 It must be encoded as:
@@ -998,7 +998,7 @@ Prekey Server storage is full, for example.
 A valid "Failure message" is generated as follows:
 
 1. Calculate the `Failure MAC`:
-   `KDF(usageFailureMAC, prekey_mac_k || message type ||
+   `KDF(usage_failure_MAC, prekey_mac_k || message type ||
     receiver instance tag, 64)`
 
 It must be encoded as:
