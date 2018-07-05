@@ -847,7 +847,7 @@ A valid Prekey Publication Message is generated as follows:
 1. Calculate the `Prekey MAC`:
    * If client profiles and Prekey profiles are present:
      `KDF(usagePreMAC, prekey_mac_k || message type || N ||
-      KDF(usagePrekeyMessages, Prekey Messages, 64) || K ||
+      KDF(usagePrekeyMessage, Prekey Messages, 64) || K ||
       KDF(usageClientProfile, Client Profile, 64) || J ||
       KDF(usagePrekeyProfile, Prekey Profile, 64), 64)`.
    * If only Prekey Messages are present:
