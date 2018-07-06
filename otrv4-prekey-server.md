@@ -532,7 +532,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
      [DAKE-3 message](#dake-3-message) section. If something fails, the Prekey
      Server rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
-   1. Verifies that the message type is either `0x04` or `0x05`. Abort if it is
+   1. Verifies that the message type is either `0x08` or `0x09`. Abort if it is
       not.
    1. Verifies that the protocol version of the message is `0x0004` or a higher
       version of the protocol. Abort if it is not.
@@ -591,7 +591,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives a message from the Prekey Server:
-   1. Verifies that the message type is either `0x06`, `0x07` or `0x08`. Abort
+   1. Verifies that the message type is either `0x0B`, `0x06` or `0x05`. Abort
       if it is not.
    1. Verifies that the protocol version of the message is `0x0004` or a higher
       version of the protocol. Abort if it is not.
@@ -641,7 +641,7 @@ A valid DAKE-1 message is generated as follows:
 
 To verify a DAKE-1 message:
 
-1. Verify that the message type is `0x01`.
+1. Verify that the message type is `0x35`.
 1. Verify that the protocol version of the message is `0x0004` or a higher
    version of the protocol. Abort if it is not.
 1. Validate the Client Profile, as defined in
@@ -658,7 +658,7 @@ Protocol version (SHORT)
   The version number of this OTR protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x01.
+  The message has type 0x35.
 
 Sender instance tag (INT)
   The instance tag of the client sending this message.
@@ -707,7 +707,7 @@ A valid DAKE-2 message is generated as follows:
 
 To verify a DAKE-2 message:
 
-1. Verify that the message type is `0x02`.
+1. Verify that the message type is `0x36`.
 1. Verify that the protocol version of the message is `0x0004` or a higher
    version of the protocol. Abort if it is not.
 1. Validate the Prekey Server Composite Identity by:
@@ -737,7 +737,7 @@ Protocol version (SHORT)
   The version number of this OTR protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x02.
+  The message has type 0x36.
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
@@ -780,7 +780,7 @@ A valid DAKE-3 message is generated as follows:
 
 To verify a DAKE-3 message:
 
-1. Verify that the message type is `0x03`.
+1. Verify that the message type is `0x37`.
 1. Verify that the protocol version of the message is `0x0004` or a higher
    version of the protocol. Abort if it is not.
 1. Check that the receiver instance tag of the message matches their sender
@@ -806,7 +806,7 @@ Protocol version (SHORT)
   The version number of this OTR protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x03.
+  The message has type 0x37.
 
 Sender instance tag (INT)
   The instance tag of the person sending this message.
@@ -876,7 +876,7 @@ Protocol version (SHORT)
   The version number of this protocol is 0x0004.
 
 Message type (BYTE)
-  This message has type 0x04.
+  This message has type 0x08.
 
 N (BYTE)
    The number of Prekey Messages present in this message.
@@ -923,7 +923,7 @@ Protocol version (SHORT)
   The version number of this protocol is 0x0004.
 
 Message type (BYTE)
-  This message has type 0x05.
+  This message has type 0x09.
 
 Storage Information MAC (MAC)
   The MAC with the appropriate MAC key of the message type.
@@ -947,7 +947,7 @@ Protocol version (SHORT)
   The version number of this protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x06.
+  The message has type 0x0B.
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
@@ -979,7 +979,7 @@ Protocol version (SHORT)
   The version number of this protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x07.
+  The message has type 0x06.
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
@@ -1008,7 +1008,7 @@ Protocol version (SHORT)
   The version number of this protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x08.
+  The message has type 0x05.
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
@@ -1243,7 +1243,7 @@ Protocol version (SHORT)
   The version number of this OTR protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x09.
+  The message has type 0x10.
 
 Sender instance tag (INT)
   The instance tag of the sender.
@@ -1269,7 +1269,7 @@ Protocol version (SHORT)
   The version number of this OTR protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x10.
+  The message has type 0x13.
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
@@ -1299,7 +1299,7 @@ Protocol version (SHORT)
   The version number of this OTR protocol is 0x0004.
 
 Message type (BYTE)
-  The message has type 0x11.
+  The message has type 0x0E.
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
