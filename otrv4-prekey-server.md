@@ -846,7 +846,9 @@ Status message" indicates that the number of stored Prekey Messages is getting
 low, the client should upload more Prekey Messages - otherwise it will be
 impossible for other clients to start the non-interactive DAKE with the
 client. The maximum number of Prekey Messages that can be published in one
-message is 255.
+message is 255. All Prekey Messages included in the Prekey Publication message
+must have them all same instance tag. They must also have the same instance
+tag as the one stated in the Client and Prekey profiles.
 
 This message must be attached to a DAKE-3 message.
 
