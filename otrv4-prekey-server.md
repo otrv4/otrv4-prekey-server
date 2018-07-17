@@ -939,6 +939,16 @@ A valid "Storage Information Request message" is generated as follows:
 1. Calculate the `Storage Information MAC`:
    `KDF(usage_storage_info_MAC, prekey_mac_k || message type, 64)`
 
+To verify a Storage Information Request message
+
+1. Verify that the message type is `0x09`.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
+1. Calculate the `Storage Information MAC`:
+   `KDF(usage_storage_info_MAC, prekey_mac_k || message type, 64)`
+1. Verify that this calculated `Storage Information MAC` is equal to the
+   received one. Abort if it is not.
+
 The encoding looks like this:
 
 ```
@@ -962,6 +972,17 @@ A valid "Storage Status message" is generated as follows:
 1. Calculate the `Status MAC`:
    `KDF(usage_status_MAC, prekey_mac_k || message type ||
     receiver instance tag || Stored Prekey Messages Number, 64)`
+
+To verify a Storage Status message:
+
+1. Verify that the message type is `0x0B`.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
+1. Calculate the `Status MAC`:
+   `KDF(usage_status_MAC, prekey_mac_k || message type ||
+    receiver instance tag || Stored Prekey Messages Number, 64)`
+1. Verify that this calculated `Status MAC` is equal to the
+   received one. Abort if it is not.
 
 It must be encoded as:
 
@@ -995,6 +1016,17 @@ A valid "Success message" is generated as follows:
    `KDF(usage_success_MAC, prekey_mac_k || message type ||
     receiver instance tag, 64)`
 
+To verify a Success message:
+
+1. Verify that the message type is `0x06`.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
+1. Calculate the `Success MAC`:
+   `KDF(usage_success_MAC, prekey_mac_k || message type ||
+    receiver instance tag, 64)`
+1. Verify that this calculated `Success MAC` is equal to the
+   received one. Abort if it is not.
+
 It must be encoded as:
 
 ```
@@ -1023,6 +1055,17 @@ A valid "Failure message" is generated as follows:
 1. Calculate the `Failure MAC`:
    `KDF(usage_failure_MAC, prekey_mac_k || message type ||
     receiver instance tag, 64)`
+
+To verify a Failure message:
+
+1. Verify that the message type is `0x06`.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
+1. Calculate the `Failure MAC`:
+   `KDF(usage_failure_MAC, prekey_mac_k || message type ||
+    receiver instance tag, 64)`
+1. Verify that this calculated `Failure MAC` is equal to the
+   received one. Abort if it is not.
 
 It must be encoded as:
 
