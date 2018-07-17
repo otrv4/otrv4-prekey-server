@@ -287,7 +287,7 @@ is of type BYTE:
 ```
 
 The `size` first bytes of the SHAKE-256 output for the input
-`"OTRv4-Prekey-Server" || usageID || values` will be returned.
+`"OTR-Prekey-Server" || usageID || values` will be returned.
 
 Unlike in the SHAKE standard, the output size (`size`) here is in bytes.
 
@@ -701,7 +701,7 @@ A valid DAKE-2 message is generated as follows:
    section of the OTRv4 specification for details. Notice that this
    specification will use the KDF stated in the
    [Key Derivation Functions](#key-derivation-functions) section and for the
-   computation of `c`, we use the `usage_auth` defined in this specification.
+   computation of `c`, it will use `usage_auth` defined in this specification.
 1. Use the sender instance tag from the DAKE-1 message as the receiver
    instance tag.
 
@@ -775,7 +775,7 @@ A valid DAKE-3 message is generated as follows:
    section of the OTRv4 specification. Notice that this
    specification will use the KDF stated in the
    [Key Derivation Functions](#key-derivation-functions) section and for the
-   computation of `c`, we use the `usage_auth` defined in this specification.
+   computation of `c`, it will use the `usage_auth` defined in this specification.
 1. Continue to use the sender instance tag.
 
 To verify a DAKE-3 message:
