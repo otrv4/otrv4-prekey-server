@@ -360,7 +360,7 @@ the same reasons as stated in the
 section of the OTRv4 specification. It is used to authenticate contexts to
 prevent attacks that rebind the DAKE transcript into different contexts.
 
-Note that varible length fields are encoded as DATA. If `phi` is a string, it
+Note that variable length fields are encoded as DATA. If `phi` is a string, it
 will be encoded in UTF-8.
 
 To make sure both participants has the same phi during DAKE, sort the instance
@@ -859,7 +859,7 @@ A valid Prekey Publication Message is generated as follows:
 1. Concatenate the Prekey Profile, if it needs to be published. Assign `J`
    to 0x01. If there is no Prekey Profile, assign 0x00 to `J`.
 1. Calculate the `Prekey MAC`:
-   * If client profiles and Prekey profiles are present:
+   * If a Client Profile and a Prekey Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
       KDF(usage_client_profile, Client Profile, 64) || J ||
@@ -868,6 +868,29 @@ A valid Prekey Publication Message is generated as follows:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
       K || J, 64)`. `K` and `J` should be set to zero.
+
+To verify a Prekey Publication message:
+
+1. Verify that the message type is `0x08`.
+1. Verify that the protocol version of the message is `0x0004` or a higher
+   version of the protocol. Abort if it is not.
+1. Verify that there are `N` number of Prekey messages.
+1. Verify that:
+   * If there is a Client Profile, that `K` is assign to 0x01.
+   * If there is a Prekey Profile, that `J` is assign to 0x01.
+   * Otherwise, that they are assigned to 0x00.
+1. Calculate the `Prekey MAC`:
+   * If a Client Profile and a Prekey Profile are present:
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) || K ||
+      KDF(usage_client_profile, Client Profile, 64) || J ||
+      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
+   * If only Prekey Messages are present:
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) ||
+      K || J, 64)`. `K` and `J` should be set to zero.
+1. Verify that this calculated `Prekey MAC` is equal to the received one. Abort
+   if it is not.
 
 The encoding looks like this:
 
@@ -893,8 +916,8 @@ Client Profile (CLIENT-PROF)
   Profile" of the OTRv4 specification. This value is optional.
 
 J (BYTE)
-   A number that shows if a Prekey Profile is present or not. If present, set it
-   to one; otherwise, to zero.
+  A number that shows if a Prekey Profile is present or not. If present, set it
+  to one; otherwise, to zero.
 
 Prekey Profile (PREKEY-PROF)
   The Prekey Profile created as described in the section "Creating a Prekey
