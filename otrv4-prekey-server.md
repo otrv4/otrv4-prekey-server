@@ -375,7 +375,7 @@ As an example, for a Prekey Server running over XMPP, this should be:
 For example:
 
 ```
-  phi = DATA("alice@jabber.net/mobile") || DATA("prekeys.xmpp.org")
+  phi = DATA("alice@jabber.net") || DATA("prekey.xmpp.org")
 ```
 
 ### Prekey Server Composite Identity
@@ -1441,10 +1441,10 @@ OTR-prekey-server message as follows:
     (printf-like) structure (as `index` runs from 1 to `total` inclusive:
 
   ```
-  "?OTR-P|%x|%x|%x,%hu,%hu,%s,", identifier, sender_instance, receiver_instance, index, total, piece[index]
+  "?OTRP|%x|%x|%x,%hu,%hu,%s,", identifier, sender_instance, receiver_instance, index, total, piece[index]
   ```
 
-The message should begin with `?OTR-P|` and end with `,`.
+The message should begin with `?OTRP|` and end with `,`.
 
 Note that `index` and `total` are unsigned short int (2 bytes), and each has a
 maximum value of 65535. Each `piece[index]` must be non-empty. The `identifier`,
@@ -1459,7 +1459,7 @@ A reassemble process does not to be implemented in precesely the way we are
 going to describe; but the process implemented in a library has to be able to
 correctly reassemble the fragments.
 
-If you receive a message starting with `?OTR-P|`:
+If you receive a message starting with `?OTRP|`:
 
   * Parse it (as the previous printf structure) extracting the `identifier`,
     the instance tags, `index`, `total`, and `piece[index]`.
@@ -1520,15 +1520,18 @@ If you receive an unfragmented message:
 
 ## A Prekey Server for OTRv4 over XMPP
 
-This is an example of how a Prekey Server for the OTRv4 protocol will act over
-XMPP. Note that a Prekey Server implementation for XMPP must support the
-Service Discovery specification (XEP-0030, "disco").
+This segment defines a sub specification which declares how a prekey server
+implementation has to work with XMPP. For interoperability, this style of
+specification will need to be created for other networks as well. The XMPP
+specific part of this specification is not a necessary part of the rest of the
+OTR Prekey Specification - it is possible to implement a compliant prekey server
+that does not implement this section.
 
 ### Discovering a Prekey Server
 
-An entity can discover a Prekey Server by sending a Service Discovery items
-("disco#items") request to the server of the entity it wants to look up
-information for.
+A participant will find information about a prekey serve rusing the Service
+Discovery specification (XEP-0030). The first lookup will be a lookof up items
+to the containing server:
 
 ```
   <iq from='alice@xmpp.org/notebook'
@@ -1553,42 +1556,91 @@ The server then returns the services that are associated with it:
   </iq>
 ```
 
-### Discovering the Features supported by a Prekey Service
-
-An entity may wish to discover if a service implements the OTRv4 Prekey Server
-protocol. In order to do so, it sends a service discovery information
-("disco#info") query to the Prekey Server service's JID.
+In order to find an OTRv4 compliant prekey server, Alice then needs to send a
+info request to all itmes returned from the original call:
 
 ```
   <iq from='alice@xmpp.org/notebook'
-      id='lx09df27'
+      id='info1'
       to='prekey.xmpp.org'
       type='get'>
     <query xmlns='http://jabber.org/protocol/disco#info'/>
   </iq>
 ```
 
-The service must return its identity and the features it supports:
+For a compliant server, this will return the feature
+http://jabber.org/protocol/otrv4-prekey-server and an identity that has category
+`auth` and type `otr-prekey`:
 
 ```
-  <iq from='prekey.xmpp.org'
-      id='lx09df27'
-      to='alice@xmpp.org/notebook'
-      type='result'>
-    <query xmlns='http://jabber.org/protocol/disco#info'>
-      <identity
-          category='otrv4-prekey-server'
-          name='OTRv4 Prekey Server'
-          type='text'/>
-      <feature var='http://jabber.org/protocol/otrv4-prekey'/>
-    </query>
+<iq type='result'
+    from='prekey.xmpp.org'
+    to='alice@xmpp.org/notebook'
+    id='info1'>
+  <query xmlns='http://jabber.org/protocol/disco#info'>
+    <identity
+        category='auth'
+        type='otr-prekey'
+        name='OTR Prekey Server'/>
+    <feature var='http://jabber.org/protocol/disco#info'/>
+    <feature var='http://jabber.org/protocol/disco#items'/>
+    <feature var='http://jabber.org/protocol/otrv4-prekey-server'/>
+  </query>
+</iq>
+```
+
+Finally, before starting to use a prekey server, you also need to lookup the
+fingerprint for this server. This can be find by doing a lookup for items on the
+server:
+
+```
+  <iq from='alice@xmpp.org/notebook'
+      id='items1'
+      to='prekey.xmpp.org'
+      type='get'>
+    <query xmlns='http://jabber.org/protocol/disco#items'/>
   </iq>
 ```
+
+This should return an item where node has the value `fingerprint`, and the name
+will contain the hexadecimal representation of the fingerprint:
+
+```
+<iq type='result'
+    from='prekey.xmpp.org'
+    to='alice@xmpp.org/notebook'
+    id='items1'>
+  <query xmlns='http://jabber.org/protocol/disco#items'>
+    <item jid='prekey.xmpp.org'
+          node='fingerprint'
+          name='3B72D580C05DE2823A14B02B682636BF58F291A7E831D237ECE8FC14DA50A187A50ACF665442AB2D140E140B813CFCCA993BC02AA4A3D35C'/>
+  </query>
+</iq>
+```
+
+The fingerprint will, for OTRv4 keys, always be 112 hexadecimal digits that can
+be decoded into a 56-byte value, following the instructions in the OTRv4
+specification.
+
+If the server returns more than one prekey server in its list of items, anyone
+should be possible to use. All prekey servers exposed by an XMPP server has to
+share the same storage. Thus, a client should randomly choose one of the
+returned prekey servers to connect to, in order to distribute load for the
+server.
+
 
 ### Publishing Prekey Values to the Service
 
 An entity authenticates to the service through an interactive DAKE. DAKE
-messages are send in "message" stanzas.
+messages are sent in "message" stanzas.
+
+When calculating the `phi` value for XMPP, the bare JID of the publisher and the
+bare jid of the server has to be used:
+
+```
+  phi = DATA("alice@xmpp.org") || DATA("prekey.xmpp.org")
+```
+
 
 An entity starts the DAKE by sending the first encoded message in the body
 of a message:
@@ -1677,7 +1729,6 @@ for example, `bob@xmpp.net`, and specific versions, for example, "45".
       from='alice@xmpp.org/notebook'
       id='nzd143v8'
       to='prekey.xmpp.org'>
-    <subject>bob@xmpp.net</subject>
     <body>L...</body>
   </message>
 ```
@@ -1690,7 +1741,6 @@ no values in storage:
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <subject>bob@xmpp.net</subject>
     <body>L...</body>
   </message>
 ```
@@ -1703,10 +1753,17 @@ are no values in storage:
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <subject>bob@xmpp.net/45</subject>
     <body>K...</body>
   </message>
 ```
+
+## Storage of prekeys for XMPP
+
+The storage for prekeys will use the bare JID to identify client profiles,
+prekey profiles and prekey messages. Instance tags will be used to differentiate
+data for different clients. Since XMPP resources are not stable inbetween
+invocations of most XMPP software, resources can't be used as a mechanism for
+storage.
 
 ## Detailed Example of the Prekey Server over XMPP
 
@@ -1715,13 +1772,14 @@ are no values in storage:
 1. `bob@xmpp.org/notebook` logs in to his server (`talk.xmpp.org`).
 1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
    server (`prekey.xmpp.org`).
-   1. The service discovery informs the Prekey Server's long-term public key.
-1. `bob@xmpp.org/notebook` discovers the capabilities of `prekey.xmpp.org`.
-   1. `prekey.xmpp.org` is capable of all features of the Prekey Server
-       specification.
+   1. Bob sends service discovery information messages to all returned nodes, by
+      looking at the results, he identifies all prekey server nodes.
+   1. He then chooses one of them randomly.
+   1. Finally, he sends a service discovery items message to the prekey server
+      in order to retrieve the fingerprint for this server.
 1. `bob@xmpp.org/notebook` asks `prekey.xmpp.org` about the number of prekeys
    messages it has stored for him:
-   1. `bob@xmpp.org/notebook` deniable authenticates by using DAKEZ with
+   1. `bob@xmpp.org/notebook` deniably authenticates by using DAKEZ with
       `prekey.xmpp.org`.
    1. `bob@xmpp.org/notebook` sends a "Storage Status Message" attached to the
        last DAKEZ message to `prekey.xmpp.org`.
@@ -1730,20 +1788,21 @@ are no values in storage:
 
 `bob@xmpp.org/notebook` wants to publish prekey messages to the Prekey Server:
 
-1. `bob@xmpp.org/notebook` logs to his server (`talk.xmpp.org`).
+1. `bob@xmpp.org/notebook` logs in to his server (`talk.xmpp.org`).
 1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
    server (`prekey.xmpp.org`).
-   1. The service discovery also informs the Prekey Server's long-term public
-      key.
-1. `bob@xmpp.org/notebook` discovers the capabilities of `prekey.xmpp.org`.
-   1. `prekey.xmpp.org` is capable of all features of a Prekey Server.
-1. `bob@xmpp.org/notebook` wants to publish `prekey.xmpp.org` a client profile,
-   a prekey profile and 5 prekey messages:
-   1. `bob@xmpp.org/notebook` deniable authenticates by using DAKEZ with
+   1. Bob sends service discovery information messages to all returned nodes, by
+      looking at the results, he identifies all prekey server nodes.
+   1. He then chooses one of them randomly.
+   1. Finally, he sends a service discovery items message to the prekey server
+      in order to retrieve the fingerprint for this server.
+1. `bob@xmpp.org/notebook` wants to publish a client profile, a prekey profile
+   and 5 prekey messages to `prekey.xmpp.org`:
+   1. `bob@xmpp.org/notebook` deniably authenticates by using DAKEZ with
       `prekey.xmpp.org`.
    1. `bob@xmpp.org/notebook` sends a "Prekey Publication Message" attached to
-      the last DAKEZ message to `prekey.xmpp.org` (with the values of the Prekey
-      Ensemble).
+      the last DAKEZ message to `prekey.xmpp.org` (with the values of the prekey
+      messages).
    1. `bob@xmpp.org/notebook` receives a "Success" or "Failure" message from
       `prekey.xmpp.org` if the above operation was successful or not.
 
