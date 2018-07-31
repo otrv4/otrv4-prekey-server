@@ -384,20 +384,20 @@ For the DAKE performed by a publisher and the Prekey Server, an identifier is
 needed. This value will be denoted the "Prekey Server Identifier".
 
 This value is the Prekey Server identity concatenated with the Prekey Server
-long-term public key's fingerprint, encoded as DATA elements.
+long-term public key.
 
 ```
 Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID):
   Prekey Server Identity (DATA)
-  Fingerprint (DATA)
+  Ed448 public key (ED448-PUBKEY)
 ```
 
 For a Prekey Server that uses XMPP, this must be the bare JID of the Prekey
-Server (for example, prekey.xmpp.org) and the fingerprint of its long-term
+Server (for example, prekey.xmpp.org) and the serialization of its long-term
 public key:
 
 ```
-  Prekey Server Composite Identity = DATA("prekey.xmpp.org") || DATA(fingerprint)
+  Prekey Server Composite Identity = DATA("prekey.xmpp.org") || SERIALIZE(server key)
 ```
 
 ## Key Management
@@ -464,9 +464,8 @@ The following parameters are expected to have been generated:
    of the OTRv4 protocol.
 * `Prekey_Server_Composite_Identity`: the Prekey Server Composite Identity.
 
-Alice is also expected to have the Prekey Server Composite Identity and the
-Prekey Server's long-term public key, so that they can be manually verified by
-her.
+Alice is also expected to have the Prekey Server Composite Identity, so that
+they can be manually verified by her.
 
 Alice will be initiating the DAKEZ with the Prekey Server:
 
@@ -712,9 +711,9 @@ To verify a DAKE-2 message:
    version of the protocol. Abort if it is not.
 1. Validate the Prekey Server Composite Identity by:
    * Calculating the fingerprint of the Prekey Server's long-term public key
-     (`H_s`).
-   * Calculating the Prekey Server Composite Identity and comparing it with the
-     one received.
+     (`H_s`) provided in the Composite Identity. This fingerprint can be
+     compared against stored data or other measures.
+   * Ensure the identity element of the Prekey Server Composite Identity is correct.
 1. Compute
    `t = 0x00 || KDF(usage_Initiator_Client_Profile, Alices_Client_Profile, 64) ||
    KDF(usage_initiator_prekey_composite_identity,
