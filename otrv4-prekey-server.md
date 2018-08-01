@@ -397,7 +397,7 @@ Server (for example, prekey.xmpp.org) and the serialization of its long-term
 public key:
 
 ```
-  Prekey Server Composite Identity = DATA("prekey.xmpp.org") || SERIALIZE(server key)
+  Prekey Server Composite Identity = DATA("prekey.xmpp.org") || ENCODE(Ed448 server public key)
 ```
 
 ## Key Management
