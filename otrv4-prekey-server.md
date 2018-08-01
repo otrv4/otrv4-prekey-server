@@ -419,7 +419,7 @@ must hand them out decrypted to the retrieving participant).
     protocol.
   SK:
     The Shared secret is the shared secret derived from the ECDH shared secret:
-    'KDF(usage_SK, SK_ecdh)'.
+    'KDF(usage_SK, SK_ecdh, 64)'.
 ```
 
 ### Generating Shared Secrets
