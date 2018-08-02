@@ -50,11 +50,11 @@ Server to store Prekey Ensembles.
    1. [Transmitting Fragments](#transmitting-fragments)
    1. [Receiving Fragments](#receiving-fragments)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
-   1. [Discovering a Prekey Service](#discovering-a-prekey-service)
-   1. [Discovering the Features supported by a Prekey Service](#discovering-the-features-supported-by-a-prekey-service)
-   1. [Publishing Prekey Values to the Service](#publishing-prekey-values-to-the-service)
-   1. [Obtaining Information about Prekey Values from the Service](#obtaining-information-about-prekey-values-from-the-service)
-   1. [Retrieving published Prekeys from a Prekey Service](#retrieving-published-prekeys-from-a-prekey-service)
+   1. [Discovering a Prekey Server](#discovering-a-prekey-server)
+   1. [Discovering the Features supported by a Prekey Server](#discovering-the-features-supported-by-a-prekey-server)
+   1. [Publishing Prekey Values to the Server](#publishing-prekey-values-to-the-server)
+   1. [Obtaining Information about Prekey Values from the Server](#obtaining-information-about-prekey-values-from-the-server)
+   1. [Retrieving published Prekeys from a Prekey Server](#retrieving-published-prekeys-from-a-prekey-server)
 1. [Detailed Example of the Prekey Server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
 1. [References](#references)
 
@@ -1628,9 +1628,9 @@ returned prekey servers to connect to, in order to distribute load for the
 server.
 
 
-### Publishing Prekey Values to the Service
+### Publishing Prekey Values to the Server
 
-An entity authenticates to the service through an interactive DAKE. DAKE
+An entity authenticates to the server through an interactive DAKE. DAKE
 messages are sent in "message" stanzas.
 
 When calculating the `phi` value for XMPP, the bare JID of the publisher and the
@@ -1653,7 +1653,7 @@ of a message:
   </message>
 ```
 
-The service responds with another message:
+The server responds with another message:
 
 ```
   <message
@@ -1687,9 +1687,9 @@ And the Prekey Server responds with a "Success" message:
   </message>
 ```
 
-### Obtaining Information about Prekey Messages from the Service
+### Obtaining Information about Prekey Messages from the Server
 
-An entity authenticates to the service through a DAKE. DAKE messages are send
+An entity authenticates to the server through a DAKE. DAKE messages are send
 in "message" stanzas.
 
 It sends the same DAKE messages as the previous section, except for the last
@@ -1717,9 +1717,9 @@ And the Prekey Server responds with a "Storage Status" message:
   </message>
 ```
 
-### Retrieving published Prekeys Values from a Prekey Service
+### Retrieving published Prekeys Values from a Prekey Server
 
-An entity asks the service for prekey ensembles from a particular participant by
+An entity asks the server for prekey ensembles from a particular participant by
 sending a "Prekey Ensemble Query Retrieval message" for an specific identity,
 for example, `bob@xmpp.net`, and specific versions, for example, "45".
 
@@ -1732,7 +1732,7 @@ for example, `bob@xmpp.net`, and specific versions, for example, "45".
   </message>
 ```
 
-The service responds with a "Prekey Ensemble Retrieval message" if there are
+The server responds with a "Prekey Ensemble Retrieval message" if there are
 no values in storage:
 
 ```
@@ -1744,7 +1744,7 @@ no values in storage:
   </message>
 ```
 
-The service responds with a "No Prekey-Ensembles in Storage Message" if there
+The server responds with a "No Prekey-Ensembles in Storage Message" if there
 are no values in storage:
 
 ```
