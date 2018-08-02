@@ -51,9 +51,8 @@ Server to store Prekey Ensembles.
    1. [Receiving Fragments](#receiving-fragments)
 1. [A Prekey Server for OTRv4 over XMPP](#a-prekey-server-for-otrv4-over-xmpp)
    1. [Discovering a Prekey Server](#discovering-a-prekey-server)
-   1. [Discovering the Features supported by a Prekey Server](#discovering-the-features-supported-by-a-prekey-server)
    1. [Publishing Prekey Values to the Server](#publishing-prekey-values-to-the-server)
-   1. [Obtaining Information about Prekey Values from the Server](#obtaining-information-about-prekey-values-from-the-server)
+   1. [Obtaining Information about Prekey Messages from the Server](#obtaining-information-about-prekey-messages-from-the-server)
    1. [Retrieving published Prekeys from a Prekey Server](#retrieving-published-prekeys-from-a-prekey-server)
 1. [Detailed Example of the Prekey Server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
 1. [References](#references)
@@ -1717,7 +1716,7 @@ And the Prekey Server responds with a "Storage Status" message:
   </message>
 ```
 
-### Retrieving published Prekeys Values from a Prekey Server
+### Retrieving published Prekeys from a Prekey Server
 
 An entity asks the server for prekey ensembles from a particular participant by
 sending a "Prekey Ensemble Query Retrieval message" for an specific identity,
