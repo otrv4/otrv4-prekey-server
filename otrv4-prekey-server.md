@@ -112,7 +112,9 @@ that there can only be one request in flight at the same time from the same
 party while using an specific device.
 
 The network model provides in-order and out-of-order delivery of messages. Some
-messages may not be delivered.
+messages may not be delivered. Note that with communication with the Prekey
+Server, there can only be one request in flight at the same time from the party
+communicating with.
 
 ## Security Properties
 
@@ -225,8 +227,8 @@ Server should be able to correctly generate ephemeral ECDH keys and long-term
 Ed488-EdDSA keys.
 
 When the Prekey Server runs out of Prekey Messages, or when it has no Client or
-Prekey Profile, a "No Prekey Ensembles in Storage" message should be returned,
-as defined in this [section](#no-prekey-ensembles-in-storage-message).  In
+Prekey Profiles, a "No Prekey Ensembles in Storage" message should be returned,
+as defined in this [section](#no-prekey-ensembles-in-storage-message). In
 theory, it would be possible to return a "multi use" default Prekey Ensemble.
 However, the consequences to participation deniability with this technique are
 currently undefined and thus risky. For this reason, this specification does not
@@ -244,7 +246,7 @@ Protocol version (SHORT)
   The version number of the protocol, e.g, 0x0004 for OTRv4.
 
 Message type (BYTE)
-  The message type, e.g., 0x0F for OTRv4.
+  The message type, e.g., 0x36 for the DAKE-2 message.
 
 Prekey Message Identifier (INT)
   A prekey message id used for local storage and retrieval.
@@ -323,7 +325,7 @@ The OTRv4 Prekey Server Specification also uses the Prekey Server Composite
 Identity data type, which is detailed in the
 [Prekey Server Composite Identity](#prekey-server-composite-identity) section.
 
-Note that varible length fields are encoded as DATA. Every string will be
+Note that variable length fields are encoded as DATA. Every string will be
 encoded in UTF-8.
 
 ### Encoded Messages
@@ -338,13 +340,14 @@ OTR users have long-lived public keys that they use for authentication (but not
 for encryption). The Prekey Server has one as well. It is generated
 as defined in the
 [Public keys, Shared Prekeys and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
-section of the OTRv4 specification.
+section of the OTRv4 specification. It has the same Pubkey type. It is denoted
+as 'Ed448 server public key'.
 
 Public keys have fingerprints, which are hex strings that serve as identifiers
 for the public key. The full OTRv4 fingerprint is calculated by taking the
 SHAKE-256 hash of the byte-level representation of the public key. The long-term
-public keys for the Prekey Server have fingerprints as well. Note that for this
-the same KDF the OTRv4 specification defines will be used (`
+public keys for the Prekey Server have fingerprints as well. Note that for its
+generation, the same KDF of the OTRv4 specification is used (`
 KDF_1(usage_ID || values, size) = SHAKE-256("OTRv4" || usage_ID || values, size)`.
 The fingerprint is generated as:
 
@@ -363,7 +366,7 @@ Note that variable length fields are encoded as DATA. If `phi` is a string, it
 will be encoded in UTF-8.
 
 To make sure both participants has the same phi during DAKE, sort the instance
-tag by numerical order and any string passed to `phi` lexicographically.
+tags by numerical order and any string passed to `phi` lexicographically.
 
 As an example, for a Prekey Server running over XMPP, this should be:
 
@@ -392,7 +395,7 @@ Prekey Server Composite Identity (PREKEY-SERVER-COMP-ID):
 ```
 
 For a Prekey Server that uses XMPP, this must be the bare JID of the Prekey
-Server (for example, prekey.xmpp.org) and the serialization of its long-term
+Server (for example, prekey.xmpp.org) and the encoding of its long-term
 public key:
 
 ```
@@ -455,7 +458,7 @@ The following parameters are expected to have been generated:
 * `(sk_a, Ha)`: Alice's long-term keypair. As defined in section
    [Public keys, Shared Prekeys and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
    of the OTRv4 protocol.
-* `(sk_s, Hs)`: Server's long-term keypair. As defined in section
+* `(sk_s, Hs)`: Ed448 Server's long-term keypair. As defined in section
    [Public keys, Shared Prekeys and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
    of the OTRv4 protocol.
 * `Alices_Client_Profile`: Alice's Client Profile. As defined in section
@@ -481,11 +484,13 @@ Alice will be initiating the DAKEZ with the Prekey Server:
       [DAKE-1 message](#dake-1-message) section. If the verification fails
       (for example, if Alice's public key -`I`- is not valid), rejects
       the message and does not send anything further.
-1. Stores the `sender instance tag` as the `receiver instance tag`.
+1. Stores the `sender instance tag` from the message as the
+   `receiver instance tag`.
 1. Generates a DAKE-2 message, as defined in
    [DAKE-2 Message](#dake-2-message) section.
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usage_SK, ECDH(s, I), 64)`.
+   * `SK_ecdh = ECDH(s, I)`.
+   * `SK = KDF(usage_SK, SK_ecdh, 64)`.
    * Securely erases `s`.
 1. Sends Alice the DAKE-2 message.
 
@@ -507,7 +512,8 @@ Alice will be initiating the DAKEZ with the Prekey Server:
    the message and does not send anything further.
 1. Creates a DAKE-3 message (see [DAKE-3 Message](#dake-3-message) section).
 1. Calculates the Shared secret (`SK`):
-   * `SK = KDF(usage_SK, ECDH(i, S), 64)`.
+   * `SK_ecdh = ECDH(i, S)`.
+   * `SK = KDF(usage_SK, SK_ecdh, 64)`.
    * Securely erases `i`.
 1. Calculates the Prekey MAC key: `prekey_mac_k = KDF(usage_preMAC_key, SK, 64)`.
 1. Creates a message (`msg`):
@@ -530,10 +536,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
      [DAKE-3 message](#dake-3-message) section. If something fails, the Prekey
      Server rejects the message and does not send anything further.
 1. Retrieves the `msg` attached to the DAKE-3 message:
-   1. Verifies that the message type is either `0x08` or `0x09`. Abort if it is
+   1. Verifies that the message type is either `0x08` or `0x09`. Aborts if it is
       not.
    1. Verifies that the protocol version of the message is `0x0004` or a higher
-      version of the protocol. Abort if it is not.
+      version of the protocol. Aborts if it is not.
    1. If this is a "Prekey Publication message":
       * Calculates the Prekey MAC key:
         `prekey_mac_k = KDF(usage_preMAC_key, SK, 64)`.
@@ -568,7 +574,7 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             [Failure Message](#failure-message) section.
           * Checks that `J` and `K` are set to zero, if Prekey Messages are only
             present.
-      * Stores the Client Profile, the Prekey Profile and Prekey Message, if is
+      * Stores the Client Profile, the Prekey Profile and Prekey Messages, if is
         possible, in the Prekey Server's storage. If not, aborts the DAKE and
         sends a "Failure message" as defined in the
         [Failure Message](#failure-message) section.
@@ -589,10 +595,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
 **Alice**
 
 1. Receives a message from the Prekey Server:
-   1. Verifies that the message type is either `0x0B`, `0x06` or `0x05`. Abort
+   1. Verifies that the message type is either `0x0B`, `0x06` or `0x05`. Aborts
       if it is not.
    1. Verifies that the protocol version of the message is `0x0004` or a higher
-      version of the protocol. Abort if it is not.
+      version of the protocol. Aborts if it is not.
    1. If this is a "Storage Status message":
       * Computes the `Status_MAC: KDF(usage_status_MAC, prekey_mac_k ||
         message type || receiver instance tag ||
@@ -699,7 +705,8 @@ A valid DAKE-2 message is generated as follows:
    section of the OTRv4 specification for details. Notice that this
    specification will use the KDF stated in the
    [Key Derivation Functions](#key-derivation-functions) section and for the
-   computation of `c`, it will use `usage_auth` defined in this specification.
+   computation of `c`, it will use the `usage_auth` defined in this
+   specification.
 1. Use the sender instance tag from the DAKE-1 message as the receiver
    instance tag.
 
@@ -712,7 +719,8 @@ To verify a DAKE-2 message:
    * Calculating the fingerprint of the Prekey Server's long-term public key
      (`H_s`) provided in the Composite Identity. This fingerprint can be
      compared against stored data or other measures.
-   * Ensure the identity element of the Prekey Server Composite Identity is correct.
+   * Ensure the identity element of the Prekey Server Composite Identity is
+     correct.
 1. Compute
    `t = 0x00 || KDF(usage_Initiator_Client_Profile, Alices_Client_Profile, 64) ||
    KDF(usage_initiator_prekey_composite_identity,
