@@ -169,7 +169,7 @@ Additionally, a malicious party can cause DoS attacks to the Prekey Server by:
 
 - Asking for Prekey Ensembles or its contents until the Prekey Server runs out
   of them.
-- Send too many requests for Prekey Ensembles or its contents at the same time
+- Send too many requests for Prekey Ensembles or its contents at the same time,
   causing the Preker Server to be overwhelmed.
 - Create a extremely big Client Profile and submit it, causing the Prekey
   Server to run out of storage or to crash.
@@ -904,8 +904,8 @@ Message type (BYTE)
 N (BYTE)
    The number of Prekey Messages present in this message.
 
-Prekey Messages (DATA)
-   All 'N' Prekey Messages serialized according to OTRv4 specification.
+Prekey Messages
+   All 'N' Prekey Messages encoded according to OTRv4 specification.
 
 K (BYTE)
    A number that shows if a Client Profile is present or not. If present, set it
