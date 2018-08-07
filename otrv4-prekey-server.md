@@ -732,7 +732,7 @@ To verify a DAKE-2 message:
    from the
    [Prekey Server Composite Identity](#prekey-server-composite-identity)
    section.
-1. Verify the `sigma`. See the
+1. Verify the `sigma`: `RVrf({H_a, H_s, I}, sigma, t)` See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
 
@@ -801,7 +801,7 @@ To verify a DAKE-3 message:
    `Prekey_Server_Composite_Identity` is the Prekey Server Composite Identity
    from the
    [Prekey Server Composite Identity](#prekey-server-identifier) section.
-1. Verify the `sigma`. See the
+1. Verify the `sigma`: `RVrf({H_a, H_s, S}, sigma, t)`. See the
    [Ring Signature Authentication](https://github.com/otrv4/otrv4/blob/master/otrv4.md#ring-signature-authentication)
    section of the OTRv4 specification for details.
 
