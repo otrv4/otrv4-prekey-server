@@ -1268,7 +1268,7 @@ Ensemble from the participant they want to start a conversation with:
      ```
 
 1. The Prekey Server delivers all selected Prekey Ensembles to the Client in the
-   form of a [Prekey Ensemble Retrieval](#prekey-ensemble-retrieval) message.
+   form of a [Prekey Ensemble Retrieval Message](#prekey-ensemble-retrieval-message).
    Uses the instance tag of the retriever as the "receiver instance tag".
 1. The Prekey Server removes the selected Prekey Messages from its storage. It
    doesn't delete neither the Client nor the Prekey Profile.
@@ -1351,7 +1351,7 @@ Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 L (INT)
-  The number of Prekey Ensembles
+  The number of Prekey Ensembles. It must bre greater than 0.
 
 Ensembles
   The concatenated Prekey Ensembles. Each Ensemble is encoded as:
