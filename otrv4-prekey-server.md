@@ -16,7 +16,7 @@ Server to store Prekey Ensembles.
 1. [Definitions](#definitions)
 1. [Assumptions](#assumptions)
 1. [Security Properties](#security-properties)
-1. [Prekey Server Requirements](#prekey-server-specifications)
+1. [Prekey Server Requirements](#prekey-server-requirements)
 1. [Notation and Parameters](#notation-and-parameters)
    1. [Notation](#notation)
    1. [Elliptic Curve Parameters](#elliptic-curve-parameters)
@@ -53,7 +53,7 @@ Server to store Prekey Ensembles.
    1. [Discovering a Prekey Server](#discovering-a-prekey-server)
    1. [Publishing Prekey Values to the Server](#publishing-prekey-values-to-the-server)
    1. [Obtaining Information about Prekey Messages from the Server](#obtaining-information-about-prekey-messages-from-the-server)
-   1. [Retrieving published Prekeys from a Prekey Server](#retrieving-published-prekeys-from-a-prekey-server)
+   1. [Retrieving published Prekey Ensembles from a Prekey Server](#retrieving-published-prekey-ensembles-from-a-prekey-server)
 1. [Detailed Example of the Prekey Server over XMPP](#detailed-example-of-the-prekey-server-over-xmpp)
 1. [References](#references)
 
