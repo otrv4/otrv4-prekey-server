@@ -462,7 +462,7 @@ The following parameters are expected to have been generated:
    [Public keys, Shared Prekeys and Fingerprints](https://github.com/otrv4/otrv4/blob/master/otrv4.md#public-keys-shared-prekeys-and-fingerprints)
    of the OTRv4 protocol.
 * `Alices_Client_Profile`: Alice's Client Profile. As defined in section
-   [Creating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#creating-a-user-profile)
+   [Creating a Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#creating-a-client-profile)
    of the OTRv4 protocol.
 * `Prekey_Server_Composite_Identity`: the Prekey Server Composite Identity.
 
@@ -1213,7 +1213,7 @@ By "client" we mean each device a user has.
    1. Discard any invalid or duplicated values.
 1. The Prekey Server stores the Client Profile, Prekey Profile and Prekey
    Messages by associating them with the identity. This identity is the one used
-   by the network, for example, 'alice@xmpp.org' for XMPP.
+   by the network, for example, `alice@xmpp.org` for XMPP.
 1. The Prekey Server sends an acknowledgment that the operation succeeded in the
    form of a "Success message". See [Success Message](#success-message) for
    details.
@@ -1577,7 +1577,7 @@ info request to all items returned from the original call:
 ```
 
 For a compliant server, this will return the feature
-http://jabber.org/protocol/otrv4-prekey-server and an identity that has category
+`http://jabber.org/protocol/otrv4-prekey-server` and an identity that has category
 `auth` and type `otr-prekey`:
 
 ```
