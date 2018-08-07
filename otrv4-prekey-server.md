@@ -841,9 +841,10 @@ been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
 different long-term public key or other values, and when the stored Client or
 Prekey Profile will soon expire. A client must always upload new Client and
-Prekey Profiles when one of these scenarios happen to replace the old stored
-ones. Only one Client Profile can be published in one message. Only one Prekey
-Profile can be published in one message.
+Prekey Profiles (at the same time if the long-term public key changed) when one
+of these scenarios happen to replace the old stored ones. Only one Client
+Profile can be published in one message. Only one Prekey Profile can be
+published in one message.
 
 Prekey Messages are included in this message when there are few or none of
 these messages left on the Prekey Server. This can be checked by sending a
@@ -853,8 +854,8 @@ low, the client should upload more Prekey Messages - otherwise it will be
 impossible for other clients to start the non-interactive DAKE with the
 client. The maximum number of Prekey Messages that can be published in one
 message is 255. All Prekey Messages included in the Prekey Publication message
-must have them all same instance tag. They must also have the same instance
-tag as the one stated in the Client and Prekey profiles.
+must have the same instance tag. They must also have the same instance
+tag as the one stated in the Client and Prekey profiles, if included.
 
 This message must be attached to a DAKE-3 message.
 
@@ -1172,7 +1173,7 @@ Notice that this section refers to the ideal functionality of a Prekey Server.
 Consider that a Prekey Server can, for example, decide to not perform some of
 the verifications noted here.
 
-By client we mean each device a user has.
+By "client" we mean each device a user has.
 
 1. Client creates the Client Profile, as defined in the OTRv4 specification. See
    the [Client Profile](https://github.com/otrv4/otrv4/blob/master/otrv4.md#client-profile)
@@ -1183,7 +1184,7 @@ By client we mean each device a user has.
 1. Client creates Prekey Messages, as defined in OTRv4 specification. See
    the [Prekey message](https://github.com/otrv4/otrv4/blob/master/otrv4.md#prekey-message)
    section of the OTRv4 specification for details.
-1. Client receives a Prekey Server Identity (e.g. prekey.example.org) and
+1. Client receives a Prekey Server Identity (e.g. prekey.example.org) with the
    the Prekey Server long-term public key from a source. In XMPP, for example,
    this source is the Prekey Server' service discovery functionality.
 1. Client authenticates (in a deniable way) with the Prekey Server through the
@@ -1295,7 +1296,8 @@ Ensemble from the participant they want to start a conversation with:
       1. Checks that the OTR version of the Prekey Message matches one of the
          versions signed in the Client Profile contained in the Prekey Ensemble.
       1. Checks if the Client Profile's version is supported by the client.
-      1. Chooses the Prekey Ensemble with the latest expiry time from each group.
+      1. Chooses the Prekey Ensemble with the latest expiry time from each
+         group.
    1. Discards any invalid or duplicated Prekey Ensembles.
 1. Client chooses which Prekey Ensembles to send an encrypted offline message
    to:
@@ -1303,7 +1305,7 @@ Ensemble from the participant they want to start a conversation with:
       long-term public keys.
    1. If there are several instance tags in the list of Prekey Ensembles, the
       client can optionally decide which instance tags to send messages to.
-      Informs the user if the encrypted messages will be send to multiple
+      Inform the user if the encrypted messages will be send to multiple
       instance tags (multiple devices).
    1. If there are multiple Prekey Ensembles per instance tag, decides whether
       to send multiple messages to the same instance tag.
@@ -1535,7 +1537,7 @@ that does not implement this section.
 
 ### Discovering a Prekey Server
 
-A participant will find information about a prekey serve rusing the Service
+A participant will find information about a prekey serve reading the Service
 Discovery specification (XEP-0030). The first lookup will be a lookof up items
 to the containing server:
 
@@ -1563,7 +1565,7 @@ The server then returns the services that are associated with it:
 ```
 
 In order to find an OTRv4 compliant prekey server, Alice then needs to send a
-info request to all itmes returned from the original call:
+info request to all items returned from the original call:
 
 ```
   <iq from='alice@xmpp.org/notebook'
@@ -1595,7 +1597,7 @@ http://jabber.org/protocol/otrv4-prekey-server and an identity that has category
 </iq>
 ```
 
-Finally, before starting to use a prekey server, you also need to lookup the
+Finally, before starting to use a prekey server, you also need to lookup for the
 fingerprint for this server. This can be find by doing a lookup for items on the
 server:
 
@@ -1629,11 +1631,10 @@ be decoded into a 56-byte value, following the instructions in the OTRv4
 specification.
 
 If the server returns more than one prekey server in its list of items, anyone
-should be possible to use. All prekey servers exposed by an XMPP server has to
+should be able to use it. All prekey servers exposed by an XMPP server have to
 share the same storage. Thus, a client should randomly choose one of the
 returned prekey servers to connect to, in order to distribute load for the
 server.
-
 
 ### Publishing Prekey Values to the Server
 
@@ -1647,7 +1648,6 @@ bare jid of the server has to be used:
   phi = DATA("alice@xmpp.org") || DATA("prekey.xmpp.org")
 ```
 
-
 An entity starts the DAKE by sending the first encoded message in the body
 of a message:
 
@@ -1656,18 +1656,18 @@ of a message:
       from='alice@xmpp.org/notebook'
       id='nzd143v8'
       to='prekey.xmpp.org'>
-    <body>EB...</body>
+    <body>AAQ1...</body>
   </message>
 ```
 
-The server responds with another message:
+The server responds with the subsequent DAKE message:
 
 ```
   <message
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <body>EC...</body>
+    <body>AAQ2...</body>
   </message>
 ```
 
@@ -1679,7 +1679,7 @@ last DAKE message:
       from='alice@xmpp.org/notebook'
       id='kud87ghduy'
       to='prekey.xmpp.org'>
-    <body>ED...</body>
+    <body>AAQ3...</body>
   </message>
 ```
 
@@ -1690,7 +1690,7 @@ And the Prekey Server responds with a "Success" message:
       from='prekey.xmpp.org'
       id='0kdytsmslkd'
       to='alice@xmpp.org/notebook'>
-    <body>EF...</body>
+    <body>AAQG...</body>
   </message>
 ```
 
@@ -1699,8 +1699,8 @@ And the Prekey Server responds with a "Success" message:
 An entity authenticates to the server through a DAKE. DAKE messages are send
 in "message" stanzas.
 
-It sends the same DAKE messages as the previous section, except for the last
-DAKE-3 message:
+It sends the same DAKE messages as the previous section, except for the attached
+message in the last DAKE-3 message.
 
 And the entity terminates the DAKE and asks for storage information:
 
@@ -1709,7 +1709,7 @@ And the entity terminates the DAKE and asks for storage information:
       from='alice@xmpp.org/notebook'
       id='kud87ghduy'
       to='prekey.xmpp.org'>
-    <body>ED...</body>
+    <body>AAQ3...</body>
   </message>
 ```
 
@@ -1720,13 +1720,13 @@ And the Prekey Server responds with a "Storage Status" message:
       from='prekey.xmpp.org'
       id='0kdytsmslkd'
       to='alice@xmpp.org/notebook'>
-    <body>EE...</body>
+    <body>AAQL...</body>
   </message>
 ```
 
-### Retrieving published Prekeys from a Prekey Server
+### Retrieving published Prekeys Ensembles from a Prekey Server
 
-An entity asks the server for prekey ensembles from a particular participant by
+An entity asks the server for Prekey Ensembles from a particular participant by
 sending a "Prekey Ensemble Query Retrieval message" for an specific identity,
 for example, `bob@xmpp.net`, and specific versions, for example, "45".
 
@@ -1735,23 +1735,23 @@ for example, `bob@xmpp.net`, and specific versions, for example, "45".
       from='alice@xmpp.org/notebook'
       id='nzd143v8'
       to='prekey.xmpp.org'>
-    <body>L...</body>
+    <body>AAQQ...</body>
   </message>
 ```
 
 The server responds with a "Prekey Ensemble Retrieval message" if there are
-no values in storage:
+values in storage:
 
 ```
   <message
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <body>L...</body>
+    <body>AAQT...</body>
   </message>
 ```
 
-The server responds with a "No Prekey-Ensembles in Storage Message" if there
+The server responds with a "No Prekey-Ensembles in Storage message" if there
 are no values in storage:
 
 ```
@@ -1759,15 +1759,15 @@ are no values in storage:
       from='prekey.xmpp.org'
       id='13fd16378'
       to='alice@xmpp.org/notebook'>
-    <body>K...</body>
+    <body>AAQO...</body>
   </message>
 ```
 
-## Storage of prekeys for XMPP
+## Storage of Prekeys Ensembles for XMPP
 
 The storage for prekeys will use the bare JID to identify client profiles,
 prekey profiles and prekey messages. Instance tags will be used to differentiate
-data for different clients. Since XMPP resources are not stable inbetween
+data for different clients. Since XMPP resources are not stable between
 invocations of most XMPP software, resources can't be used as a mechanism for
 storage.
 
@@ -1780,10 +1780,10 @@ storage.
    server (`prekey.xmpp.org`).
    1. Bob sends service discovery information messages to all returned nodes, by
       looking at the results, he identifies all prekey server nodes.
-   1. He then chooses one of them randomly.
-   1. Finally, he sends a service discovery items message to the prekey server
+   1. Bob then chooses one of them randomly.
+   1. Finally, he sends a service discovery items message to the Prekey Server
       in order to retrieve the fingerprint for this server.
-1. `bob@xmpp.org/notebook` asks `prekey.xmpp.org` about the number of prekeys
+1. `bob@xmpp.org/notebook` asks `prekey.xmpp.org` about the number of Prekeys
    messages it has stored for him:
    1. `bob@xmpp.org/notebook` deniably authenticates by using DAKEZ with
       `prekey.xmpp.org`.
@@ -1797,13 +1797,13 @@ storage.
 1. `bob@xmpp.org/notebook` logs in to his server (`talk.xmpp.org`).
 1. `bob@xmpp.org/notebook` uses service discovery to find a Prekey Server in his
    server (`prekey.xmpp.org`).
-   1. Bob sends service discovery information messages to all returned nodes, by
+   1. Bob sends service discovery information messages to all returned nodes. By
       looking at the results, he identifies all prekey server nodes.
    1. He then chooses one of them randomly.
-   1. Finally, he sends a service discovery items message to the prekey server
+   1. Finally, he sends a service discovery items message to the Prekey Server
       in order to retrieve the fingerprint for this server.
-1. `bob@xmpp.org/notebook` wants to publish a client profile, a prekey profile
-   and 5 prekey messages to `prekey.xmpp.org`:
+1. `bob@xmpp.org/notebook` wants to publish a Client Profile, a Prekey Profile
+   and 5 Prekey messages to `prekey.xmpp.org`:
    1. `bob@xmpp.org/notebook` deniably authenticates by using DAKEZ with
       `prekey.xmpp.org`.
    1. `bob@xmpp.org/notebook` sends a "Prekey Publication Message" attached to
