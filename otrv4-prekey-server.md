@@ -1351,7 +1351,7 @@ Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 L (INT)
-  The number of Prekey Ensembles. It must bre greater than 0.
+  The number of Prekey Ensembles. It must be greater than 0.
 
 Ensembles
   The concatenated Prekey Ensembles. Each Ensemble is encoded as:
