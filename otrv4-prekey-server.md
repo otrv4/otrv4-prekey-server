@@ -868,10 +868,18 @@ A valid Prekey Publication Message is generated as follows:
 1. Concatenate the Prekey Profile, if it needs to be published. Assign `J`
    to 0x01. If there is no Prekey Profile, assign 0x00 to `J`.
 1. Calculate the `Prekey MAC`:
-   * If a Client Profile and a Prekey Profile are present:
+   * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64) || J ||
+      KDF(usage_client_profile, Client Profile, 64) || J ||, 64)`.
+   * If only a Prekey Profile is present:
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
+      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
+   * If a Prekey Profile and a Client Profile are present:
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) || K ||
+      KDF(usage_client_profile, Client Profile, 64) ||  J ||
       KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
@@ -889,6 +897,14 @@ To verify a Prekey Publication message:
    * If there is a Prekey Profile, that `J` is assign to 0x01.
    * Otherwise, that they are assigned to 0x00.
 1. Calculate the `Prekey MAC`:
+   * If only a Client Profile is present:
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) || K ||
+      KDF(usage_client_profile, Client Profile, 64) || J ||, 64)`.
+   * If only a Prekey Profile is present:
+     `KDF(usage_preMAC, prekey_mac_k || message type || N ||
+      KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
+      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
    * If a Client Profile and a Prekey Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
