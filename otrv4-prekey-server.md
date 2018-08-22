@@ -1083,7 +1083,7 @@ A valid "Failure message" is generated as follows:
 
 To verify a Failure message:
 
-1. Verify that the message type is `0x06`.
+1. Verify that the message type is `0x05`.
 1. Verify that the protocol version of the message is `0x0004` or a higher
    version of the protocol. Abort if it is not.
 1. Calculate the `Failure MAC`:
