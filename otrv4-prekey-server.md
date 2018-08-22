@@ -841,10 +841,10 @@ been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
 different long-term public key or other values, and when the stored Client or
 Prekey Profile will soon expire. A client must always upload new Client and
-Prekey Profiles (at the same time if the long-term public key changed) when one
-of these scenarios happen to replace the old stored ones. Only one Client
-Profile can be published in one message. Only one Prekey Profile can be
-published in one message.
+Prekey Profiles (at the same time, if the long-term public key changed) when one
+of these scenarios happen, to replace the old stored ones. Only one Client
+Profile can be published in the message. Only one Prekey Profile can be
+published in the message.
 
 Prekey Messages are included in this message when there are few or none of
 these messages left on the Prekey Server. This can be checked by sending a
