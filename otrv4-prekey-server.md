@@ -1204,7 +1204,7 @@ need separate proofs for them, thus giving us three different proofs.
 In all the generation and verification procedures that follow we will be using these two values:
 
 ```
-  * lambda = 352 (scalar)
+  * lambda = 352 (integer)
   * m = KDF(usage_proof_context, SK, 64)
 ```
 
