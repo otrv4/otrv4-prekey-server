@@ -331,7 +331,7 @@ The following `usageID` variables are defined:
   * usage_proof_message_dh = 0x14
   * usage_proof_shared_ecdh = 0x15
   * usage_mac_proofs = 0x16
-  * usage_proof_c_lambda = 0x12
+  * usage_proof_c_lambda = 0x17
 ```
 
 ## Data Types
