@@ -39,6 +39,11 @@ Server to store Prekey Ensembles.
    1. [No Prekey Ensembles in Storage Message](#no-prekey-ensembles-in-storage-message)
    1. [Success Message](#success-message)
    1. [Failure Message](#failure-message)
+1. [Proofs](#proofs)
+   1. [Prekey Profile proof](#proofs-prekey-profile-proof)
+   1. [Prekey Messages proofs](#proofs-prekey-messages-proofs)
+      1. [ECDH](#proofs-prekey-messages-proofs-ecdh)
+      1. [DH](#proofs-prekey-messages-proofs-dh)
 1. [State machine](#state-machine)
 1. [Publishing Prekey Values](#publishing-prekey-values)
 1. [Retrieving Prekey Ensembles](#retrieving-prekey-ensembles)
@@ -157,6 +162,10 @@ Furthermore, in order to safeguard the integrity of the submitted values to the
 Prekey Server, a MAC of the sent values is used. The Prekey Server should
 validate this MAC after receiving the values.
 
+Finally, all public key values will be submitted together with a zero-knowledge
+proof of knowledge that shows the publisher controls the private keys
+corresponding to those values.
+
 Note that the Prekey Server is untrusted and therefore can cause the
 communication between two parties to fail. This can happen in several ways:
 
@@ -173,15 +182,9 @@ Additionally, a malicious party can cause DoS attacks to the Prekey Server by:
   of them.
 - Send too many requests for Prekey Ensembles or its contents at the same time,
   causing the Preker Server to be overwhelmed.
-- Create a extremely big Client Profile and submit it, causing the Prekey
-  Server to run out of storage or to crash.
-
-The security of the non-Interactive DAKE (XZDH) in the OTRv4 specification does
-not require trusting the Prekey Server. However, if we allow a scenario in which
-the user’s keys have been compromised but the Prekey Server has not, then we can
-achieve better plausible deniability. The user may ask the Prekey Server in
-advance to assist with a forged conversation, casting doubt on all conversations
-conducted by an online adversary using the compromised device.
+- Create a extremely big Client Profile and submit it, causing the Prekey Server
+  to run out of storage or to crash. (A production level implementation of a
+  prekey server should limit the size of publications to reasonable sizes.)
 
 ## Prekey Server Requirements
 
@@ -220,7 +223,8 @@ authenticated, then malicious users can perform denial-of-service attacks. To
 preserve the deniability of the overall OTRv4 protocol, Prekey Ensembles should
 never be signed in a non-repudiable way. This specification uses a DAKEZ
 exchange between the publisher and the Prekey Server to fulfill this need, and
-preserve deniability.
+preserve deniability. In addition, a zero-knowledge proof of knowledge is also
+used to authenticate the individual public values.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
 Server should be able to correctly generate ephemeral ECDH keys and long-term
@@ -278,6 +282,14 @@ parameters as those defined in the
 [Elliptic Curve Parameters](https://github.com/otrv4/otrv4/blob/master/otrv4.md#elliptic-curve-parameters)
 section of the OTRv4 specification.
 
+### Diffie-Hellman Parameters
+
+The OTRv4 Prekey Server specification uses the same Diffie-Hellman parameters as
+defined in [3072-bit Diffie-Hellman
+Parameters](https://github.com/otrv4/otrv4/blob/master/otrv4.md#3072-bit-diffie-hellman-parameters). These
+values are used to verify the proofs submitted for Diffie-Hellman values in the
+Prekey Messages submitted.
+
 ### Key Derivation Functions
 
 The following key derivation function is used in this specification. The usageID
@@ -313,6 +325,11 @@ The following `usageID` variables are defined:
   * usage_client_profile = 0x0F
   * usage_prekey_profile = 0x10
   * usage_auth = 0x11
+  * usage_proof_context = 0x12
+  * usage_proof_message_ecdh = 0x13
+  * usage_proof_message_dh = 0x14
+  * usage_proof_shared_ecdh = 0x15
+  * usage_mac_proofs = 0x16
 ```
 
 ## Data Types
@@ -327,6 +344,22 @@ Identity data type, which is detailed in the
 
 Note that variable length fields are encoded as DATA. Every string will be
 encoded in UTF-8.
+
+Finally, the OTRv4 Prekey Server Specification adds a new data type for Proofs:
+
+```
+Proof (PROOF):
+  Type
+    0x01 for an ECDH proof, 0x02 for a DH proof.
+  C
+    64 bytes
+   
+  V (SCALAR)
+    Either 56 or 80 bytes of data, depending on
+    whether this is an ECDH or DH proof. The data
+    should be interpreted as a SCALAR in the corresponding
+    group. 
+```
 
 ### Encoded Messages
 
@@ -549,10 +582,12 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           `KDF(usage_preMAC, prekey_mac_k || message type || N ||
            KDF(usage_prekey_message, Prekey Messages, 64) || K ||
            KDF(usage_client_profile, Client Profile, 64) || J ||
-           KDF(usage_prekey_profile, Prekey Profile, 64))`.
+           KDF(usage_prekey_profile, Prekey Profile, 64) || Q ||
+           KDF(usage_mac_proofs, Proofs, 64))`.
         * If only Prekey Messages are present in the message:
           * Calculate `KDF(usage_PreMAC, prekey_mac_k || message type || N ||
-            KDF(usage_prekey_message, Prekey Messages, 64) || K || J, 64)`. `J`
+            KDF(usage_prekey_message, Prekey Messages, 64) || K || J || Q ||
+           KDF(usage_mac_proofs, Proofs, 64)), 64)`. `J`
             and `K` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
           "Prekey publication message". If it is not, the Prekey Server aborts
@@ -574,6 +609,10 @@ Alice will be initiating the DAKEZ with the Prekey Server:
             [Failure Message](#failure-message) section.
           * Checks that `J` and `K` are set to zero, if Prekey Messages are only
             present.
+      * Checks that the proofs are valid for all public values submitted for publication.
+          * If they are not, If it is not, the DAKE and sends
+            a "Failure message", as defined in the [Failure Message](#failure-message)
+            section.
       * Stores the Client Profile, the Prekey Profile and Prekey Messages, if is
         possible, in the Prekey Server's storage. If not, aborts the DAKE and
         sends a "Failure message" as defined in the
@@ -836,6 +875,9 @@ Prekey Server. This message can contain these three entities:
 - Prekey Profile
 - Prekey Messages
 
+It will also contain proofs of the public key values submitted in the Prekey
+Profile and the Prekey Messages.
+
 Client Profile and Prekey Profile are included in this message when none have
 been published before to the Prekey Server (this is the first time a client
 uploads these values), when a new Client or Prekey Profile is generated with a
@@ -861,6 +903,9 @@ This message must be attached to a DAKE-3 message.
 
 A valid Prekey Publication Message is generated as follows:
 
+1. Calculate the proofs necessary for the values that will be published. Assign
+   `Q` to be the number of proofs. This value can be either 0, 2 or 3. The
+   generation of proofs is detailed in the [Proofs](#proofs) section.
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
 1. Concatenate the Client Profile, if it needs to be published. Assign `K`
@@ -871,20 +916,24 @@ A valid Prekey Publication Message is generated as follows:
    * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64) || J ||, 64)`.
+      KDF(usage_client_profile, Client Profile, 64)  || J || Q ||
+           KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only a Prekey Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
+      KDF(usage_prekey_profile, Prekey Profile, 64)  || Q ||
+           KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If a Prekey Profile and a Client Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64) ||  J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
+      KDF(usage_client_profile, Client Profile, 64)  || J ||
+      KDF(usage_prekey_profile, Prekey Profile, 64)  || Q ||
+           KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
-      K || J, 64)`. `K` and `J` should be set to zero.
+      K || J, 64) || Q || KDF(usage_mac_proofs, Proofs, 64)`. 
+      `K` and `J` should be set to zero.
 
 To verify a Prekey Publication message:
 
@@ -900,22 +949,28 @@ To verify a Prekey Publication message:
    * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64) || J ||, 64)`.
+      KDF(usage_client_profile, Client Profile, 64)  || J || Q ||
+           KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only a Prekey Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
+      KDF(usage_prekey_profile, Prekey Profile, 64) || Q ||
+           KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If a Client Profile and a Prekey Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
       KDF(usage_client_profile, Client Profile, 64) || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64), 64)`.
+      KDF(usage_prekey_profile, Prekey Profile, 64) || Q ||
+           KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
-      K || J, 64)`. `K` and `J` should be set to zero.
+      K || J || Q || KDF(usage_mac_proofs, Proofs, 64), 64)`. 
+      `K` and `J` should be set to zero.
 1. Verify that this calculated `Prekey MAC` is equal to the received one. Abort
    if it is not.
+1. Verify that all `Q` proofs are valid for the values submitted. Verification
+   of proofs is detailed in the [Proofs](#proofs) section.
 
 The encoding looks like this:
 
@@ -947,6 +1002,16 @@ J (BYTE)
 Prekey Profile (PREKEY-PROF)
   The Prekey Profile created as described in the section "Creating a Prekey
   Profile" of the OTRv4 specification. This value is optional.
+
+Q (BYTE)
+  A number indicating whether there are 0, 2 or 3 proofs attached to this
+  message.
+
+Proofs (PREKEY-PROOF)
+  `Q` proofs indicating the validity of the values submitted. The proofs 
+  will be in this order: Prekey Message ECDH proof, Prekey Message DH proof, 
+  Prekey Profile ECDH proof. If `J` is zero, the Prekey Profile ECDH proof 
+  will be missing. If `N` is zero, the two Prekey Message proofs will be missing.
 
 Prekey MAC (MAC)
   The MAC with the appropriate MAC key of everything: from the message type to
@@ -1109,6 +1174,135 @@ Failure MAC (MAC)
   the Failure message.
 ```
 
+## Proofs
+
+The section details how to generate and verify the proofs that the prekey server
+requires in order to be certain that the values submitted in the Prekey Profile
+and the Prekey Messages correspond to secrets that are under control of the
+publisher. In order to make these proofs efficient, we use a batch
+zero-knowledge proof of knowledge protocol based on the RME common-base Schnorr
+protocol detailed in Henry [\[5\]](#references). We use a Fiat-Shamir heuristic
+to turn this into a non-interactive protocol by using random values that are
+deterministically generated from the shared secret calculated in the DAKE.
+
+There are three values we need to generate proofs for. These are
+- The Public Shared Prekey from the Prekey Profile (`D`)
+- The Prekey Owner ECDH public key from the Prekey Message (`Y`)
+- The Prekey Owner DH public key from the Prekey Message (`B`)
+
+Since publication will usually publish several prekey messages, and we would
+like to avoid submitting separate proofs for all the values in the prekey
+messages, we will use batch versions of the zero-knowledge proof protocols, so
+that we can submit one proof for all the prekey messages, in one go. For
+simplicity we will use the same algorithm for the prekey profile, even though
+there will only ever be one proof necessary there.
+
+Since the Prekey Message ECDH and DH public keys are in different domains, we do
+need separate proofs for them, thus giving us three different proofs.
+
+In all the generation and verification procedures that follow we will be using these two values:
+
+```
+  * lambda = 352
+  * m = KDF(usage_proof_context, SK, 64)
+```
+
+### Prekey Profile proof
+
+The Prekey Profile proof will be a zero-knowledge proof of knowledge of the
+private value `d` that correspond to the submitted value `D`.
+
+#### Generation
+
+In order to generate the proof for `D`, this procedure should be followed:
+
+```
+- pick a random value 'r' (56 bytes) - this can't be all zeroes
+- interpret 'r' as a scalar and calculate 'A' as G * r
+- compute 'c' as KDF(usage_proof_shared_ecdh, A || D || m, 64)
+- compute 'p' as SHAKE-256(c, lambda)
+- compute 'v' as (r + p * d) mod q
+- the proof is 'c' and 'v'
+```
+
+#### Verification
+
+In order to verify the proof for `D`, this procedure should be followed:
+
+```
+- compute 'p' as SHAKE-256(c, lambda)
+- compute 'A' as (G * v + D * p) * -1
+- compute 'c2' as KDF(usage_proof_shared_ecdh, A || D || m, 64)
+- verify that 'c' is equal to 'c2'
+```
+
+### Prekey Messages proofs
+
+There are two different values in a Prekey Message that needs to be proven. In
+order to generate and verify these proofs we assume that there are `N` messages
+and that they are indexed with `i`, going from 1 to `N`. The values will be
+denoted as `Y_i`, `y_i`, `B_i` and `b_i`.
+
+#### ECDH
+
+This section specifies how to generate the proof for the `N` values `Y_i` and `y_i`.
+
+##### Generation
+
+In order to generate the proof for `N` values `Y_i`, this procedure should be
+followed:
+
+```
+- pick a random value 'r' (56 bytes) - this can't be all zeroes
+- interpret 'r' as a scalar and calculate 'A' as G * r
+- compute 'c' as KDF(usage_proof_message_ecdh, A || Y_1 || Y_2 || ... || Y_N || m, 64)
+- compute 'p' as SHAKE-256(c, N * lambda)
+- divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
+- compute 'v' as (r + t_1 * y_1 + t_2 * y_2 + ... + t_n * y_n) mod q
+- the proof is 'c' and 'v'
+```
+
+##### Verification
+
+In order to verify the proof for `N` values `Y_i`, this procedure should be followed:
+
+```
+- compute 'p' as SHAKE-256(c, N * lambda)
+- divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
+- compute 'A' as (G * v + Y_1 * t_1 + Y_2 * t_2 + ... + Y_n * t_n) * -1
+- compute 'c2' as KDF(usage_proof_message_ecdh, A || Y_1 || Y_2 || ... || Y_N || m, 64)
+- verify that 'c' is equal to 'c2'
+```
+
+#### DH
+
+This section specifies how to generate the proof for the `N` values `B_i` and `b_i`.
+
+##### Generation
+
+In order to generate the proof for `N` values `B_i`, this procedure should be
+followed:
+
+```
+- pick a random value 'r' (80 bytes) - this can't be all zeroes
+- interpret 'r' as a scalar and calculate 'A' as g3 ^ r
+- compute 'c' as KDF(usage_proof_message_dh, A || B_1 || B_2 || ... || B_N || m, 64)
+- compute 'p' as SHAKE-256(c, N * lambda)
+- divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
+- compute 'v' as (r + t_1 * y_1 + t_2 * y_2 + ... + t_n * y_n) mod dh_q
+- the proof is 'c' and 'v'
+```
+##### Verification
+
+In order to verify the proof for `N` values `B_i`, this procedure should be followed:
+
+```
+- compute 'p' as SHAKE-256(c, N * lambda)
+- divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
+- compute 'A' as (g3 ^ v * (B_1^t_1 * B_2^t_2 * ... * B_n^t_n))^-1
+- compute 'c2' as KDF(usage_proof_message_dh, A || B_1 || B_2 || ... || B_N || m, 64)
+- verify that 'c' is equal to 'c2'
+```
 ## State Machine
 
 This is the state machine for when a client wants to publish Client Profiles,
@@ -1840,3 +2034,4 @@ storage.
 4. Hamburg, M., Langley, A. and Turner, S. (2016). *Elliptic Curves for
    Security*, Internet Engineering Task Force, RFC 7748. Available at:
    http://www.ietf.org/rfc/rfc7748.txt
+5. Henry, R (2014). *Efficient Zero-Knowledge Proofs and Applications* Available at: https://uwspace.uwaterloo.ca/bitstream/handle/10012/8621/Henry_Ryan.pdf
