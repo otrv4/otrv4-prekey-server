@@ -224,7 +224,8 @@ preserve the deniability of the overall OTRv4 protocol, Prekey Ensembles should
 never be signed in a non-repudiable way. This specification uses a DAKEZ
 exchange between the publisher and the Prekey Server to fulfill this need, and
 preserve deniability. In addition, a zero-knowledge proof of knowledge is also
-used to authenticate the individual public values.
+used to demonstrate knowledge of the secrets associated with the individual
+public values.
 
 In order to correctly perform the DAKEZ with the publisher, the untrusted Prekey
 Server should be able to correctly generate ephemeral ECDH keys and long-term
