@@ -1232,7 +1232,7 @@ In order to verify the proof for `D`, this procedure should be followed:
 
 ```
 - compute 'p' as KDF(usage_proof_c_lambda, c, lambda)
-- compute 'A' as (G * v + D * p) * -1
+- compute 'A' as G * v + ((D * p) * -1)
 - compute 'c2' as KDF(usage_proof_shared_ecdh, A || D || m, 64)
 - verify that 'c' is equal to 'c2'
 ```
@@ -1270,7 +1270,7 @@ In order to verify the proof for `N` values `Y_i`, this procedure should be foll
 ```
 - compute 'p' as KDF(usage_proof_c_lambda, c, N * lambda)
 - divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
-- compute 'A' as (G * v + Y_1 * t_1 + Y_2 * t_2 + ... + Y_n * t_n) * -1
+- compute 'A' as G * v + ((Y_1 * t_1 + Y_2 * t_2 + ... + Y_n * t_n) * -1)
 - compute 'c2' as KDF(usage_proof_message_ecdh, A || Y_1 || Y_2 || ... || Y_N || m, 64)
 - verify that 'c' is equal to 'c2'
 ```
@@ -1300,7 +1300,7 @@ In order to verify the proof for `N` values `B_i`, this procedure should be foll
 ```
 - compute 'p' as KDF(usage_proof_c_lambda, c, N * lambda)
 - divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
-- compute 'A' as (g3 ^ v * (B_1^t_1 * B_2^t_2 * ... * B_n^t_n))^-1
+- compute 'A' as g3 ^ v * ((B_1^t_1 * B_2^t_2 * ... * B_n^t_n)^-1)
 - compute 'c2' as KDF(usage_proof_message_dh, A || B_1 || B_2 || ... || B_N || m, 64)
 - verify that 'c' is equal to 'c2'
 ```
