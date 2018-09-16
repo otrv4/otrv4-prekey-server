@@ -355,11 +355,11 @@ Proof (PROOF):
   C
     64 bytes
    
-  V (SCALAR)
+  V (SCALAR / MPI)
     Either 56 or 80 bytes of data, depending on
     whether this is an ECDH or DH proof. The data
-    should be interpreted as a SCALAR in the corresponding
-    group. 
+    should be interpreted as a SCALAR for ECDH and 
+    an MPI for DH.
 ```
 
 ### Encoded Messages
