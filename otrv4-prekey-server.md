@@ -331,6 +331,7 @@ The following `usageID` variables are defined:
   * usage_proof_message_dh = 0x14
   * usage_proof_shared_ecdh = 0x15
   * usage_mac_proofs = 0x16
+  * usage_proof_c_lambda = 0x12
 ```
 
 ## Data Types
@@ -346,20 +347,22 @@ Identity data type, which is detailed in the
 Note that variable length fields are encoded as DATA. Every string will be
 encoded in UTF-8.
 
-Finally, the OTRv4 Prekey Server Specification adds a new data type for Proofs:
+Finally, the OTRv4 Prekey Server Specification adds two new data types for proofs:
 
 ```
-Proof (PROOF):
-  Type
-    0x01 for an ECDH proof, 0x02 for a DH proof.
+ECDH Proof (PROOF-ECDH):
   C
     64 bytes
    
-  V (SCALAR / MPI)
-    Either 56 or 80 bytes of data, depending on
-    whether this is an ECDH or DH proof. The data
-    should be interpreted as a SCALAR for ECDH and 
-    an MPI for DH.
+  V (SCALAR)
+```
+
+```
+DH Proof (PROOF-DH):
+  C
+    64 bytes
+   
+  V (MPI)
 ```
 
 ### Encoded Messages
@@ -904,9 +907,10 @@ This message must be attached to a DAKE-3 message.
 
 A valid Prekey Publication Message is generated as follows:
 
-1. Calculate the proofs necessary for the values that will be published. Assign
-   `Q` to be the number of proofs. This value can be either 0, 2 or 3. The
-   generation of proofs is detailed in the [Proofs](#proofs) section.
+1. Calculate the proofs necessary for the values that will be published. There
+   will be 0, 2 or 3 proofs, depending on whether there are any prekey messages,
+   or any prekey profiles to be published. The generation of proofs is detailed
+   in the [Proofs](#proofs) section.
 1. Concatenate all the Prekey Messages. Assign `N` as the number of Prekey
    Messages.
 1. Concatenate the Client Profile, if it needs to be published. Assign `K`
@@ -917,23 +921,23 @@ A valid Prekey Publication Message is generated as follows:
    * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64)  || J || Q ||
+      KDF(usage_client_profile, Client Profile, 64)  || J || 
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only a Prekey Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64)  || Q ||
+      KDF(usage_prekey_profile, Prekey Profile, 64)  || 
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If a Prekey Profile and a Client Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
       KDF(usage_client_profile, Client Profile, 64)  || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64)  || Q ||
+      KDF(usage_prekey_profile, Prekey Profile, 64)  || 
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
-      K || J, 64) || Q || KDF(usage_mac_proofs, Proofs, 64)`. 
+      K || J, 64) || KDF(usage_mac_proofs, Proofs, 64)`. 
       `K` and `J` should be set to zero.
 
 To verify a Prekey Publication message:
@@ -950,27 +954,27 @@ To verify a Prekey Publication message:
    * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64)  || J || Q ||
+      KDF(usage_client_profile, Client Profile, 64)  || J || 
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only a Prekey Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64) || Q ||
+      KDF(usage_prekey_profile, Prekey Profile, 64) || 
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If a Client Profile and a Prekey Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
       KDF(usage_client_profile, Client Profile, 64) || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64) || Q ||
+      KDF(usage_prekey_profile, Prekey Profile, 64) || 
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
-      K || J || Q || KDF(usage_mac_proofs, Proofs, 64), 64)`. 
+      K || J ||  KDF(usage_mac_proofs, Proofs, 64), 64)`. 
       `K` and `J` should be set to zero.
 1. Verify that this calculated `Prekey MAC` is equal to the received one. Abort
    if it is not.
-1. Verify that all `Q` proofs are valid for the values submitted. Verification
+1. Verify that all proofs are valid for the values submitted. Verification
    of proofs is detailed in the [Proofs](#proofs) section.
 
 The encoding looks like this:
@@ -1004,12 +1008,8 @@ Prekey Profile (PREKEY-PROF)
   The Prekey Profile created as described in the section "Creating a Prekey
   Profile" of the OTRv4 specification. This value is optional.
 
-Q (BYTE)
-  A number indicating whether there are 0, 2 or 3 proofs attached to this
-  message.
-
 Proofs (PREKEY-PROOF)
-  `Q` proofs indicating the validity of the values submitted. The proofs 
+  All proofs indicating the validity of the values submitted. The proofs 
   will be in this order: Prekey Message ECDH proof, Prekey Message DH proof, 
   Prekey Profile ECDH proof. If `J` is zero, the Prekey Profile ECDH proof 
   will be missing. If `N` is zero, the two Prekey Message proofs will be missing.
@@ -1204,7 +1204,7 @@ need separate proofs for them, thus giving us three different proofs.
 In all the generation and verification procedures that follow we will be using these two values:
 
 ```
-  * lambda = 352
+  * lambda = 352 (scalar)
   * m = KDF(usage_proof_context, SK, 64)
 ```
 
@@ -1221,7 +1221,7 @@ In order to generate the proof for `D`, this procedure should be followed:
 - pick a random value 'r' (56 bytes) - this can't be all zeroes
 - interpret 'r' as a scalar and calculate 'A' as G * r
 - compute 'c' as KDF(usage_proof_shared_ecdh, A || D || m, 64)
-- compute 'p' as SHAKE-256(c, lambda)
+- compute 'p' as KDF(usage_proof_c_lambda, c, lambda)
 - compute 'v' as (r + p * d) mod q
 - the proof is 'c' and 'v'
 ```
@@ -1231,7 +1231,7 @@ In order to generate the proof for `D`, this procedure should be followed:
 In order to verify the proof for `D`, this procedure should be followed:
 
 ```
-- compute 'p' as SHAKE-256(c, lambda)
+- compute 'p' as KDF(usage_proof_c_lambda, c, lambda)
 - compute 'A' as (G * v + D * p) * -1
 - compute 'c2' as KDF(usage_proof_shared_ecdh, A || D || m, 64)
 - verify that 'c' is equal to 'c2'
@@ -1257,7 +1257,7 @@ followed:
 - pick a random value 'r' (56 bytes) - this can't be all zeroes
 - interpret 'r' as a scalar and calculate 'A' as G * r
 - compute 'c' as KDF(usage_proof_message_ecdh, A || Y_1 || Y_2 || ... || Y_N || m, 64)
-- compute 'p' as SHAKE-256(c, N * lambda)
+- compute 'p' as KDF(usage_proof_c_lambda, c, N * lambda)
 - divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
 - compute 'v' as (r + t_1 * y_1 + t_2 * y_2 + ... + t_n * y_n) mod q
 - the proof is 'c' and 'v'
@@ -1268,7 +1268,7 @@ followed:
 In order to verify the proof for `N` values `Y_i`, this procedure should be followed:
 
 ```
-- compute 'p' as SHAKE-256(c, N * lambda)
+- compute 'p' as KDF(usage_proof_c_lambda, c, N * lambda)
 - divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
 - compute 'A' as (G * v + Y_1 * t_1 + Y_2 * t_2 + ... + Y_n * t_n) * -1
 - compute 'c2' as KDF(usage_proof_message_ecdh, A || Y_1 || Y_2 || ... || Y_N || m, 64)
@@ -1286,9 +1286,9 @@ followed:
 
 ```
 - pick a random value 'r' (80 bytes) - this can't be all zeroes
-- interpret 'r' as a scalar and calculate 'A' as g3 ^ r
+- interpret 'r' as an MPI and calculate 'A' as g3 ^ r
 - compute 'c' as KDF(usage_proof_message_dh, A || B_1 || B_2 || ... || B_N || m, 64)
-- compute 'p' as SHAKE-256(c, N * lambda)
+- compute 'p' as KDF(usage_proof_c_lambda, c, N * lambda)
 - divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
 - compute 'v' as (r + t_1 * y_1 + t_2 * y_2 + ... + t_n * y_n) mod dh_q
 - the proof is 'c' and 'v'
@@ -1298,7 +1298,7 @@ followed:
 In order to verify the proof for `N` values `B_i`, this procedure should be followed:
 
 ```
-- compute 'p' as SHAKE-256(c, N * lambda)
+- compute 'p' as KDF(usage_proof_c_lambda, c, N * lambda)
 - divide 'p' into 'N' 'lambda'-sized pieces, and denote them as 't_n', starting from 't_1'
 - compute 'A' as (g3 ^ v * (B_1^t_1 * B_2^t_2 * ... * B_n^t_n))^-1
 - compute 'c2' as KDF(usage_proof_message_dh, A || B_1 || B_2 || ... || B_N || m, 64)
