@@ -1208,6 +1208,8 @@ In all the generation and verification procedures that follow we will be using t
   * m = KDF(usage_proof_context, SK, 64)
 ```
 
+(Note that `lambda` is in bits, not bytes.)
+
 ### Prekey Profile proof
 
 The Prekey Profile proof will be a zero-knowledge proof of knowledge of the
