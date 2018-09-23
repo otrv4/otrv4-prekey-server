@@ -586,11 +586,11 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           `KDF(usage_preMAC, prekey_mac_k || message type || N ||
            KDF(usage_prekey_message, Prekey Messages, 64) || K ||
            KDF(usage_client_profile, Client Profile, 64) || J ||
-           KDF(usage_prekey_profile, Prekey Profile, 64) || Q ||
+           KDF(usage_prekey_profile, Prekey Profile, 64) || 
            KDF(usage_mac_proofs, Proofs, 64))`.
         * If only Prekey Messages are present in the message:
           * Calculate `KDF(usage_PreMAC, prekey_mac_k || message type || N ||
-            KDF(usage_prekey_message, Prekey Messages, 64) || K || J || Q ||
+            KDF(usage_prekey_message, Prekey Messages, 64) || K || J || 
            KDF(usage_mac_proofs, Proofs, 64)), 64)`. `J`
             and `K` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
