@@ -353,7 +353,7 @@ Finally, the OTRv4 Prekey Server Specification adds two new data types for proof
 ECDH Proof (PROOF-ECDH):
   C
     64 bytes
-   
+
   V (SCALAR)
 ```
 
@@ -361,7 +361,7 @@ ECDH Proof (PROOF-ECDH):
 DH Proof (PROOF-DH):
   C
     64 bytes
-   
+
   V (MPI)
 ```
 
@@ -586,11 +586,11 @@ Alice will be initiating the DAKEZ with the Prekey Server:
           `KDF(usage_preMAC, prekey_mac_k || message type || N ||
            KDF(usage_prekey_message, Prekey Messages, 64) || K ||
            KDF(usage_client_profile, Client Profile, 64) || J ||
-           KDF(usage_prekey_profile, Prekey Profile, 64) || 
+           KDF(usage_prekey_profile, Prekey Profile, 64) ||
            KDF(usage_mac_proofs, Proofs, 64))`.
         * If only Prekey Messages are present in the message:
           * Calculate `KDF(usage_PreMAC, prekey_mac_k || message type || N ||
-            KDF(usage_prekey_message, Prekey Messages, 64) || K || J || 
+            KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
            KDF(usage_mac_proofs, Proofs, 64)), 64)`. `J`
             and `K` should be set to zero.
         * Checks that this `Prekey MAC` is equal to the one received in the
@@ -921,23 +921,23 @@ A valid Prekey Publication Message is generated as follows:
    * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64)  || J || 
+      KDF(usage_client_profile, Client Profile, 64)  || J ||
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only a Prekey Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64)  || 
+      KDF(usage_prekey_profile, Prekey Profile, 64)  ||
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If a Prekey Profile and a Client Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
       KDF(usage_client_profile, Client Profile, 64)  || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64)  || 
+      KDF(usage_prekey_profile, Prekey Profile, 64)  ||
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
-      K || J, 64) || KDF(usage_mac_proofs, Proofs, 64)`. 
+      K || J, 64) || KDF(usage_mac_proofs, Proofs, 64)`.
       `K` and `J` should be set to zero.
 
 To verify a Prekey Publication message:
@@ -954,23 +954,23 @@ To verify a Prekey Publication message:
    * If only a Client Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
-      KDF(usage_client_profile, Client Profile, 64)  || J || 
+      KDF(usage_client_profile, Client Profile, 64)  || J ||
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only a Prekey Profile is present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64) || 
+      KDF(usage_prekey_profile, Prekey Profile, 64) ||
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If a Client Profile and a Prekey Profile are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) || K ||
       KDF(usage_client_profile, Client Profile, 64) || J ||
-      KDF(usage_prekey_profile, Prekey Profile, 64) || 
+      KDF(usage_prekey_profile, Prekey Profile, 64) ||
            KDF(usage_mac_proofs, Proofs, 64), 64)`.
    * If only Prekey Messages are present:
      `KDF(usage_preMAC, prekey_mac_k || message type || N ||
       KDF(usage_prekey_message, Prekey Messages, 64) ||
-      K || J ||  KDF(usage_mac_proofs, Proofs, 64), 64)`. 
+      K || J ||  KDF(usage_mac_proofs, Proofs, 64), 64)`.
       `K` and `J` should be set to zero.
 1. Verify that this calculated `Prekey MAC` is equal to the received one. Abort
    if it is not.
@@ -1009,9 +1009,9 @@ Prekey Profile (PREKEY-PROF)
   Profile" of the OTRv4 specification. This value is optional.
 
 Proofs (PREKEY-PROOF)
-  All proofs indicating the validity of the values submitted. The proofs 
-  will be in this order: Prekey Message ECDH proof, Prekey Message DH proof, 
-  Prekey Profile ECDH proof. If `J` is zero, the Prekey Profile ECDH proof 
+  All proofs indicating the validity of the values submitted. The proofs
+  will be in this order: Prekey Message ECDH proof, Prekey Message DH proof,
+  Prekey Profile ECDH proof. If `J` is zero, the Prekey Profile ECDH proof
   will be missing. If `N` is zero, the two Prekey Message proofs will be missing.
 
 Prekey MAC (MAC)
@@ -1563,6 +1563,10 @@ Message type (BYTE)
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
+Participant Identity (DATA)
+  The identity of the participant this contains the Prekey Ensembles for. In the
+  case of XMPP, for example, this is the bare jid.
+
 L (INT)
   The number of Prekey Ensembles. It must be greater than 0.
 
@@ -1592,6 +1596,10 @@ Message type (BYTE)
 
 Receiver instance tag (INT)
   The instance tag of the intended recipient.
+
+Participant Identity (DATA)
+  The identity of the participant the Prekey Messages were requested for. In the
+  case of XMPP, for example, this is the bare jid.
 
 No Prekey-Messages message (DATA)
   The human-readable details of this message. It contains the string "No Prekey
