@@ -301,11 +301,11 @@ is of type BYTE:
 ```
 
 The `size` first bytes of the SHAKE-256 output for the input
-`"OTR-Prekey-Server" || usageID || values` will be returned.
+`"OTR-Prekey-Server" || usage_ID || values` will be returned.
 
 Unlike in the SHAKE standard, the output size (`size`) here is in bytes.
 
-The following `usageID` variables are defined:
+The following `usage_ID` variables are defined:
 
 ```
   * usage_Fingerprint = 0x00
