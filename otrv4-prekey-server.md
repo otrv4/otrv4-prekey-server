@@ -1564,7 +1564,7 @@ Receiver instance tag (INT)
   The instance tag of the intended recipient.
 
 Participant Identity (DATA)
-  The identity of the participant this contains the Prekey Ensembles for. In the
+  The identity of the participant that the Prekey Ensembles are from. In the
   case of XMPP, for example, this is the bare jid.
 
 L (INT)
