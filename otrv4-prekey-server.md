@@ -1758,9 +1758,9 @@ that does not implement this section.
 
 ### Discovering a Prekey Server
 
-A participant will find information about a prekey serve reading the Service
-Discovery specification (XEP-0030). The first lookup will be a lookof up items
-to the containing server:
+A participant will find information about a prekey server reading the Service
+Discovery specification (XEP-0030). The first lookup will be a look up of items
+of the containing server:
 
 ```
   <iq from='alice@xmpp.org/notebook'
@@ -2035,8 +2035,8 @@ storage.
 
 ## References
 
-1. *OTR version 4*. Available at
-   https://github.com/otrv4/otrv4/blob/master/otrv4.md
+2. *OTR version 4*. Available at
+   https://bugs.otr.im/otrv4/otrv4/-/blob/master/otrv4.md
 2. Goldberg, I. and Unger, N. (2016). *Improved Strongly Deniable Authenticated
    Key Exchanges for Secure Messaging*, Waterloo, Canada: University of Waterloo.
    Available at: http://cacr.uwaterloo.ca/techreports/2016/cacr2016-06.pdf
@@ -2045,4 +2045,5 @@ storage.
 4. Hamburg, M., Langley, A. and Turner, S. (2016). *Elliptic Curves for
    Security*, Internet Engineering Task Force, RFC 7748. Available at:
    http://www.ietf.org/rfc/rfc7748.txt
-5. Henry, R (2014). *Efficient Zero-Knowledge Proofs and Applications* Available at: https://uwspace.uwaterloo.ca/bitstream/handle/10012/8621/Henry_Ryan.pdf
+5. Henry, R (2014). *Efficient Zero-Knowledge Proofs and Applications* Available
+   at: https://uwspace.uwaterloo.ca/bitstream/handle/10012/8621/Henry_Ryan.pdf
